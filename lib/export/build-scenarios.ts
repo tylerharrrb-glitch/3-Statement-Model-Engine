@@ -200,7 +200,22 @@ function buildAllArrays(
         if (i === 0) return 0;
         return sd(bs.grossPPE - allBS[i - 1].grossPPE, allIS[i]?.revenue ?? 1);
     });
-    out['depreciationRate'] = allIS.map((is, i) => sd(is.depreciation, allBS[i]?.grossPPE ?? 1));
+    // Depreciation Rate: use the assumption INPUT for projected years (10%),
+    // NOT the back-calculated ratio (depreciation/grossPPE ≈ 9.4%).
+    // Historical years: back-compute from engine data.
+    // Same pattern as dividendPayoutRatio below.
+    out['depreciationRate'] = allIS.map((is, i) => {
+        if (i >= numHistorical) {
+            // Projected: use the assumption input directly
+            const projIdx = i - numHistorical;
+            const rate = Array.isArray(a.depreciationRate)
+                ? (a.depreciationRate[projIdx] ?? 0.10)
+                : (a.depreciationRate ?? 0.10);
+            return rate;
+        }
+        // Historical: back-compute from engine
+        return sd(is.depreciation, allBS[i]?.grossPPE ?? 1);
+    });
     out['amortizationAmount'] = allIS.map(is => is.amortization);
 
     out['interestRate'] = Array(nYears).fill(a.interestRate);

@@ -477,9 +477,10 @@ function buildOneCalcSheet(cfg: CalcSheetConfig): CalcSheetRowMap {
             setF(R.netIncome, yr, `${c}${R.ebt}-${c}${R.tax}`, isData?.netIncome ?? 0);
 
             // ── BS formulas ──
-            // Cash — engine-computed plug item (circular: Cash ↔ IntIncome ↔ NI ↔ CFO)
+            // Cash — equals Ending Cash from CF section in same sheet (row 89)
+            // This avoids the circular loop: _Calc_*!row21 ↔ Scenarios!out_cash
             setF(R.cash, yr,
-                sr('out_cash'),
+                `${c}${R.cf_endCash}`,
                 bsData?.cash ?? 0);
 
             // A/R = Revenue * DSO / 365

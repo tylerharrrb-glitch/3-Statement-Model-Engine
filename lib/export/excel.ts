@@ -1157,9 +1157,12 @@ export async function exportToExcel(
                 'out_roa': 0,
             };
 
-            // Input rows are NOT 'Computed' suffix and NOT 'out_' prefix
-            const isComputedOrOutput = (key: string) =>
-                key.endsWith('Computed') || key.startsWith('out_');
+            // Only Dashboard Output rows ('out_' prefix) get formulas referencing _Calc_* sheets.
+            // Engine-Computed rows ('*Computed' suffix) stay as plain numeric values written by
+            // buildScenariosSheet() — overwriting them with _Calc_* formulas would create ~240
+            // circular loops because _Calc_* Interest Income/Expense read those same rows back.
+            const isDashboardOutput = (key: string) =>
+                key.startsWith('out_');
 
             // Scenario block info
             const SCENARIO_BLOCKS = [
@@ -1169,7 +1172,7 @@ export async function exportToExcel(
             ];
 
             for (const spec of ROW_SPECS) {
-                if (!isComputedOrOutput(spec.key)) continue; // Skip input rows
+                if (!isDashboardOutput(spec.key)) continue; // Skip input rows and computed rows
                 const calcRow = COMPUTED_KEY_TO_CALC[spec.key];
 
                 for (const block of SCENARIO_BLOCKS) {
