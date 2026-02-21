@@ -1,0 +1,418 @@
+﻿=== MAPPING: WOLF_Financial_Model.xlsx (38456 bytes) ===
+
+================================================================================
+STEP 1: SHEET OVERVIEW (data_only=True)
+================================================================================
+
+--- Sheet: 'Summary Dashboard' | Dims: A1:D20 ---
+  Row 1: A1='WOLF ظ¤ Scenario Comparison'
+  Row 2: A2='Metric', B2='Base Case', C2='Bull Case', D2='Bear Case'
+  Row 3: A3='Revenue', B3=1344061.0260000003, C3=1584464.1120000007, D3=1038493.83114
+  Row 4: A4='EBITDA', B4=231930.98468000005, C4=481183.87472000014, D4=41924.69155699987
+  Row 5: A5='Net Income', B5=103208.61504037499, C5=310699.33957504766, D5=-30583.16203289881
+
+--- Sheet: 'Assumptions' | Dims: A1:I61 ---
+  Row 1: A1='Assumption', B1='2021', C1='2022', D1='2023', E1='2024E', F1='2025E', G1='2026E', H1='2027E', I1='2028E'
+  Row 2: A2='ظ¤ظ¤ Income Statement Drivers ظ¤ظ¤'
+  Row 3: A3='Revenue Base (Historical)', B3=750000
+  Row 4: A4='Revenue Base (Projection)', B4=1000000
+  Row 5: A5='Revenue Growth Rate', B5=0, C5=0.13333333333333333, D5=0.11764705882352941, E5=0.1, F5=0.08, G5=0.07, H5=0.06, I5=0.05
+
+--- Sheet: 'Income Statement' | Dims: A1:I31 ---
+  Row 1: A1='WOLF ظ¤ Income Statement', B1='2021 (A)', C1='2022 (A)', D1='2023 (A)', E1='2024E', F1='2025E', G1='2026E', H1='2027E', I1='2028E'
+  Row 2: A2='Revenue', B2=750000, C2=850000, D2=950000, E2=1045000.0000000001, F2=1128600.0000000002, G2=1207602.0000000002, H2=1280058.1200000003, I2=1344061.0260000003
+  Row 3: A3='Revenue Growth %', B3=0, C3=0.13333333333333333, D3=0.11764705882352941, E3=0.1, F3=0.08, G3=0.07, H3=0.06, I3=0.05
+  Row 4: A4='Cost of Goods Sold', B4=450000, C4=510000, D4=570000, E4=627000, F4=677160.0000000001, G4=724561.2000000001, H4=768034.8720000002, I4=806436.6156000001
+  Row 5: A5='Gross Profit', B5=300000, C5=340000, D5=380000, E5=418000.0000000001, F5=451440.0000000001, G5=483040.80000000016, H5=512023.24800000014, I5=537624.4104000002
+
+--- Sheet: 'Balance Sheet' | Dims: A1:I42 ---
+  Row 1: A1='WOLF ظ¤ Balance Sheet', B1='2021 (A)', C1='2022 (A)', D1='2023 (A)', E1='2024E', F1='2025E', G1='2026E', H1='2027E', I1='2028E'
+  Row 2: A2='ASSETS'
+  Row 3: A3='Cash & Equivalents', B3=150000, C3=175000, D3=200000, E3=238155.18014280085, F3=289005.9052546322, G3=352007.31308886764, H3=427027.23273501254, I3=513760.2684598756
+  Row 4: A4='Accounts Receivable', B4=92466, C4=104795, D4=117123, E4=128835.61643835618, F4=139142.46575342468, G4=148882.4383561644, H4=157815.38465753428, I4=165706.153890411
+  Row 5: A5='Inventory', B5=36986, C5=41918, D5=46849, E5=51534.24657534246, F5=55656.98630136987, G5=59552.97534246576, H5=63126.15386301372, I5=66282.46155616439
+
+--- Sheet: 'Cash Flow Statement' | Dims: A1:H38 ---
+  Row 1: A1='WOLF ظ¤ Cash Flow Statement', B1='2022 (A)', C1='2023 (A)', D1='2024E', E1='2025E', F1='2026E', G1='2027E', H1='2028E'
+  Row 2: A2='Operating Activities'
+  Row 3: A3='Net Income', B3=81125, C3=92750, D3=63836.01514671181, E3=75076.66089637615, F3=85553.40255081744, G3=95010.85509543738, H3=103208.61504037499
+  Row 4: A4='Depreciation', B4=28000, C4=32000, D4=41112.5, E4=46546.5, F4=52387.005000000005, G4=58606.1553, H4=65166.453165000006
+  Row 5: A5='Amortization', B5=5000, C5=5000, D5=5000, E5=5000, F5=5000, G5=5000, H5=5000
+
+--- Sheet: 'Ratios' | Dims: A1:I12 ---
+  Row 1: A1='Financial Ratios', B1='2021 (A)', C1='2022 (A)', D1='2023 (A)', E1='2024E', F1='2025E', G1='2026E', H1='2027E', I1='2028E'
+  Row 2: A2='ظ¤ظ¤ Profitability ظ¤ظ¤'
+  Row 3: A3='Gross Margin', B3=0.4, C3=0.4, D3=0.4, E3=0.4000000000000001, F3=0.4, G3=0.4000000000000001, H3=0.4, I3=0.4
+  Row 4: A4='Operating Margin', B4=0.14, C4=0.1411764705882353, D4=0.14105263157894737, E4=0.12630382775119628, F4=0.12546650717703353, G4=0.12419767025890992, H4=0.122497802131047, I4=0.12035504964861618
+  Row 5: A5='Net Margin', B5=0.09183333333333334, C5=0.09544117647058824, D5=0.09763157894736842, E5=0.061087095834173974, F5=0.06652193947933381, G5=0.07084569465007297, H5=0.07422386031615295, I5=0.07678863760191716
+
+--- Sheet: 'Working Capital' | Dims: A1:I22 ---
+  Row 1: A1='WOLF ظ¤ Working Capital Schedule', B1='2021 (A)', C1='2022 (A)', D1='2023 (A)', E1='2024E', F1='2025E', G1='2026E', H1='2027E', I1='2028E'
+  Row 2: A2='EFFICIENCY METRICS'
+  Row 3: A3='  Days Sales Outstanding (DSO)', B3=45.000119999999995, C3=45.00020588235294, D3=44.99988947368421, E3=45, F3=45, G3=45, H3=45, I3=45
+  Row 4: A4='  Days Inventory Outstanding (DIO)', B4=29.99975555555556, C4=30.00013725490196, D4=29.999798245614034, E4=30, F4=30, G4=30.000000000000004, H4=30.000000000000004, I4=30
+  Row 5: A5='  Days Payables Outstanding (DPO)', B5=39.999944444444445, C5=39.99970588235294, D5=40.000157894736844, E5=40, F5=40, G5=40, H5=40, I5=40
+
+--- Sheet: 'Depreciation Schedule' | Dims: A1:I21 ---
+  Row 1: A1='WOLF ظ¤ PP&E Rollforward', B1='2021 (A)', C1='2022 (A)', D1='2023 (A)', E1='2024E', F1='2025E', G1='2026E', H1='2027E', I1='2028E'
+  Row 2: A2='GROSS PP&E'
+  Row 3: A3='  Beginning Gross PP&E', B3='', C3=300000, D3=340000, E3=385000, F3=437250, G3=493680, H3=554060.1, I3=618063.006
+  Row 4: A4='  (+) Capital Expenditures', B4='', C4=40000, D4=45000, E4=52250.00000000001, F4=56430.000000000015, G4=60380.10000000001, H4=64002.90600000002, I4=67203.05130000002
+  Row 5: A5='Ending Gross PP&E', B5=300000, C5=340000, D5=385000, E5=437250, F5=493680, G5=554060.1, H5=618063.006, I5=685266.0573000001
+
+--- Sheet: 'Debt Schedule' | Dims: A1:I24 ---
+  Row 1: A1='WOLF ظ¤ Debt Schedule', B1='2021 (A)', C1='2022 (A)', D1='2023 (A)', E1='2024E', F1='2025E', G1='2026E', H1='2027E', I1='2028E'
+  Row 2: A2='LONG-TERM DEBT ROLLFORWARD'
+  Row 3: A3='  Beginning Long-Term Debt', B3='', C3=250000, D3=230000, E3=210000, F3=190000, G3=170000, H3=150000, I3=130000
+  Row 4: A4='  (+) New Issuance', B4='', C4=0, D4=0, E4=0, F4=0, G4=0, H4=0, I4=0
+  Row 5: A5='  (-) Repayments', B5='', C5=-20000, D5=-20000, E5=-20000, F5=-20000, G5=-20000, H5=-20000, I5=-20000
+
+--- Sheet: 'CBE Banking Metrics' | Dims: A1:K13 ---
+  Row 1: A1='CBE Compliance Metric', B1='2021 (A)', C1='2022 (A)', D1='2023 (A)', E1='2024E', F1='2025E', G1='2026E', H1='2027E', I1='2028E', J1='CBE Min', K1='CBE Max'
+  Row 2: A2='CBE COMPLIANCE DASHBOARD'
+  Row 3: A3='Current Ratio', B3=1.7283240694933504, C3=1.8551338677136158, D3=1.9668660176646184, E3=2.131336569090934, F3=2.342297169460937, G3=2.591459235711768, H3=2.876725805119491, I3=3.1972340168686926, J3='1.20x', K3='ظ¤'
+  Row 4: A4='  ظ¤¤ Status', B4='ظ£ô PASS', C4='ظ£ô PASS', D4='ظ£ô PASS', E4='ظ£ô PASS', F4='ظ£ô PASS', G4='ظ£ô PASS', H4='ظ£ô PASS', I4='ظ£ô PASS'
+  Row 5: A5=''
+
+================================================================================
+STEP 2: FULL FORMULA DUMP FOR KEY SHEETS
+================================================================================
+
+============================================================
+SHEET: 'Assumptions' | rows=61, cols=9
+============================================================
+  R01: A='Assumption' | B='2021' | C='2022' | D='2023' | E='2024E' | F='2025E' | G='2026E' | H='2027E' | I='2028E'
+  R02: A='ظ¤ظ¤ Income Statement Drivers ظ¤ظ¤'
+  R03: A='Revenue Base (Historical)' | B=750000
+  R04: A='Revenue Base (Projection)' | B=1000000
+  R05: A='Revenue Growth Rate' | B=0 | C=0.13333333333333333 | D=0.11764705882352941 | E=0.1 | F=0.08 | G=0.07 | H=0.06 | I=0.05
+  R06: A='COGS % of Revenue' | B=0.6 | C=0.6 | D=0.6 | E=0.6 | F=0.6 | G=0.6 | H=0.6 | I=0.6
+  R07: A='SG&A % of Revenue' | B=0.15 | C=0.15 | D=0.15 | E=0.15 | F=0.15 | G=0.15 | H=0.15 | I=0.15
+  R08: A='R&D % of Revenue' | B=0.05 | C=0.05 | D=0.05 | E=0.05 | F=0.05 | G=0.05 | H=0.05 | I=0.05
+  R09: A='Other OpEx % of Revenue' | B=0.02 | C=0.02 | D=0.02 | E=0.02 | F=0.02 | G=0.02 | H=0.02 | I=0.02
+  R10: A='Tax Rate' | B=0.2513586956521739 | C=0.2523041474654378 | D=0.25201612903225806 | E=0.225 | F=0.225 | G=0.225 | H=0.225 | I=0.225
+  R11: A='Other Income / Expense' | B=0 | C=0 | D=0 | E=0 | F=0 | G=0 | H=0 | I=0
+  R12: A='Shares Outstanding' | B=100000 | C=100000 | D=100000 | E=100000 | F=100000 | G=100000 | H=100000 | I=100000
+  R13: A='Stock-Based Comp Amount' | B=0 | C=0 | D=0 | E=10000 | F=10000 | G=10000 | H=10000 | I=10000
+  R14: A='ظ¤ظ¤ Balance Sheet / WC Drivers ظ¤ظ¤'
+  R15: A='DSO (Days)' | B=45.000119999999995 | C=45.00020588235294 | D=44.99988947368421 | E=45 | F=45 | G=45 | H=45 | I=45
+  R16: A='DIO (Days)' | B=29.99975555555556 | C=30.00013725490196 | D=29.999798245614034 | E=30 | F=30 | G=30 | H=30 | I=30
+  R17: A='DPO (Days)' | B=39.999944444444445 | C=39.99970588235294 | D=40.000157894736844 | E=40 | F=40 | G=40 | H=40 | I=40
+  R18: A='Prepaid % of Revenue' | B=0.01 | C=0.01 | D=0.01 | E=0.01 | F=0.01 | G=0.01 | H=0.01 | I=0.01
+  R19: A='Accrued Exp % of Revenue' | B=0.03 | C=0.03 | D=0.03 | E=0.03 | F=0.03 | G=0.03 | H=0.03 | I=0.03
+  R20: A='Deferred Rev % of Revenue' | B=0.02 | C=0.02 | D=0.02 | E=0.02 | F=0.02 | G=0.02 | H=0.02 | I=0.02
+  R21: A='ظ¤ظ¤ CapEx & Depreciation Drivers ظ¤ظ¤'
+  R22: A='CapEx % of Revenue' | B=0 | C=0.047058823529411764 | D=0.04736842105263158 | E=0.05 | F=0.05 | G=0.05 | H=0.05 | I=0.05
+  R23: A='Depreciation Rate (% Gross PPE)' | B=0.08333333333333333 | C=0.08235294117647059 | D=0.08311688311688312 | E=0.1 | F=0.1 | G=0.1 | H=0.1 | I=0.1
+  R24: A='Amortization Amount' | B=5000 | C=5000 | D=5000 | E=5000 | F=5000 | G=5000 | H=5000 | I=5000
+  R25: A='ظ¤ظ¤ Debt & Financing ظ¤ظ¤'
+  R26: A='Interest Rate (on Debt)' | B=0.2 | C=0.2 | D=0.2 | E=0.2 | F=0.2 | G=0.2 | H=0.2 | I=0.2
+  R27: A='Interest Income Rate (on Cash)' | B=0.02 | C=0.02 | D=0.02 | E=0.02 | F=0.02 | G=0.02 | H=0.02 | I=0.02
+  R28: A='Short-Term Debt' | B=50000 | C=50000 | D=50000 | E=50000 | F=50000 | G=50000 | H=50000 | I=50000
+  R29: A='LT Debt Issuance' | B=0 | C=0 | D=0 | E=0 | F=0 | G=0 | H=0 | I=0
+  R30: A='LT Debt Repayment' | B=0 | C=20000 | D=20000 | E=20000 | F=20000 | G=20000 | H=20000 | I=20000
+  R31: A='Current Portion LTD' | B=20000 | C=20000 | D=20000 | E=20000 | F=20000 | G=20000 | H=20000 | I=20000
+  R32: A='Dividend Payout Ratio' | B=0 | C=0.399864406779661 | D=0.4643342318059299 | E=0.05 | F=0.05 | G=0.05 | H=0.05 | I=0.05
+  R33: A='Share Repurchase Amount' | B=0 | C=0 | D=0 | E=0 | F=0 | G=0 | H=0 | I=0
+  R34: A='Equity Issuance' | B=0 | C=10000 | D=10000 | E=0 | F=0 | G=0 | H=0 | I=0
+  R35: A='ظ¤ظ¤ BS / Equity Direct Values ظ¤ظ¤'
+  R36: A='Goodwill' | B=100000 | C=100000 | D=100000 | E=100000 | F=100000 | G=100000 | H=100000 | I=100000
+  R37: A='Other Current Assets' | B=10000 | C=10000 | D=10000 | E=10000 | F=10000 | G=10000 | H=10000 | I=10000
+  R38: A='Other Long-Term Assets' | B=20000 | C=20000 | D=20000 | E=20000 | F=20000 | G=20000 | H=20000 | I=20000
+  R39: A='Other Current Liabilities' | B=15000 | C=15000 | D=15000 | E=15000 | F=15000 | G=15000 | H=15000 | I=15000
+  R40: A='Deferred Tax Liabilities' | B=30000 | C=30000 | D=30000 | E=30000 | F=30000 | G=30000 | H=30000 | I=30000
+  R41: A='Other LT Liabilities' | B=25000 | C=25000 | D=25000 | E=25000 | F=25000 | G=25000 | H=25000 | I=25000
+  R42: A='Common Stock' | B=10000 | C=10000 | D=10000 | E=10000 | F=10000 | G=10000 | H=10000 | I=10000
+  R43: A='APIC' | B=200000 | C=210000 | D=220000 | E=200000 | F=200000 | G=200000 | H=200000 | I=200000
+  R44: A='Other Comprehensive Income' | B=0 | C=0 | D=0 | E=0 | F=0 | G=0 | H=0 | I=0
+  R45: A='ظ¤ظ¤ Engine-Computed Values ظ¤ظ¤'
+  R46: A='Interest Income (Computed)' | B=2000 | C=2500 | D=3000 | E=4381.5518022086835 | F=5271.610834033708 | G=6410.132162344945 | H=7790.345436048173 | I=9407.87498870962
+  R47: A='Interest Expense (Computed)' | B=15000 | C=14000 | D=13000 | E=54000 | F=50000 | G=46000 | H=42000 | I=38000
+  R48: A='Depreciation (Computed)' | B=25000 | C=28000 | D=32000 | E=41112.5 | F=46546.5 | G=52387.005000000005 | H=58606.1553 | I=65166.453165000006
+  R49: A='Gross PP&E (Computed)' | B=300000 | C=340000 | D=385000 | E=437250 | F=493680 | G=554060.1 | H=618063.006 | I=685266.0573000001
+  R50: A='Accum Depreciation (Computed)' | B=100000 | C=128000 | D=160000 | E=201112.5 | F=247659 | G=300046.005 | H=358652.1603 | I=423818.613465
+  R51: A='Net PP&E (Computed)' | B=200000 | C=212000 | D=225000 | E=236137.5 | F=246021 | G=254014.09499999997 | H=259410.84570000006 | I=261447.4438350001
+  R52: A='Intangibles (Computed)' | B=50000 | C=45000 | D=40000 | E=35000 | F=30000 | G=25000 | H=20000 | I=15000
+  R53: A='Long-Term Debt (Computed)' | B=250000 | C=230000 | D=210000 | E=190000 | F=170000 | G=150000 | H=130000 | I=110000
+  R54: A='Retained Earnings (Computed)' | B=-19863 | C=28823 | D=78506 | E=139150.21438937623 | F=210473.04224093357 | G=291748.7746642101 | H=382009.0870048756 | I=480057.2712932318
+  R55: A='Treasury Stock (Computed)' | B=0 | C=0 | D=0 | E=0 | F=0 | G=0 | H=0 | I=0
+  R56: A='APIC (Computed)' | B=200000 | C=210000 | D=220000 | E=230000 | F=240000 | G=250000 | H=260000 | I=270000
+  R57: A='Dividends Paid (Computed)' | B=0 | C=-32439 | D=-43067 | E=-3191.800757335591 | F=-3753.833044818808 | G=-4277.670127540872 | H=-4750.542754771869 | I=-5160.43075201875
+  R58: A='Equity Issuance (Computed)' | B=0 | C=10000 | D=10000 | E=0 | F=0 | G=0 | H=0 | I=0
+  R59: A='Share Repurchases (Computed)' | B=0 | C=0 | D=0 | E=0 | F=0 | G=0 | H=0 | I=0
+  R60: A='Acquisitions (Computed)' | B=0 | C=0 | D=0 | E=0 | F=0 | G=0 | H=0 | I=0
+  R61: A='Asset Sales (Computed)' | B=0 | C=0 | D=0 | E=0 | F=0 | G=0 | H=0 | I=0
+
+============================================================
+SHEET: 'Income Statement' | rows=31, cols=9
+============================================================
+  R01: A='WOLF ظ¤ Income Statement' | B='2021 (A)' | C='2022 (A)' | D='2023 (A)' | E='2024E' | F='2025E' | G='2026E' | H='2027E' | I='2028E'
+  R02: A='Revenue' | B='=Assumptions!B3' | C='=B2*(1+Assumptions!C5)' | D='=C2*(1+Assumptions!D5)' | E='=D2*(1+Assumptions!E5)' | F='=E2*(1+Assumptions!F5)' | G='=F2*(1+Assumptions!G5)' | H='=G2*(1+Assumptions!H5)' | I='=H2*(1+Assumptions!I5)'
+  R03: A='Revenue Growth %' | B='=Assumptions!B5' | C='=Assumptions!C5' | D='=Assumptions!D5' | E='=Assumptions!E5' | F='=Assumptions!F5' | G='=Assumptions!G5' | H='=Assumptions!H5' | I='=Assumptions!I5'
+  R04: A='Cost of Goods Sold' | B='=B2*Assumptions!B6' | C='=C2*Assumptions!C6' | D='=D2*Assumptions!D6' | E='=E2*Assumptions!E6' | F='=F2*Assumptions!F6' | G='=G2*Assumptions!G6' | H='=H2*Assumptions!H6' | I='=I2*Assumptions!I6'
+  R05: A='Gross Profit' | B='=B2-B4' | C='=C2-C4' | D='=D2-D4' | E='=E2-E4' | F='=F2-F4' | G='=G2-G4' | H='=H2-H4' | I='=I2-I4'
+  R06: A='Gross Margin' | B='=IF(B2=0,0,B5/B2)' | C='=IF(C2=0,0,C5/C2)' | D='=IF(D2=0,0,D5/D2)' | E='=IF(E2=0,0,E5/E2)' | F='=IF(F2=0,0,F5/F2)' | G='=IF(G2=0,0,G5/G2)' | H='=IF(H2=0,0,H5/H2)' | I='=IF(I2=0,0,I5/I2)'
+  R07: A=''
+  R08: A='Operating Expenses'
+  R09: A='SG&A' | B='=B2*Assumptions!B7' | C='=C2*Assumptions!C7' | D='=D2*Assumptions!D7' | E='=E2*Assumptions!E7' | F='=F2*Assumptions!F7' | G='=G2*Assumptions!G7' | H='=H2*Assumptions!H7' | I='=I2*Assumptions!I7'
+  R10: A='R&D' | B='=B2*Assumptions!B8' | C='=C2*Assumptions!C8' | D='=D2*Assumptions!D8' | E='=E2*Assumptions!E8' | F='=F2*Assumptions!F8' | G='=G2*Assumptions!G8' | H='=H2*Assumptions!H8' | I='=I2*Assumptions!I8'
+  R11: A='Depreciation' | B='=Assumptions!B48' | C='=Assumptions!C48' | D='=Assumptions!D48' | E='=Assumptions!E48' | F='=Assumptions!F48' | G='=Assumptions!G48' | H='=Assumptions!H48' | I='=Assumptions!I48'
+  R12: A='Amortization' | B='=Assumptions!B24' | C='=Assumptions!C24' | D='=Assumptions!D24' | E='=Assumptions!E24' | F='=Assumptions!F24' | G='=Assumptions!G24' | H='=Assumptions!H24' | I='=Assumptions!I24'
+  R13: A='Other OpEx' | B='=B2*Assumptions!B9' | C='=C2*Assumptions!C9' | D='=D2*Assumptions!D9' | E='=E2*Assumptions!E9' | F='=F2*Assumptions!F9' | G='=G2*Assumptions!G9' | H='=H2*Assumptions!H9' | I='=I2*Assumptions!I9'
+  R14: A='Stock-Based Comp' | B='=Assumptions!B13' | C='=Assumptions!C13' | D='=Assumptions!D13' | E='=Assumptions!E13' | F='=Assumptions!F13' | G='=Assumptions!G13' | H='=Assumptions!H13' | I='=Assumptions!I13'
+  R15: A='Total OpEx' | B='=B9+B10+B11+B12+B13+B14' | C='=C9+C10+C11+C12+C13+C14' | D='=D9+D10+D11+D12+D13+D14' | E='=E9+E10+E11+E12+E13+E14' | F='=F9+F10+F11+F12+F13+F14' | G='=G9+G10+G11+G12+G13+G14' | H='=H9+H10+H11+H12+H13+H14' | I='=I9+I10+I11+I12+I13+I14'
+  R16: A=''
+  R17: A='EBIT' | B='=B5-B15' | C='=C5-C15' | D='=D5-D15' | E='=E5-E15' | F='=F5-F15' | G='=G5-G15' | H='=H5-H15' | I='=I5-I15'
+  R18: A='EBITDA' | B='=B17+B11+B12' | C='=C17+C11+C12' | D='=D17+D11+D12' | E='=E17+E11+E12' | F='=F17+F11+F12' | G='=G17+G11+G12' | H='=H17+H11+H12' | I='=I17+I11+I12'
+  R19: A='EBIT Margin' | B='=IF(B2=0,0,B17/B2)' | C='=IF(C2=0,0,C17/C2)' | D='=IF(D2=0,0,D17/D2)' | E='=IF(E2=0,0,E17/E2)' | F='=IF(F2=0,0,F17/F2)' | G='=IF(G2=0,0,G17/G2)' | H='=IF(H2=0,0,H17/H2)' | I='=IF(I2=0,0,I17/I2)'
+  R20: A=''
+  R21: A='Interest Income' | B='=Assumptions!B46' | C='=Assumptions!C46' | D='=Assumptions!D46' | E='=Assumptions!E46' | F='=Assumptions!F46' | G='=Assumptions!G46' | H='=Assumptions!H46' | I='=Assumptions!I46'
+  R22: A='Interest Expense' | B='=Assumptions!B47' | C='=Assumptions!C47' | D='=Assumptions!D47' | E='=Assumptions!E47' | F='=Assumptions!F47' | G='=Assumptions!G47' | H='=Assumptions!H47' | I='=Assumptions!I47'
+  R23: A='Other Income/Expense' | B='=Assumptions!B11' | C='=Assumptions!C11' | D='=Assumptions!D11' | E='=Assumptions!E11' | F='=Assumptions!F11' | G='=Assumptions!G11' | H='=Assumptions!H11' | I='=Assumptions!I11'
+  R24: A='EBT' | B='=B17+B21-B22+B23' | C='=C17+C21-C22+C23' | D='=D17+D21-D22+D23' | E='=E17+E21-E22+E23' | F='=F17+F21-F22+F23' | G='=G17+G21-G22+G23' | H='=H17+H21-H22+H23' | I='=I17+I21-I22+I23'
+  R25: A='Tax Expense' | B='=MAX(0,B24*Assumptions!B10)' | C='=MAX(0,C24*Assumptions!C10)' | D='=MAX(0,D24*Assumptions!D10)' | E='=MAX(0,E24*Assumptions!E10)' | F='=MAX(0,F24*Assumptions!F10)' | G='=MAX(0,G24*Assumptions!G10)' | H='=MAX(0,H24*Assumptions!H10)' | I='=MAX(0,I24*Assumptions!I10)'
+  R26: A='Tax Rate' | B='=Assumptions!B10' | C='=Assumptions!C10' | D='=Assumptions!D10' | E='=Assumptions!E10' | F='=Assumptions!F10' | G='=Assumptions!G10' | H='=Assumptions!H10' | I='=Assumptions!I10'
+  R27: A=''
+  R28: A='Net Income' | B='=B24-B25' | C='=C24-C25' | D='=D24-D25' | E='=E24-E25' | F='=F24-F25' | G='=G24-G25' | H='=H24-H25' | I='=I24-I25'
+  R29: A='Net Margin' | B='=IF(B2=0,0,B28/B2)' | C='=IF(C2=0,0,C28/C2)' | D='=IF(D2=0,0,D28/D2)' | E='=IF(E2=0,0,E28/E2)' | F='=IF(F2=0,0,F28/F2)' | G='=IF(G2=0,0,G28/G2)' | H='=IF(H2=0,0,H28/H2)' | I='=IF(I2=0,0,I28/I2)'
+  R30: A='EPS' | B='=IF(Assumptions!B12=0,0,B28/Assumptions!B12)' | C='=IF(Assumptions!C12=0,0,C28/Assumptions!C12)' | D='=IF(Assumptions!D12=0,0,D28/Assumptions!D12)' | E='=IF(Assumptions!E12=0,0,E28/Assumptions!E12)' | F='=IF(Assumptions!F12=0,0,F28/Assumptions!F12)' | G='=IF(Assumptions!G12=0,0,G28/Assumptions!G12)' | H='=IF(Assumptions!H12=0,0,H28/Assumptions!H12)' | I='=IF(Assumptions!I12=0,0,I28/Assumptions!I12)'
+  R31: A='Stock-Based Compensation' | B='=Assumptions!B13' | C='=Assumptions!C13' | D='=Assumptions!D13' | E='=Assumptions!E13' | F='=Assumptions!F13' | G='=Assumptions!G13' | H='=Assumptions!H13' | I='=Assumptions!I13'
+
+============================================================
+SHEET: 'Balance Sheet' | rows=42, cols=9
+============================================================
+  R01: A='WOLF ظ¤ Balance Sheet' | B='2021 (A)' | C='2022 (A)' | D='2023 (A)' | E='2024E' | F='2025E' | G='2026E' | H='2027E' | I='2028E'
+  R02: A='ASSETS'
+  R03: A='Cash & Equivalents' | B='=B40-B4-B5-B6-B7-B14' | C='=C40-C4-C5-C6-C7-C14' | D='=D40-D4-D5-D6-D7-D14' | E='=E40-E4-E5-E6-E7-E14' | F='=F40-F4-F5-F6-F7-F14' | G='=G40-G4-G5-G6-G7-G14' | H='=H40-H4-H5-H6-H7-H14' | I='=I40-I4-I5-I6-I7-I14'
+  R04: A='Accounts Receivable' | B="='Income Statement'!B2*Assumptions!B15/365" | C="='Income Statement'!C2*Assumptions!C15/365" | D="='Income Statement'!D2*Assumptions!D15/365" | E="='Income Statement'!E2*Assumptions!E15/365" | F="='Income Statement'!F2*Assumptions!F15/365" | G="='Income Statement'!G2*Assumptions!G15/365" | H="='Income Statement'!H2*Assumptions!H15/365" | I="='Income Statement'!I2*Assumptions!I15/365"
+  R05: A='Inventory' | B="='Income Statement'!B4*Assumptions!B16/365" | C="='Income Statement'!C4*Assumptions!C16/365" | D="='Income Statement'!D4*Assumptions!D16/365" | E="='Income Statement'!E4*Assumptions!E16/365" | F="='Income Statement'!F4*Assumptions!F16/365" | G="='Income Statement'!G4*Assumptions!G16/365" | H="='Income Statement'!H4*Assumptions!H16/365" | I="='Income Statement'!I4*Assumptions!I16/365"
+  R06: A='Prepaid Expenses' | B="='Income Statement'!B2*Assumptions!B18" | C="='Income Statement'!C2*Assumptions!C18" | D="='Income Statement'!D2*Assumptions!D18" | E="='Income Statement'!E2*Assumptions!E18" | F="='Income Statement'!F2*Assumptions!F18" | G="='Income Statement'!G2*Assumptions!G18" | H="='Income Statement'!H2*Assumptions!H18" | I="='Income Statement'!I2*Assumptions!I18"
+  R07: A='Other Current Assets' | B='=Assumptions!B37' | C='=Assumptions!C37' | D='=Assumptions!D37' | E='=Assumptions!E37' | F='=Assumptions!F37' | G='=Assumptions!G37' | H='=Assumptions!H37' | I='=Assumptions!I37'
+  R08: A='Total Current Assets' | B='=SUM(B3:B7)' | C='=SUM(C3:C7)' | D='=SUM(D3:D7)' | E='=SUM(E3:E7)' | F='=SUM(F3:F7)' | G='=SUM(G3:G7)' | H='=SUM(H3:H7)' | I='=SUM(I3:I7)'
+  R09: A=''
+  R10: A='Net PP&E' | B='=Assumptions!B51' | C='=Assumptions!C51' | D='=Assumptions!D51' | E='=Assumptions!E51' | F='=Assumptions!F51' | G='=Assumptions!G51' | H='=Assumptions!H51' | I='=Assumptions!I51'
+  R11: A='Intangibles' | B='=Assumptions!B52' | C='=Assumptions!C52' | D='=Assumptions!D52' | E='=Assumptions!E52' | F='=Assumptions!F52' | G='=Assumptions!G52' | H='=Assumptions!H52' | I='=Assumptions!I52'
+  R12: A='Goodwill' | B='=Assumptions!B36' | C='=Assumptions!C36' | D='=Assumptions!D36' | E='=Assumptions!E36' | F='=Assumptions!F36' | G='=Assumptions!G36' | H='=Assumptions!H36' | I='=Assumptions!I36'
+  R13: A='Other Long-Term Assets' | B='=Assumptions!B38' | C='=Assumptions!C38' | D='=Assumptions!D38' | E='=Assumptions!E38' | F='=Assumptions!F38' | G='=Assumptions!G38' | H='=Assumptions!H38' | I='=Assumptions!I38'
+  R14: A='Total Non-Current Assets' | B='=SUM(B10:B13)' | C='=SUM(C10:C13)' | D='=SUM(D10:D13)' | E='=SUM(E10:E13)' | F='=SUM(F10:F13)' | G='=SUM(G10:G13)' | H='=SUM(H10:H13)' | I='=SUM(I10:I13)'
+  R15: A='Total Assets' | B='=B8+B14' | C='=C8+C14' | D='=D8+D14' | E='=E8+E14' | F='=F8+F14' | G='=G8+G14' | H='=H8+H14' | I='=I8+I14'
+  R16: A=''
+  R17: A='LIABILITIES'
+  R18: A='Accounts Payable' | B="='Income Statement'!B4*Assumptions!B17/365" | C="='Income Statement'!C4*Assumptions!C17/365" | D="='Income Statement'!D4*Assumptions!D17/365" | E="='Income Statement'!E4*Assumptions!E17/365" | F="='Income Statement'!F4*Assumptions!F17/365" | G="='Income Statement'!G4*Assumptions!G17/365" | H="='Income Statement'!H4*Assumptions!H17/365" | I="='Income Statement'!I4*Assumptions!I17/365"
+  R19: A='Accrued Expenses' | B="='Income Statement'!B2*Assumptions!B19" | C="='Income Statement'!C2*Assumptions!C19" | D="='Income Statement'!D2*Assumptions!D19" | E="='Income Statement'!E2*Assumptions!E19" | F="='Income Statement'!F2*Assumptions!F19" | G="='Income Statement'!G2*Assumptions!G19" | H="='Income Statement'!H2*Assumptions!H19" | I="='Income Statement'!I2*Assumptions!I19"
+  R20: A='Short-Term Debt' | B='=Assumptions!B28' | C='=Assumptions!C28' | D='=Assumptions!D28' | E='=Assumptions!E28' | F='=Assumptions!F28' | G='=Assumptions!G28' | H='=Assumptions!H28' | I='=Assumptions!I28'
+  R21: A='Current Portion LTD' | B='=Assumptions!B31' | C='=Assumptions!C31' | D='=Assumptions!D31' | E='=Assumptions!E31' | F='=Assumptions!F31' | G='=Assumptions!G31' | H='=Assumptions!H31' | I='=Assumptions!I31'
+  R22: A='Deferred Revenue' | B="='Income Statement'!B2*Assumptions!B20" | C="='Income Statement'!C2*Assumptions!C20" | D="='Income Statement'!D2*Assumptions!D20" | E="='Income Statement'!E2*Assumptions!E20" | F="='Income Statement'!F2*Assumptions!F20" | G="='Income Statement'!G2*Assumptions!G20" | H="='Income Statement'!H2*Assumptions!H20" | I="='Income Statement'!I2*Assumptions!I20"
+  R23: A='Other Current Liabilities' | B='=Assumptions!B39' | C='=Assumptions!C39' | D='=Assumptions!D39' | E='=Assumptions!E39' | F='=Assumptions!F39' | G='=Assumptions!G39' | H='=Assumptions!H39' | I='=Assumptions!I39'
+  R24: A='Total Current Liabilities' | B='=SUM(B18:B23)' | C='=SUM(C18:C23)' | D='=SUM(D18:D23)' | E='=SUM(E18:E23)' | F='=SUM(F18:F23)' | G='=SUM(G18:G23)' | H='=SUM(H18:H23)' | I='=SUM(I18:I23)'
+  R25: A=''
+  R26: A='Long-Term Debt' | B='=Assumptions!B53' | C='=Assumptions!C53' | D='=Assumptions!D53' | E='=Assumptions!E53' | F='=Assumptions!F53' | G='=Assumptions!G53' | H='=Assumptions!H53' | I='=Assumptions!I53'
+  R27: A='Deferred Tax Liabilities' | B='=Assumptions!B40' | C='=Assumptions!C40' | D='=Assumptions!D40' | E='=Assumptions!E40' | F='=Assumptions!F40' | G='=Assumptions!G40' | H='=Assumptions!H40' | I='=Assumptions!I40'
+  R28: A='Other LT Liabilities' | B='=Assumptions!B41' | C='=Assumptions!C41' | D='=Assumptions!D41' | E='=Assumptions!E41' | F='=Assumptions!F41' | G='=Assumptions!G41' | H='=Assumptions!H41' | I='=Assumptions!I41'
+  R29: A='Total Non-Current Liabilities' | B='=SUM(B26:B28)' | C='=SUM(C26:C28)' | D='=SUM(D26:D28)' | E='=SUM(E26:E28)' | F='=SUM(F26:F28)' | G='=SUM(G26:G28)' | H='=SUM(H26:H28)' | I='=SUM(I26:I28)'
+  R30: A='Total Liabilities' | B='=B24+B29' | C='=C24+C29' | D='=D24+D29' | E='=E24+E29' | F='=F24+F29' | G='=G24+G29' | H='=H24+H29' | I='=I24+I29'
+  R31: A=''
+  R32: A='EQUITY'
+  R33: A='Common Stock' | B='=Assumptions!B42' | C='=Assumptions!C42' | D='=Assumptions!D42' | E='=Assumptions!E42' | F='=Assumptions!F42' | G='=Assumptions!G42' | H='=Assumptions!H42' | I='=Assumptions!I42'
+  R34: A='Additional Paid-in Capital' | B='=Assumptions!B56' | C='=Assumptions!C56' | D='=Assumptions!D56' | E='=Assumptions!E56' | F='=Assumptions!F56' | G='=Assumptions!G56' | H='=Assumptions!H56' | I='=Assumptions!I56'
+  R35: A='Retained Earnings' | B='=Assumptions!B54' | C='=Assumptions!C54' | D='=Assumptions!D54' | E='=Assumptions!E54' | F='=Assumptions!F54' | G='=Assumptions!G54' | H='=Assumptions!H54' | I='=Assumptions!I54'
+  R36: A='Treasury Stock' | B='=Assumptions!B55' | C='=Assumptions!C55' | D='=Assumptions!D55' | E='=Assumptions!E55' | F='=Assumptions!F55' | G='=Assumptions!G55' | H='=Assumptions!H55' | I='=Assumptions!I55'
+  R37: A='Other Comprehensive Income' | B='=Assumptions!B44' | C='=Assumptions!C44' | D='=Assumptions!D44' | E='=Assumptions!E44' | F='=Assumptions!F44' | G='=Assumptions!G44' | H='=Assumptions!H44' | I='=Assumptions!I44'
+  R38: A='Total Equity' | B='=SUM(B33:B37)' | C='=SUM(C33:C37)' | D='=SUM(D33:D37)' | E='=SUM(E33:E37)' | F='=SUM(F33:F37)' | G='=SUM(G33:G37)' | H='=SUM(H33:H37)' | I='=SUM(I33:I37)'
+  R39: A=''
+  R40: A='Total Liabilities + Equity' | B='=B30+B38' | C='=C30+C38' | D='=D30+D38' | E='=E30+E38' | F='=F30+F38' | G='=G30+G38' | H='=H30+H38' | I='=I30+I38'
+  R41: A='Balance Check (A ظêْ L+E)' | B='=B15-B40' | C='=C15-C40' | D='=D15-D40' | E='=E15-E40' | F='=F15-F40' | G='=G15-G40' | H='=H15-H40' | I='=I15-I40'
+  R42: A='Balanced?' | B='=IF(ABS(B41)<1,"ظ£ô Balanced","ظ£ù Imbalanced")' | C='=IF(ABS(C41)<1,"ظ£ô Balanced","ظ£ù Imbalanced")' | D='=IF(ABS(D41)<1,"ظ£ô Balanced","ظ£ù Imbalanced")' | E='=IF(ABS(E41)<1,"ظ£ô Balanced","ظ£ù Imbalanced")' | F='=IF(ABS(F41)<1,"ظ£ô Balanced","ظ£ù Imbalanced")' | G='=IF(ABS(G41)<1,"ظ£ô Balanced","ظ£ù Imbalanced")' | H='=IF(ABS(H41)<1,"ظ£ô Balanced","ظ£ù Imbalanced")' | I='=IF(ABS(I41)<1,"ظ£ô Balanced","ظ£ù Imbalanced")'
+
+============================================================
+SHEET: 'Cash Flow Statement' | rows=38, cols=8
+============================================================
+  R01: A='WOLF ظ¤ Cash Flow Statement' | B='2022 (A)' | C='2023 (A)' | D='2024E' | E='2025E' | F='2026E' | G='2027E' | H='2028E'
+  R02: A='Operating Activities'
+  R03: A='Net Income' | B="='Income Statement'!C28" | C="='Income Statement'!D28" | D="='Income Statement'!E28" | E="='Income Statement'!F28" | F="='Income Statement'!G28" | G="='Income Statement'!H28" | H="='Income Statement'!I28"
+  R04: A='Depreciation' | B="='Income Statement'!C11" | C="='Income Statement'!D11" | D="='Income Statement'!E11" | E="='Income Statement'!F11" | F="='Income Statement'!G11" | G="='Income Statement'!H11" | H="='Income Statement'!I11"
+  R05: A='Amortization' | B="='Income Statement'!C12" | C="='Income Statement'!D12" | D="='Income Statement'!E12" | E="='Income Statement'!F12" | F="='Income Statement'!G12" | G="='Income Statement'!H12" | H="='Income Statement'!I12"
+  R06: A='Stock-Based Compensation' | B="='Income Statement'!C31" | C="='Income Statement'!D31" | D="='Income Statement'!E31" | E="='Income Statement'!F31" | F="='Income Statement'!G31" | G="='Income Statement'!H31" | H="='Income Statement'!I31"
+  R07: A='Deferred Taxes' | B="='Balance Sheet'!C27-'Balance Sheet'!B27" | C="='Balance Sheet'!D27-'Balance Sheet'!C27" | D="='Balance Sheet'!E27-'Balance Sheet'!D27" | E="='Balance Sheet'!F27-'Balance Sheet'!E27" | F="='Balance Sheet'!G27-'Balance Sheet'!F27" | G="='Balance Sheet'!H27-'Balance Sheet'!G27" | H="='Balance Sheet'!I27-'Balance Sheet'!H27"
+  R08: A='Working Capital Changes'
+  R09: A='Change in A/R' | B="=-('Balance Sheet'!C4-'Balance Sheet'!B4)" | C="=-('Balance Sheet'!D4-'Balance Sheet'!C4)" | D="=-('Balance Sheet'!E4-'Balance Sheet'!D4)" | E="=-('Balance Sheet'!F4-'Balance Sheet'!E4)" | F="=-('Balance Sheet'!G4-'Balance Sheet'!F4)" | G="=-('Balance Sheet'!H4-'Balance Sheet'!G4)" | H="=-('Balance Sheet'!I4-'Balance Sheet'!H4)"
+  R10: A='Change in Inventory' | B="=-('Balance Sheet'!C5-'Balance Sheet'!B5)" | C="=-('Balance Sheet'!D5-'Balance Sheet'!C5)" | D="=-('Balance Sheet'!E5-'Balance Sheet'!D5)" | E="=-('Balance Sheet'!F5-'Balance Sheet'!E5)" | F="=-('Balance Sheet'!G5-'Balance Sheet'!F5)" | G="=-('Balance Sheet'!H5-'Balance Sheet'!G5)" | H="=-('Balance Sheet'!I5-'Balance Sheet'!H5)"
+  R11: A='Change in Prepaid' | B="=-('Balance Sheet'!C6-'Balance Sheet'!B6)" | C="=-('Balance Sheet'!D6-'Balance Sheet'!C6)" | D="=-('Balance Sheet'!E6-'Balance Sheet'!D6)" | E="=-('Balance Sheet'!F6-'Balance Sheet'!E6)" | F="=-('Balance Sheet'!G6-'Balance Sheet'!F6)" | G="=-('Balance Sheet'!H6-'Balance Sheet'!G6)" | H="=-('Balance Sheet'!I6-'Balance Sheet'!H6)"
+  R12: A='Change in A/P' | B="='Balance Sheet'!C18-'Balance Sheet'!B18" | C="='Balance Sheet'!D18-'Balance Sheet'!C18" | D="='Balance Sheet'!E18-'Balance Sheet'!D18" | E="='Balance Sheet'!F18-'Balance Sheet'!E18" | F="='Balance Sheet'!G18-'Balance Sheet'!F18" | G="='Balance Sheet'!H18-'Balance Sheet'!G18" | H="='Balance Sheet'!I18-'Balance Sheet'!H18"
+  R13: A='Change in Accrued Exp' | B="='Balance Sheet'!C19-'Balance Sheet'!B19" | C="='Balance Sheet'!D19-'Balance Sheet'!C19" | D="='Balance Sheet'!E19-'Balance Sheet'!D19" | E="='Balance Sheet'!F19-'Balance Sheet'!E19" | F="='Balance Sheet'!G19-'Balance Sheet'!F19" | G="='Balance Sheet'!H19-'Balance Sheet'!G19" | H="='Balance Sheet'!I19-'Balance Sheet'!H19"
+  R14: A='Change in Deferred Rev' | B="='Balance Sheet'!C22-'Balance Sheet'!B22" | C="='Balance Sheet'!D22-'Balance Sheet'!C22" | D="='Balance Sheet'!E22-'Balance Sheet'!D22" | E="='Balance Sheet'!F22-'Balance Sheet'!E22" | F="='Balance Sheet'!G22-'Balance Sheet'!F22" | G="='Balance Sheet'!H22-'Balance Sheet'!G22" | H="='Balance Sheet'!I22-'Balance Sheet'!H22"
+  R15: A='Total WC Change' | B='=SUM(B9:B14)' | C='=SUM(C9:C14)' | D='=SUM(D9:D14)' | E='=SUM(E9:E14)' | F='=SUM(F9:F14)' | G='=SUM(G9:G14)' | H='=SUM(H9:H14)'
+  R16: A='Cash from Operations' | B='=B3+B4+B5+B6+B7+B15' | C='=C3+C4+C5+C6+C7+C15' | D='=D3+D4+D5+D6+D7+D15' | E='=E3+E4+E5+E6+E7+E15' | F='=F3+F4+F5+F6+F7+F15' | G='=G3+G4+G5+G6+G7+G15' | H='=H3+H4+H5+H6+H7+H15'
+  R17: A=''
+  R18: A='Investing Activities'
+  R19: A='Capital Expenditures' | B="=-ABS('Income Statement'!C2*Assumptions!C22)" | C="=-ABS('Income Statement'!D2*Assumptions!D22)" | D="=-ABS('Income Statement'!E2*Assumptions!E22)" | E="=-ABS('Income Statement'!F2*Assumptions!F22)" | F="=-ABS('Income Statement'!G2*Assumptions!G22)" | G="=-ABS('Income Statement'!H2*Assumptions!H22)" | H="=-ABS('Income Statement'!I2*Assumptions!I22)"
+  R20: A='Acquisitions' | B='=Assumptions!C60' | C='=Assumptions!D60' | D='=Assumptions!E60' | E='=Assumptions!F60' | F='=Assumptions!G60' | G='=Assumptions!H60' | H='=Assumptions!I60'
+  R21: A='Asset Sales' | B='=Assumptions!C61' | C='=Assumptions!D61' | D='=Assumptions!E61' | E='=Assumptions!F61' | F='=Assumptions!G61' | G='=Assumptions!H61' | H='=Assumptions!I61'
+  R22: A='Cash from Investing' | B='=B19+B20+B21' | C='=C19+C20+C21' | D='=D19+D20+D21' | E='=E19+E20+E21' | F='=F19+F20+F21' | G='=G19+G20+G21' | H='=H19+H20+H21'
+  R23: A=''
+  R24: A='Financing Activities'
+  R25: A='Debt Issuance' | B='=Assumptions!C29' | C='=Assumptions!D29' | D='=Assumptions!E29' | E='=Assumptions!F29' | F='=Assumptions!G29' | G='=Assumptions!H29' | H='=Assumptions!I29'
+  R26: A='Debt Repayment' | B='=-ABS(Assumptions!C30)' | C='=-ABS(Assumptions!D30)' | D='=-ABS(Assumptions!E30)' | E='=-ABS(Assumptions!F30)' | F='=-ABS(Assumptions!G30)' | G='=-ABS(Assumptions!H30)' | H='=-ABS(Assumptions!I30)'
+  R27: A='Dividends Paid' | B='=Assumptions!C57' | C='=Assumptions!D57' | D="=-MAX(0,'Income Statement'!E28*Assumptions!E32)" | E="=-MAX(0,'Income Statement'!F28*Assumptions!F32)" | F="=-MAX(0,'Income Statement'!G28*Assumptions!G32)" | G="=-MAX(0,'Income Statement'!H28*Assumptions!H32)" | H="=-MAX(0,'Income Statement'!I28*Assumptions!I32)"
+  R28: A='Equity Issuance' | B='=Assumptions!C58' | C='=Assumptions!D58' | D='=Assumptions!E34' | E='=Assumptions!F34' | F='=Assumptions!G34' | G='=Assumptions!H34' | H='=Assumptions!I34'
+  R29: A='Share Repurchases' | B='=Assumptions!C59' | C='=Assumptions!D59' | D='=-ABS(Assumptions!E33)' | E='=-ABS(Assumptions!F33)' | F='=-ABS(Assumptions!G33)' | G='=-ABS(Assumptions!H33)' | H='=-ABS(Assumptions!I33)'
+  R30: A='Cash from Financing' | B='=B25+B26+B27+B28+B29' | C='=C25+C26+C27+C28+C29' | D='=D25+D26+D27+D28+D29' | E='=E25+E26+E27+E28+E29' | F='=F25+F26+F27+F28+F29' | G='=G25+G26+G27+G28+G29' | H='=H25+H26+H27+H28+H29'
+  R31: A=''
+  R32: A='Net Change in Cash' | B='=B16+B22+B30' | C='=C16+C22+C30' | D='=D16+D22+D30' | E='=E16+E22+E30' | F='=F16+F22+F30' | G='=G16+G22+G30' | H='=H16+H22+H30'
+  R33: A='Beginning Cash' | B="='Balance Sheet'!B3" | C="='Balance Sheet'!C3" | D="='Balance Sheet'!D3" | E="='Balance Sheet'!E3" | F="='Balance Sheet'!F3" | G="='Balance Sheet'!G3" | H="='Balance Sheet'!H3"
+  R34: A='Ending Cash' | B='=B33+B32' | C='=C33+C32' | D='=D33+D32' | E='=E33+E32' | F='=F33+F32' | G='=G33+G32' | H='=H33+H32'
+  R35: A=''
+  R36: A='Free Cash Flow' | B='=B16+B19' | C='=C16+C19' | D='=D16+D19' | E='=E16+E19' | F='=F16+F19' | G='=G16+G19' | H='=H16+H19'
+  R37: A=''
+  R38: A='Reconciliation Check' | B='=IF(ABS(B34-\'Balance Sheet\'!C3)<0.01,"ظ£ô Reconciles","ظ£ù Error")' | C='=IF(ABS(C34-\'Balance Sheet\'!D3)<0.01,"ظ£ô Reconciles","ظ£ù Error")' | D='=IF(ABS(D34-\'Balance Sheet\'!E3)<0.01,"ظ£ô Reconciles","ظ£ù Error")' | E='=IF(ABS(E34-\'Balance Sheet\'!F3)<0.01,"ظ£ô Reconciles","ظ£ù Error")' | F='=IF(ABS(F34-\'Balance Sheet\'!G3)<0.01,"ظ£ô Reconciles","ظ£ù Error")' | G='=IF(ABS(G34-\'Balance Sheet\'!H3)<0.01,"ظ£ô Reconciles","ظ£ù Error")' | H='=IF(ABS(H34-\'Balance Sheet\'!I3)<0.01,"ظ£ô Reconciles","ظ£ù Error")'
+
+============================================================
+SHEET: 'Ratios' | rows=12, cols=9
+============================================================
+  R01: A='Financial Ratios' | B='2021 (A)' | C='2022 (A)' | D='2023 (A)' | E='2024E' | F='2025E' | G='2026E' | H='2027E' | I='2028E'
+  R02: A='ظ¤ظ¤ Profitability ظ¤ظ¤'
+  R03: A='Gross Margin' | B="=IF('Income Statement'!B2=0,0,'Income Statement'!B5/'Income Statement'!B2)" | C="=IF('Income Statement'!C2=0,0,'Income Statement'!C5/'Income Statement'!C2)" | D="=IF('Income Statement'!D2=0,0,'Income Statement'!D5/'Income Statement'!D2)" | E="=IF('Income Statement'!E2=0,0,'Income Statement'!E5/'Income Statement'!E2)" | F="=IF('Income Statement'!F2=0,0,'Income Statement'!F5/'Income Statement'!F2)" | G="=IF('Income Statement'!G2=0,0,'Income Statement'!G5/'Income Statement'!G2)" | H="=IF('Income Statement'!H2=0,0,'Income Statement'!H5/'Income Statement'!H2)" | I="=IF('Income Statement'!I2=0,0,'Income Statement'!I5/'Income Statement'!I2)"
+  R04: A='Operating Margin' | B="=IF('Income Statement'!B2=0,0,'Income Statement'!B17/'Income Statement'!B2)" | C="=IF('Income Statement'!C2=0,0,'Income Statement'!C17/'Income Statement'!C2)" | D="=IF('Income Statement'!D2=0,0,'Income Statement'!D17/'Income Statement'!D2)" | E="=IF('Income Statement'!E2=0,0,'Income Statement'!E17/'Income Statement'!E2)" | F="=IF('Income Statement'!F2=0,0,'Income Statement'!F17/'Income Statement'!F2)" | G="=IF('Income Statement'!G2=0,0,'Income Statement'!G17/'Income Statement'!G2)" | H="=IF('Income Statement'!H2=0,0,'Income Statement'!H17/'Income Statement'!H2)" | I="=IF('Income Statement'!I2=0,0,'Income Statement'!I17/'Income Statement'!I2)"
+  R05: A='Net Margin' | B="=IF('Income Statement'!B2=0,0,'Income Statement'!B28/'Income Statement'!B2)" | C="=IF('Income Statement'!C2=0,0,'Income Statement'!C28/'Income Statement'!C2)" | D="=IF('Income Statement'!D2=0,0,'Income Statement'!D28/'Income Statement'!D2)" | E="=IF('Income Statement'!E2=0,0,'Income Statement'!E28/'Income Statement'!E2)" | F="=IF('Income Statement'!F2=0,0,'Income Statement'!F28/'Income Statement'!F2)" | G="=IF('Income Statement'!G2=0,0,'Income Statement'!G28/'Income Statement'!G2)" | H="=IF('Income Statement'!H2=0,0,'Income Statement'!H28/'Income Statement'!H2)" | I="=IF('Income Statement'!I2=0,0,'Income Statement'!I28/'Income Statement'!I2)"
+  R06: A='ROA' | B="=IF('Balance Sheet'!B15=0,0,'Income Statement'!B28/'Balance Sheet'!B15)" | C="=IF('Balance Sheet'!C15=0,0,'Income Statement'!C28/'Balance Sheet'!C15)" | D="=IF('Balance Sheet'!D15=0,0,'Income Statement'!D28/'Balance Sheet'!D15)" | E="=IF('Balance Sheet'!E15=0,0,'Income Statement'!E28/'Balance Sheet'!E15)" | F="=IF('Balance Sheet'!F15=0,0,'Income Statement'!F28/'Balance Sheet'!F15)" | G="=IF('Balance Sheet'!G15=0,0,'Income Statement'!G28/'Balance Sheet'!G15)" | H="=IF('Balance Sheet'!H15=0,0,'Income Statement'!H28/'Balance Sheet'!H15)" | I="=IF('Balance Sheet'!I15=0,0,'Income Statement'!I28/'Balance Sheet'!I15)"
+  R07: A='ROE' | B="=IF('Balance Sheet'!B38=0,0,'Income Statement'!B28/'Balance Sheet'!B38)" | C="=IF('Balance Sheet'!C38=0,0,'Income Statement'!C28/'Balance Sheet'!C38)" | D="=IF('Balance Sheet'!D38=0,0,'Income Statement'!D28/'Balance Sheet'!D38)" | E="=IF('Balance Sheet'!E38=0,0,'Income Statement'!E28/'Balance Sheet'!E38)" | F="=IF('Balance Sheet'!F38=0,0,'Income Statement'!F28/'Balance Sheet'!F38)" | G="=IF('Balance Sheet'!G38=0,0,'Income Statement'!G28/'Balance Sheet'!G38)" | H="=IF('Balance Sheet'!H38=0,0,'Income Statement'!H28/'Balance Sheet'!H38)" | I="=IF('Balance Sheet'!I38=0,0,'Income Statement'!I28/'Balance Sheet'!I38)"
+  R08: A='ظ¤ظ¤ Liquidity ظ¤ظ¤'
+  R09: A='Current Ratio' | B="=IF('Balance Sheet'!B24=0,0,'Balance Sheet'!B8/'Balance Sheet'!B24)" | C="=IF('Balance Sheet'!C24=0,0,'Balance Sheet'!C8/'Balance Sheet'!C24)" | D="=IF('Balance Sheet'!D24=0,0,'Balance Sheet'!D8/'Balance Sheet'!D24)" | E="=IF('Balance Sheet'!E24=0,0,'Balance Sheet'!E8/'Balance Sheet'!E24)" | F="=IF('Balance Sheet'!F24=0,0,'Balance Sheet'!F8/'Balance Sheet'!F24)" | G="=IF('Balance Sheet'!G24=0,0,'Balance Sheet'!G8/'Balance Sheet'!G24)" | H="=IF('Balance Sheet'!H24=0,0,'Balance Sheet'!H8/'Balance Sheet'!H24)" | I="=IF('Balance Sheet'!I24=0,0,'Balance Sheet'!I8/'Balance Sheet'!I24)"
+  R10: A='Debt to Equity' | B="=IF('Balance Sheet'!B38=0,0,'Balance Sheet'!B30/'Balance Sheet'!B38)" | C="=IF('Balance Sheet'!C38=0,0,'Balance Sheet'!C30/'Balance Sheet'!C38)" | D="=IF('Balance Sheet'!D38=0,0,'Balance Sheet'!D30/'Balance Sheet'!D38)" | E="=IF('Balance Sheet'!E38=0,0,'Balance Sheet'!E30/'Balance Sheet'!E38)" | F="=IF('Balance Sheet'!F38=0,0,'Balance Sheet'!F30/'Balance Sheet'!F38)" | G="=IF('Balance Sheet'!G38=0,0,'Balance Sheet'!G30/'Balance Sheet'!G38)" | H="=IF('Balance Sheet'!H38=0,0,'Balance Sheet'!H30/'Balance Sheet'!H38)" | I="=IF('Balance Sheet'!I38=0,0,'Balance Sheet'!I30/'Balance Sheet'!I38)"
+  R11: A='ظ¤ظ¤ Efficiency ظ¤ظ¤'
+  R12: A='Asset Turnover' | B="=IF('Balance Sheet'!B15=0,0,'Income Statement'!B2/'Balance Sheet'!B15)" | C="=IF('Balance Sheet'!C15=0,0,'Income Statement'!C2/'Balance Sheet'!C15)" | D="=IF('Balance Sheet'!D15=0,0,'Income Statement'!D2/'Balance Sheet'!D15)" | E="=IF('Balance Sheet'!E15=0,0,'Income Statement'!E2/'Balance Sheet'!E15)" | F="=IF('Balance Sheet'!F15=0,0,'Income Statement'!F2/'Balance Sheet'!F15)" | G="=IF('Balance Sheet'!G15=0,0,'Income Statement'!G2/'Balance Sheet'!G15)" | H="=IF('Balance Sheet'!H15=0,0,'Income Statement'!H2/'Balance Sheet'!H15)" | I="=IF('Balance Sheet'!I15=0,0,'Income Statement'!I2/'Balance Sheet'!I15)"
+
+============================================================
+SHEET: 'Summary Dashboard' | rows=20, cols=4
+============================================================
+  R01: A='WOLF ظ¤ Scenario Comparison'
+  R02: A='Metric' | B='Base Case' | C='Bull Case' | D='Bear Case'
+  R03: A='Revenue' | B=1344061.0260000003 | C=1584464.1120000007 | D=1038493.83114
+  R04: A='EBITDA' | B=231930.98468000005 | C=481183.87472000014 | D=41924.69155699987
+  R05: A='Net Income' | B=103208.61504037499 | C=310699.33957504766 | D=-30583.16203289881
+  R06: A='Free Cash Flow' | B=111893.46647688182 | C=306045.78103970515 | D=-6680.667943703593
+  R07: A='Cash Balance' | B=513760.2684598756 | C=880860.6730208202 | D=146781.99420332088
+  R08: A='Total Debt' | B=180000 | C=180000 | D=180000
+  R09: A='ROE' | B=0.14618097008524042 | C=0.2924666649944921 | D=-0.08935399058783117
+  R10: A='EPS' | B=1.03208615040375 | C=3.1069933957504765 | D=-0.3058316203289881
+  R12: A='╬¤ vs Base Case'
+  R13: A='Revenue' | B='--' | C=240403.08600000036 | D=-305567.1948600003
+  R14: A='EBITDA' | B='--' | C=249252.8900400001 | D=-190006.29312300019
+  R15: A='Net Income' | B='--' | C=207490.72453467268 | D=-133791.7770732738
+  R16: A='Free Cash Flow' | B='--' | C=194152.31456282333 | D=-118574.13442058541
+  R17: A='Cash Balance' | B='--' | C=367100.40456094465 | D=-366978.2742565547
+  R18: A='Total Debt' | B='--' | C=0 | D=0
+  R19: A='ROE' | B='--' | C=0.14628569490925167 | D=-0.2355349606730716
+  R20: A='EPS' | B='--' | C=2.0749072453467265 | D=-1.337917770732738
+
+============================================================
+SHEET: 'Working Capital' | rows=22, cols=9
+============================================================
+  R01: A='WOLF ظ¤ Working Capital Schedule' | B='2021 (A)' | C='2022 (A)' | D='2023 (A)' | E='2024E' | F='2025E' | G='2026E' | H='2027E' | I='2028E'
+  R02: A='EFFICIENCY METRICS'
+  R03: A='  Days Sales Outstanding (DSO)' | B='=Assumptions!B15' | C='=Assumptions!C15' | D='=Assumptions!D15' | E='=Assumptions!E15' | F='=Assumptions!F15' | G='=Assumptions!G15' | H='=Assumptions!H15' | I='=Assumptions!I15'
+  R04: A='  Days Inventory Outstanding (DIO)' | B='=Assumptions!B16' | C='=Assumptions!C16' | D='=Assumptions!D16' | E='=Assumptions!E16' | F='=Assumptions!F16' | G='=Assumptions!G16' | H='=Assumptions!H16' | I='=Assumptions!I16'
+  R05: A='  Days Payables Outstanding (DPO)' | B='=Assumptions!B17' | C='=Assumptions!C17' | D='=Assumptions!D17' | E='=Assumptions!E17' | F='=Assumptions!F17' | G='=Assumptions!G17' | H='=Assumptions!H17' | I='=Assumptions!I17'
+  R06: A='Cash Conversion Cycle (days)' | B='=B3+B4-B5' | C='=C3+C4-C5' | D='=D3+D4-D5' | E='=E3+E4-E5' | F='=F3+F4-F5' | G='=G3+G4-G5' | H='=H3+H4-H5' | I='=I3+I4-I5'
+  R07: A=''
+  R08: A='CURRENT ASSETS (excl. Cash)'
+  R09: A='  Accounts Receivable' | B="='Balance Sheet'!B4" | C="='Balance Sheet'!C4" | D="='Balance Sheet'!D4" | E="='Balance Sheet'!E4" | F="='Balance Sheet'!F4" | G="='Balance Sheet'!G4" | H="='Balance Sheet'!H4" | I="='Balance Sheet'!I4"
+  R10: A='  Inventory' | B="='Balance Sheet'!B5" | C="='Balance Sheet'!C5" | D="='Balance Sheet'!D5" | E="='Balance Sheet'!E5" | F="='Balance Sheet'!F5" | G="='Balance Sheet'!G5" | H="='Balance Sheet'!H5" | I="='Balance Sheet'!I5"
+  R11: A='  Prepaid Expenses' | B="='Balance Sheet'!B6" | C="='Balance Sheet'!C6" | D="='Balance Sheet'!D6" | E="='Balance Sheet'!E6" | F="='Balance Sheet'!F6" | G="='Balance Sheet'!G6" | H="='Balance Sheet'!H6" | I="='Balance Sheet'!I6"
+  R12: A='  Other Current Assets' | B="='Balance Sheet'!B7" | C="='Balance Sheet'!C7" | D="='Balance Sheet'!D7" | E="='Balance Sheet'!E7" | F="='Balance Sheet'!F7" | G="='Balance Sheet'!G7" | H="='Balance Sheet'!H7" | I="='Balance Sheet'!I7"
+  R13: A=''
+  R14: A='CURRENT LIABILITIES (excl. Debt)'
+  R15: A='  Accounts Payable' | B="='Balance Sheet'!B18" | C="='Balance Sheet'!C18" | D="='Balance Sheet'!D18" | E="='Balance Sheet'!E18" | F="='Balance Sheet'!F18" | G="='Balance Sheet'!G18" | H="='Balance Sheet'!H18" | I="='Balance Sheet'!I18"
+  R16: A='  Accrued Expenses' | B="='Balance Sheet'!B19" | C="='Balance Sheet'!C19" | D="='Balance Sheet'!D19" | E="='Balance Sheet'!E19" | F="='Balance Sheet'!F19" | G="='Balance Sheet'!G19" | H="='Balance Sheet'!H19" | I="='Balance Sheet'!I19"
+  R17: A='  Deferred Revenue' | B="='Balance Sheet'!B22" | C="='Balance Sheet'!C22" | D="='Balance Sheet'!D22" | E="='Balance Sheet'!E22" | F="='Balance Sheet'!F22" | G="='Balance Sheet'!G22" | H="='Balance Sheet'!H22" | I="='Balance Sheet'!I22"
+  R18: A='  Other Current Liabilities' | B="='Balance Sheet'!B23" | C="='Balance Sheet'!C23" | D="='Balance Sheet'!D23" | E="='Balance Sheet'!E23" | F="='Balance Sheet'!F23" | G="='Balance Sheet'!G23" | H="='Balance Sheet'!H23" | I="='Balance Sheet'!I23"
+  R19: A=''
+  R20: A='Net Working Capital' | B='=(B9+B10+B11+B12)-(B15+B16+B17+B18)' | C='=(C9+C10+C11+C12)-(C15+C16+C17+C18)' | D='=(D9+D10+D11+D12)-(D15+D16+D17+D18)' | E='=(E9+E10+E11+E12)-(E15+E16+E17+E18)' | F='=(F9+F10+F11+F12)-(F15+F16+F17+F18)' | G='=(G9+G10+G11+G12)-(G15+G16+G17+G18)' | H='=(H9+H10+H11+H12)-(H15+H16+H17+H18)' | I='=(I9+I10+I11+I12)-(I15+I16+I17+I18)'
+  R21: A='NWC Change' | B='=0' | C='=C20-B20' | D='=D20-C20' | E='=E20-D20' | F='=F20-E20' | G='=G20-F20' | H='=H20-G20' | I='=I20-H20'
+  R22: A='NWC % of Revenue' | B="=IF('Income Statement'!B2=0,0,B20/'Income Statement'!B2)" | C="=IF('Income Statement'!C2=0,0,C20/'Income Statement'!C2)" | D="=IF('Income Statement'!D2=0,0,D20/'Income Statement'!D2)" | E="=IF('Income Statement'!E2=0,0,E20/'Income Statement'!E2)" | F="=IF('Income Statement'!F2=0,0,F20/'Income Statement'!F2)" | G="=IF('Income Statement'!G2=0,0,G20/'Income Statement'!G2)" | H="=IF('Income Statement'!H2=0,0,H20/'Income Statement'!H2)" | I="=IF('Income Statement'!I2=0,0,I20/'Income Statement'!I2)"
+
+============================================================
+SHEET: 'Depreciation Schedule' | rows=21, cols=9
+============================================================
+  R01: A='WOLF ظ¤ PP&E Rollforward' | B='2021 (A)' | C='2022 (A)' | D='2023 (A)' | E='2024E' | F='2025E' | G='2026E' | H='2027E' | I='2028E'
+  R02: A='GROSS PP&E'
+  R03: A='  Beginning Gross PP&E' | B='' | C='=Assumptions!B49' | D='=Assumptions!C49' | E='=Assumptions!D49' | F='=Assumptions!E49' | G='=Assumptions!F49' | H='=Assumptions!G49' | I='=Assumptions!H49'
+  R04: A='  (+) Capital Expenditures' | B='' | C="=ABS('Income Statement'!C2*Assumptions!C22)" | D="=ABS('Income Statement'!D2*Assumptions!D22)" | E="=ABS('Income Statement'!E2*Assumptions!E22)" | F="=ABS('Income Statement'!F2*Assumptions!F22)" | G="=ABS('Income Statement'!G2*Assumptions!G22)" | H="=ABS('Income Statement'!H2*Assumptions!H22)" | I="=ABS('Income Statement'!I2*Assumptions!I22)"
+  R05: A='Ending Gross PP&E' | B='=Assumptions!B49' | C='=Assumptions!C49' | D='=Assumptions!D49' | E='=Assumptions!E49' | F='=Assumptions!F49' | G='=Assumptions!G49' | H='=Assumptions!H49' | I='=Assumptions!I49'
+  R06: A=''
+  R07: A='ACCUMULATED DEPRECIATION'
+  R08: A='  Beginning Accum. Depreciation' | B='' | C='=Assumptions!B50' | D='=Assumptions!C50' | E='=Assumptions!D50' | F='=Assumptions!E50' | G='=Assumptions!F50' | H='=Assumptions!G50' | I='=Assumptions!H50'
+  R09: A='  (+) Depreciation Expense' | B="='Income Statement'!B11" | C="='Income Statement'!C11" | D="='Income Statement'!D11" | E="='Income Statement'!E11" | F="='Income Statement'!F11" | G="='Income Statement'!G11" | H="='Income Statement'!H11" | I="='Income Statement'!I11"
+  R10: A='Ending Accum. Depreciation' | B='=Assumptions!B50' | C='=Assumptions!C50' | D='=Assumptions!D50' | E='=Assumptions!E50' | F='=Assumptions!F50' | G='=Assumptions!G50' | H='=Assumptions!H50' | I='=Assumptions!I50'
+  R11: A=''
+  R12: A='Net PP&E' | B="='Balance Sheet'!B10" | C="='Balance Sheet'!C10" | D="='Balance Sheet'!D10" | E="='Balance Sheet'!E10" | F="='Balance Sheet'!F10" | G="='Balance Sheet'!G10" | H="='Balance Sheet'!H10" | I="='Balance Sheet'!I10"
+  R13: A=''
+  R14: A='KEY METRICS'
+  R15: A='CapEx % of Revenue' | B='' | C="=IF('Income Statement'!C2=0,0,C4/'Income Statement'!C2)" | D="=IF('Income Statement'!D2=0,0,D4/'Income Statement'!D2)" | E="=IF('Income Statement'!E2=0,0,E4/'Income Statement'!E2)" | F="=IF('Income Statement'!F2=0,0,F4/'Income Statement'!F2)" | G="=IF('Income Statement'!G2=0,0,G4/'Income Statement'!G2)" | H="=IF('Income Statement'!H2=0,0,H4/'Income Statement'!H2)" | I="=IF('Income Statement'!I2=0,0,I4/'Income Statement'!I2)"
+  R16: A='Depreciation Rate (% Gross PP&E)' | B='=IF(B5=0,0,B9/B5)' | C='=IF(C5=0,0,C9/C5)' | D='=IF(D5=0,0,D9/D5)' | E='=IF(E5=0,0,E9/E5)' | F='=IF(F5=0,0,F9/F5)' | G='=IF(G5=0,0,G9/G5)' | H='=IF(H5=0,0,H9/H5)' | I='=IF(I5=0,0,I9/I5)'
+  R17: A='Implied Useful Life (yrs)' | B='=IF(B16=0,0,1/B16)' | C='=IF(C16=0,0,1/C16)' | D='=IF(D16=0,0,1/D16)' | E='=IF(E16=0,0,1/E16)' | F='=IF(F16=0,0,1/F16)' | G='=IF(G16=0,0,1/G16)' | H='=IF(H16=0,0,1/H16)' | I='=IF(I16=0,0,1/I16)'
+  R18: A=''
+  R19: A='INTANGIBLES'
+  R20: A='  Amortization Expense' | B="='Income Statement'!B12" | C="='Income Statement'!C12" | D="='Income Statement'!D12" | E="='Income Statement'!E12" | F="='Income Statement'!F12" | G="='Income Statement'!G12" | H="='Income Statement'!H12" | I="='Income Statement'!I12"
+  R21: A='Net Intangibles' | B="='Balance Sheet'!B11" | C="='Balance Sheet'!C11" | D="='Balance Sheet'!D11" | E="='Balance Sheet'!E11" | F="='Balance Sheet'!F11" | G="='Balance Sheet'!G11" | H="='Balance Sheet'!H11" | I="='Balance Sheet'!I11"
+
+============================================================
+SHEET: 'Debt Schedule' | rows=24, cols=9
+============================================================
+  R01: A='WOLF ظ¤ Debt Schedule' | B='2021 (A)' | C='2022 (A)' | D='2023 (A)' | E='2024E' | F='2025E' | G='2026E' | H='2027E' | I='2028E'
+  R02: A='LONG-TERM DEBT ROLLFORWARD'
+  R03: A='  Beginning Long-Term Debt' | B='' | C='=Assumptions!B53' | D='=Assumptions!C53' | E='=Assumptions!D53' | F='=Assumptions!E53' | G='=Assumptions!F53' | H='=Assumptions!G53' | I='=Assumptions!H53'
+  R04: A='  (+) New Issuance' | B='' | C='=Assumptions!C29' | D='=Assumptions!D29' | E='=Assumptions!E29' | F='=Assumptions!F29' | G='=Assumptions!G29' | H='=Assumptions!H29' | I='=Assumptions!I29'
+  R05: A='  (-) Repayments' | B='' | C='=-ABS(Assumptions!C30)' | D='=-ABS(Assumptions!D30)' | E='=-ABS(Assumptions!E30)' | F='=-ABS(Assumptions!F30)' | G='=-ABS(Assumptions!G30)' | H='=-ABS(Assumptions!H30)' | I='=-ABS(Assumptions!I30)'
+  R06: A='Ending Long-Term Debt' | B='=Assumptions!B53' | C='=Assumptions!C53' | D='=Assumptions!D53' | E='=Assumptions!E53' | F='=Assumptions!F53' | G='=Assumptions!G53' | H='=Assumptions!H53' | I='=Assumptions!I53'
+  R07: A=''
+  R08: A='DEBT SUMMARY'
+  R09: A='  Short-Term Debt' | B="='Balance Sheet'!B20" | C="='Balance Sheet'!C20" | D="='Balance Sheet'!D20" | E="='Balance Sheet'!E20" | F="='Balance Sheet'!F20" | G="='Balance Sheet'!G20" | H="='Balance Sheet'!H20" | I="='Balance Sheet'!I20"
+  R10: A='  Current Portion of LTD' | B="='Balance Sheet'!B21" | C="='Balance Sheet'!C21" | D="='Balance Sheet'!D21" | E="='Balance Sheet'!E21" | F="='Balance Sheet'!F21" | G="='Balance Sheet'!G21" | H="='Balance Sheet'!H21" | I="='Balance Sheet'!I21"
+  R11: A='  Long-Term Debt' | B="='Balance Sheet'!B26" | C="='Balance Sheet'!C26" | D="='Balance Sheet'!D26" | E="='Balance Sheet'!E26" | F="='Balance Sheet'!F26" | G="='Balance Sheet'!G26" | H="='Balance Sheet'!H26" | I="='Balance Sheet'!I26"
+  R12: A='Total Debt' | B='=B9+B10+B11' | C='=C9+C10+C11' | D='=D9+D10+D11' | E='=E9+E10+E11' | F='=F9+F10+F11' | G='=G9+G10+G11' | H='=H9+H10+H11' | I='=I9+I10+I11'
+  R13: A=''
+  R14: A='INTEREST ANALYSIS'
+  R15: A='  Average Debt Balance' | B='=B12' | C='=(C12+B12)/2' | D='=(D12+C12)/2' | E='=(E12+D12)/2' | F='=(F12+E12)/2' | G='=(G12+F12)/2' | H='=(H12+G12)/2' | I='=(I12+H12)/2'
+  R16: A='  Interest Expense' | B="='Income Statement'!B22" | C="='Income Statement'!C22" | D="='Income Statement'!D22" | E="='Income Statement'!E22" | F="='Income Statement'!F22" | G="='Income Statement'!G22" | H="='Income Statement'!H22" | I="='Income Statement'!I22"
+  R17: A='  Interest Income' | B="='Income Statement'!B21" | C="='Income Statement'!C21" | D="='Income Statement'!D21" | E="='Income Statement'!E21" | F="='Income Statement'!F21" | G="='Income Statement'!G21" | H="='Income Statement'!H21" | I="='Income Statement'!I21"
+  R18: A='Net Interest' | B='=B16-B17' | C='=C16-C17' | D='=D16-D17' | E='=E16-E17' | F='=F16-F17' | G='=G16-G17' | H='=H16-H17' | I='=I16-I17'
+  R19: A=''
+  R20: A='LEVERAGE RATIOS'
+  R21: A='Interest Coverage (EBIT / Int Exp)' | B="=IF(B16=0,0,'Income Statement'!B17/B16)" | C="=IF(C16=0,0,'Income Statement'!C17/C16)" | D="=IF(D16=0,0,'Income Statement'!D17/D16)" | E="=IF(E16=0,0,'Income Statement'!E17/E16)" | F="=IF(F16=0,0,'Income Statement'!F17/F16)" | G="=IF(G16=0,0,'Income Statement'!G17/G16)" | H="=IF(H16=0,0,'Income Statement'!H17/H16)" | I="=IF(I16=0,0,'Income Statement'!I17/I16)"
+  R22: A='Debt / Equity' | B="=IF('Balance Sheet'!B38=0,0,B12/'Balance Sheet'!B38)" | C="=IF('Balance Sheet'!C38=0,0,C12/'Balance Sheet'!C38)" | D="=IF('Balance Sheet'!D38=0,0,D12/'Balance Sheet'!D38)" | E="=IF('Balance Sheet'!E38=0,0,E12/'Balance Sheet'!E38)" | F="=IF('Balance Sheet'!F38=0,0,F12/'Balance Sheet'!F38)" | G="=IF('Balance Sheet'!G38=0,0,G12/'Balance Sheet'!G38)" | H="=IF('Balance Sheet'!H38=0,0,H12/'Balance Sheet'!H38)" | I="=IF('Balance Sheet'!I38=0,0,I12/'Balance Sheet'!I38)"
+  R23: A='Debt / Total Assets' | B="=IF('Balance Sheet'!B15=0,0,B12/'Balance Sheet'!B15)" | C="=IF('Balance Sheet'!C15=0,0,C12/'Balance Sheet'!C15)" | D="=IF('Balance Sheet'!D15=0,0,D12/'Balance Sheet'!D15)" | E="=IF('Balance Sheet'!E15=0,0,E12/'Balance Sheet'!E15)" | F="=IF('Balance Sheet'!F15=0,0,F12/'Balance Sheet'!F15)" | G="=IF('Balance Sheet'!G15=0,0,G12/'Balance Sheet'!G15)" | H="=IF('Balance Sheet'!H15=0,0,H12/'Balance Sheet'!H15)" | I="=IF('Balance Sheet'!I15=0,0,I12/'Balance Sheet'!I15)"
+  R24: A='Debt / EBITDA' | B="=IF('Income Statement'!B18=0,0,B12/'Income Statement'!B18)" | C="=IF('Income Statement'!C18=0,0,C12/'Income Statement'!C18)" | D="=IF('Income Statement'!D18=0,0,D12/'Income Statement'!D18)" | E="=IF('Income Statement'!E18=0,0,E12/'Income Statement'!E18)" | F="=IF('Income Statement'!F18=0,0,F12/'Income Statement'!F18)" | G="=IF('Income Statement'!G18=0,0,G12/'Income Statement'!G18)" | H="=IF('Income Statement'!H18=0,0,H12/'Income Statement'!H18)" | I="=IF('Income Statement'!I18=0,0,I12/'Income Statement'!I18)"
+
+============================================================
+SHEET: 'CBE Banking Metrics' | rows=13, cols=11
+============================================================
+  R01: A='CBE Compliance Metric' | B='2021 (A)' | C='2022 (A)' | D='2023 (A)' | E='2024E' | F='2025E' | G='2026E' | H='2027E' | I='2028E' | J='CBE Min' | K='CBE Max'
+  R02: A='CBE COMPLIANCE DASHBOARD'
+  R03: A='Current Ratio' | B="=IF('Balance Sheet'!B24=0,0,'Balance Sheet'!B8/'Balance Sheet'!B24)" | C="=IF('Balance Sheet'!C24=0,0,'Balance Sheet'!C8/'Balance Sheet'!C24)" | D="=IF('Balance Sheet'!D24=0,0,'Balance Sheet'!D8/'Balance Sheet'!D24)" | E="=IF('Balance Sheet'!E24=0,0,'Balance Sheet'!E8/'Balance Sheet'!E24)" | F="=IF('Balance Sheet'!F24=0,0,'Balance Sheet'!F8/'Balance Sheet'!F24)" | G="=IF('Balance Sheet'!G24=0,0,'Balance Sheet'!G8/'Balance Sheet'!G24)" | H="=IF('Balance Sheet'!H24=0,0,'Balance Sheet'!H8/'Balance Sheet'!H24)" | I="=IF('Balance Sheet'!I24=0,0,'Balance Sheet'!I8/'Balance Sheet'!I24)" | J='1.20x' | K='ظ¤'
+  R04: A='  ظ¤¤ Status' | B='ظ£ô PASS' | C='ظ£ô PASS' | D='ظ£ô PASS' | E='ظ£ô PASS' | F='ظ£ô PASS' | G='ظ£ô PASS' | H='ظ£ô PASS' | I='ظ£ô PASS'
+  R05: A=''
+  R06: A='Debt-to-Equity' | B="=IF('Balance Sheet'!B38=0,0,'Debt Schedule'!B12/'Balance Sheet'!B38)" | C="=IF('Balance Sheet'!C38=0,0,'Debt Schedule'!C12/'Balance Sheet'!C38)" | D="=IF('Balance Sheet'!D38=0,0,'Debt Schedule'!D12/'Balance Sheet'!D38)" | E="=IF('Balance Sheet'!E38=0,0,'Debt Schedule'!E12/'Balance Sheet'!E38)" | F="=IF('Balance Sheet'!F38=0,0,'Debt Schedule'!F12/'Balance Sheet'!F38)" | G="=IF('Balance Sheet'!G38=0,0,'Debt Schedule'!G12/'Balance Sheet'!G38)" | H="=IF('Balance Sheet'!H38=0,0,'Debt Schedule'!H12/'Balance Sheet'!H38)" | I="=IF('Balance Sheet'!I38=0,0,'Debt Schedule'!I12/'Balance Sheet'!I38)" | J='ظ¤' | K='2.50x'
+  R07: A='  ظ¤¤ Status' | B='ظ£ô PASS' | C='ظ£ô PASS' | D='ظ£ô PASS' | E='ظ£ô PASS' | F='ظ£ô PASS' | G='ظ£ô PASS' | H='ظ£ô PASS' | I='ظ£ô PASS'
+  R08: A=''
+  R09: A='Interest Coverage (EBIT / Interest Expense)' | B="=IF('Income Statement'!B22=0,0,'Income Statement'!B17/'Income Statement'!B22)" | C="=IF('Income Statement'!C22=0,0,'Income Statement'!C17/'Income Statement'!C22)" | D="=IF('Income Statement'!D22=0,0,'Income Statement'!D17/'Income Statement'!D22)" | E="=IF('Income Statement'!E22=0,0,'Income Statement'!E17/'Income Statement'!E22)" | F="=IF('Income Statement'!F22=0,0,'Income Statement'!F17/'Income Statement'!F22)" | G="=IF('Income Statement'!G22=0,0,'Income Statement'!G17/'Income Statement'!G22)" | H="=IF('Income Statement'!H22=0,0,'Income Statement'!H17/'Income Statement'!H22)" | I="=IF('Income Statement'!I22=0,0,'Income Statement'!I17/'Income Statement'!I22)" | J='2.00x' | K='ظ¤'
+  R10: A='  ظ¤¤ Status' | B='ظ£ô PASS' | C='ظ£ô PASS' | D='ظ£ô PASS' | E='ظ£ô PASS' | F='ظ£ô PASS' | G='ظ£ô PASS' | H='ظ£ô PASS' | I='ظ£ô PASS'
+  R11: A=''
+  R12: A='OVERALL COMPLIANCE'
+  R13: A='  Compliance Score' | B='3/3' | C='3/3' | D='3/3' | E='3/3' | F='3/3' | G='3/3' | H='3/3' | I='3/3'
+
+================================================================================
+STEP 3: ASSUMPTION ROW MAP
+================================================================================
+  Row 5: 'Revenue Growth Rate' -> [0, 0.13333333333333333, 0.11764705882352941, 0.1, 0.08, 0.07, 0.06, 0.05]
+  Row 6: 'COGS % of Revenue' -> [0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6]
+  Row 7: 'SG&A % of Revenue' -> [0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15]
+  Row 8: 'R&D % of Revenue' -> [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05]
+  Row 9: 'Other OpEx % of Revenue' -> [0.02, 0.02, 0.02, 0.02, 0.02, 0.02, 0.02, 0.02]
+  Row 10: 'Tax Rate' -> [0.2513586956521739, 0.2523041474654378, 0.25201612903225806, 0.225, 0.225, 0.225, 0.225, 0.225]
+  Row 21: 'ظ¤ظ¤ CapEx & Depreciation Drivers ظ¤ظ¤' -> [None, None, None, None, None, None, None, None]
+  Row 22: 'CapEx % of Revenue' -> [0, 0.047058823529411764, 0.04736842105263158, 0.05, 0.05, 0.05, 0.05, 0.05]
+  Row 26: 'Interest Rate (on Debt)' -> [0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2]
+  Row 32: 'Dividend Payout Ratio' -> [0, 0.399864406779661, 0.4643342318059299, 0.05, 0.05, 0.05, 0.05, 0.05]
+
+=== MAPPING COMPLETE ===

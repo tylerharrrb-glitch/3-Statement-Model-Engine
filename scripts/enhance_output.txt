@@ -1,0 +1,35 @@
+﻿Source: C:\Users\user\Downloads\WOLF_Financial_Model.xlsx (38456 bytes)
+Copied to working file: C:\Users\user\Desktop\3_Statement_Model_Engine\model_enhanced.xlsx
+Loaded. Sheets: ['Summary Dashboard', 'Assumptions', 'Income Statement', 'Balance Sheet', 'Cash Flow Statement', 'Ratios', 'Working Capital', 'Depreciation Schedule', 'Debt Schedule', 'CBE Banking Metrics']
+
+[1/6] Building Company Info sheet...
+[2/6] Building Scenarios sheet...
+[3/6] Building Dashboard sheet...
+[4/6] Wiring scenario selector into Assumptions...
+  Wired 9 assumption rows ├ù 5 projection columns = 45 formulas
+[5/6] Reordering sheets and applying tab colors...
+[6/6] Saving...
+Saved to: C:\Users\user\Desktop\3_Statement_Model_Engine\model_enhanced.xlsx (40554 bytes)
+Copied to: C:\Users\user\Downloads\Demo_Company_Inc__Financial_Model_v3.xlsx
+  Dashboard: 177 formulas
+  Company Info: 0 formulas
+  Scenarios: 0 formulas
+  Assumptions: 47 formulas
+  Income Statement: 201 formulas
+  Balance Sheet: 265 formulas
+  Cash Flow Statement: 197 formulas
+  Ratios: 65 formulas
+  Working Capital: 121 formulas
+  Depreciation Schedule: 93 formulas
+  Debt Schedule: 126 formulas
+  CBE Banking Metrics: 24 formulas
+
+============================================================
+ظ£ô COMPLETE
+  Total formulas: 1316
+  Sheet order: ['Dashboard', 'Company Info', 'Scenarios', 'Assumptions', 'Income Statement', 'Balance Sheet', 'Cash Flow Statement', 'Ratios', 'Working Capital', 'Depreciation Schedule', 'Debt Schedule', 'CBE Banking Metrics']
+  Active scenario: Base Case (Dashboard B6)
+  Scenario selector cascades to all model formulas via Assumptions
+  Company Name (Company Info B4) ظْ Dashboard + all sheet titles
+  Scenarios sheet = single source of truth for assumptions
+============================================================
