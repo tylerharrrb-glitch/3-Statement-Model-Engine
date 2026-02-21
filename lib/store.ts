@@ -17,6 +17,13 @@ interface ModelStore extends ModelState {
     // Historical data (Feature 1: per-year format)
     historicalData: HistoricalDataInput[];
 
+    // Error / conflict / UI state
+    calculationError: string | null;
+    cellOverrides: Record<string, number>;
+    dataVersion: number;
+    conflictDetected: boolean;
+    sidebarOpen: boolean;
+
     // Actions
     setCompanyInfo: (name: string, ticker: string, industry: string, currency: string, country?: string, fiscalYearEnd?: string, valuationDate?: string) => void;
     setHistoricalInputs: (inputs: HistoricalInputs) => void;
@@ -34,6 +41,10 @@ interface ModelStore extends ModelState {
     redo: () => void;
     resetToDefaults: () => void;
     setCountryPreset: (preset: 'us' | 'egypt' | 'custom') => void;
+    clearError: () => void;
+    setCellOverride: (scenarioId: string, rowKey: string, period: string, value: number) => void;
+    dismissConflict: () => void;
+    setSidebarOpen: (open: boolean) => void;
 }
 
 const defaultScenarios = createDefaultScenarios();
@@ -61,6 +72,11 @@ export const useModelStore = create<ModelStore>()(
             redoStack: [],
             errors: [],
             warnings: [],
+            calculationError: null,
+            cellOverrides: {},
+            dataVersion: 0,
+            conflictDetected: false,
+            sidebarOpen: false,
 
             // Actions
             setCompanyInfo: (name, ticker, industry, currency, country, fiscalYearEnd, valuationDate) => {
@@ -212,10 +228,13 @@ export const useModelStore = create<ModelStore>()(
                         isCalculating: false,
                         lastSaved: new Date().toISOString(),
                         warnings,
+                        calculationError: null,
+                        dataVersion: state.dataVersion + 1,
                     });
                 } catch (error) {
                     set({
                         isCalculating: false,
+                        calculationError: error instanceof Error ? error.message : 'Calculation failed',
                         errors: [{
                             id: 'calc-error',
                             type: 'convergence',
@@ -278,6 +297,27 @@ export const useModelStore = create<ModelStore>()(
                 set({ activeTab: tab });
             },
 
+            clearError: () => {
+                set({ calculationError: null });
+            },
+
+            setCellOverride: (scenarioId, rowKey, period, value) => {
+                const state = get();
+                const key = `${scenarioId}_${rowKey}_${period}`;
+                set({
+                    cellOverrides: { ...state.cellOverrides, [key]: value },
+                    dataVersion: state.dataVersion + 1,
+                });
+            },
+
+            dismissConflict: () => {
+                set({ conflictDetected: false });
+            },
+
+            setSidebarOpen: (open) => {
+                set({ sidebarOpen: open });
+            },
+
             undo: () => {
                 const state = get();
                 if (state.undoStack.length === 0) return;
@@ -295,7 +335,7 @@ export const useModelStore = create<ModelStore>()(
 
                 const updatedScenarios = state.scenarios.map(s =>
                     s.id === entry.scenarioId
-                        ? { ...s, assumptions: entry.previousAssumptions, results: null }
+                        ? { ...s, assumptions: entry.previousAssumptions }
                         : s,
                 );
 
@@ -304,6 +344,9 @@ export const useModelStore = create<ModelStore>()(
                     undoStack: state.undoStack.slice(0, -1),
                     redoStack: [...state.redoStack, redoEntry],
                 });
+
+                // Recalculate the model with the restored assumptions
+                get().calculateModel();
             },
 
             redo: () => {
@@ -323,7 +366,7 @@ export const useModelStore = create<ModelStore>()(
 
                 const updatedScenarios = state.scenarios.map(s =>
                     s.id === entry.scenarioId
-                        ? { ...s, assumptions: entry.previousAssumptions, results: null }
+                        ? { ...s, assumptions: entry.previousAssumptions }
                         : s,
                 );
 
@@ -332,6 +375,9 @@ export const useModelStore = create<ModelStore>()(
                     redoStack: state.redoStack.slice(0, -1),
                     undoStack: [...state.undoStack, undoEntry],
                 });
+
+                // Recalculate the model with the restored assumptions
+                get().calculateModel();
             },
 
             resetToDefaults: () => {

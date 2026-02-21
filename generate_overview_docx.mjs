@@ -472,6 +472,7 @@ children.push(...codeBlock([
     'Ending Cash = Beginning Cash + Net Change',
     'Reconciles? = |Ending Cash − BS Cash| < 0.01',
 ]));
+children.push(para('Reconciliation utility (cash-flow-indirect.ts): Provides validateAllReconciliations() which checks that CF ending cash matches BS cash within $0.01 for every period. Re-exports the core CF engine functions.'));
 
 children.push(heading2('4.4 Circular Resolver (circular-resolver.ts) — THE HEART OF THE ENGINE'));
 children.push(importantBox('This module resolves the fundamental circular dependency in a 3-statement model: Interest ↔ Cash ↔ Cash Flow ↔ Net Income ↔ Interest'));
@@ -606,28 +607,35 @@ children.push(makeTable(
 children.push(pageBreak());
 children.push(heading1('8. Export Layer (lib/export/)'));
 
-children.push(heading2('8.1 Excel Export (excel.ts) — 2,029 lines, 103 KB'));
+children.push(heading2('8.1 Excel Export (excel.ts + 4 sub-modules) — 4,200+ lines'));
 children.push(importantBox('Generates a 9-tab Excel workbook where every single calculation cell contains a LIVE FORMULA — no hard-coded computed values.'));
 children.push(makeTable(
-    ['Tab Name', 'Content Description'],
+    ['Tab Name', 'Builder Module', 'Content Description'],
     [
-        ['Summary Dashboard', 'Scenario comparison matrix showing all scenarios side-by-side with key metrics'],
-        ['Assumptions', '40+ assumption rows — these are the editable inputs that drive all other tabs'],
-        ['Income Statement', 'Full Revenue → EPS waterfall with formulas referencing Assumptions tab'],
-        ['Balance Sheet', 'Full Assets = Liabilities + Equity with Cash as a plug formula'],
-        ['Cash Flow Statement', 'Indirect method CF with formulas referencing IS and BS tabs'],
-        ['Ratios', 'Profitability, Liquidity, Leverage, Efficiency — all formula-driven from IS/BS'],
-        ['Working Capital', 'DSO/DIO/DPO calculation + Net Working Capital schedule'],
-        ['Depreciation Schedule', 'Gross PP&E rollforward, Accumulated Depreciation, Net PP&E'],
+        ['Company Info', 'build-company-info.ts', '4 sections: company ID, model config, Egypt regulatory/tax, report/preparer info'],
+        ['Summary Dashboard', 'build-dashboard.ts', 'Scenario switcher dropdown with IF()-formula metric rows that change dynamically'],
+        ['Scenarios', 'build-scenarios.ts', '3 side-by-side scenario blocks (Base / Optimistic / Conservative) with 40+ assumption rows each'],
+        ['Assumptions', 'excel.ts (main)', '40+ assumption rows — the editable inputs that drive all formula tabs'],
+        ['Income Statement', 'excel.ts (main)', 'Full Revenue → EPS waterfall with formulas referencing Assumptions tab'],
+        ['Balance Sheet', 'excel.ts (main)', 'Full A = L + E with Cash as a plug formula'],
+        ['Cash Flow Statement', 'excel.ts (main)', 'Indirect method CF with formulas referencing IS and BS tabs'],
+        ['Ratios', 'excel.ts (main)', 'Profitability, Liquidity, Leverage, Efficiency — all formula-driven'],
+        ['_Calc_Base/Opt/Con', 'build-calc-sheets.ts', '3 hidden sheets with IS/BS/CF formula replicas per scenario (90 rows each)'],
     ],
-    [25, 75],
+    [22, 22, 56],
 ));
-children.push(para('Key Excel features:'));
+children.push(heading3('Export Sub-Modules'));
+children.push(bullet('build-company-info.ts (131 lines) — Company metadata, regulatory defaults, color-coded editable vs auto-computed cells'));
+children.push(bullet('build-scenarios.ts (445 lines) — Builds all assumption arrays per scenario; maps ROW_SPECS keys to row positions for cross-sheet references'));
+children.push(bullet('build-calc-sheets.ts (707 lines) — Creates hidden formula sheets (_Calc_Base, _Calc_Opt, _Calc_Con) with 90-row IS/BS/CF replicas that reference the Scenarios tab'));
+children.push(bullet('build-dashboard.ts (397 lines) — Scenario comparison with IF() formulas switching between scenario calc sheets based on a dropdown'));
+children.push(heading3('Key Excel Architecture'));
 children.push(bullet('Historical vs Projected visual styling — historical columns have blue tint, vertical separator border'));
 children.push(bullet('Back-computed assumptions — historical DSO, DIO, DPO are reverse-calculated from actual BS/IS data'));
 children.push(bullet('Cash plug formula: Cash = Total L+E − AR − Inventory − Prepaid − OCA − Total NCA'));
 children.push(bullet('Balance check row: IF(ABS(TotalAssets − TotalL&E) < 1, "✓ Balanced", "✗ Imbalanced")'));
 children.push(bullet('CF reconciliation: IF(ABS(EndingCash − BS.Cash) < 0.01, "✓ Reconciles", "✗ Error")'));
+children.push(bullet('Zebra-striping and negative-value red formatting applied automatically via applyZebraAndNegatives()'));
 
 children.push(heading2('8.2 PDF Export (pdf.ts) — 49 KB'));
 children.push(bullet('Multi-page professional report with cover page (company name, ticker, industry, generation date)'));
@@ -816,14 +824,32 @@ children.push(para('State persists across browser refreshes via the zustand/midd
 
 // ── 15. LIMITATIONS ─────────────────────────────────────
 children.push(heading1('15. Known Limitations'));
-children.push(bullet('No multi-segment revenue breakdown (single top-line revenue only)'));
-children.push(bullet('No DCF / terminal value / WACC valuation module'));
-children.push(bullet('No automated import from financial data APIs (SEC EDGAR, Bloomberg, Capital IQ, etc.)'));
-children.push(bullet('Single currency only — no foreign exchange conversion or multi-currency balance sheets'));
-children.push(bullet('No user authentication or multi-user collaboration features'));
-children.push(bullet('Monte Carlo runs synchronously on the main thread (may freeze UI for very large iteration counts)'));
-children.push(bullet('Historical data limited to manual entry or CSV import — no database persistence'));
-children.push(bullet('No audit trail or change logging for assumption modifications beyond undo/redo'));
+children.push(makeTable(
+    ['Area', 'Limitation', 'Workaround'],
+    [
+        ['Circular References', 'Iterative solver may not converge with extreme assumptions (200%+ debt ratios)', 'Use realistic assumption ranges'],
+        ['Interest Calculation', 'Uses beginning-of-period debt (flat rate × beginning balance) — no mid-period debt changes', 'Acceptable for most modeling'],
+        ['Balancing Plug', 'Cash is used as the plug when BS doesn\'t balance exactly', 'Check balanceDifference field'],
+        ['Tax Loss Carryforward', 'Not implemented — negative EBT still applies tax rate', 'Set tax rate to 0% for loss scenarios'],
+        ['Goodwill & Intangibles', 'Static from assumptions — no impairment testing', 'Manually update assumptions'],
+        ['Working Capital', 'DSO/DIO/DPO-driven — no seasonal or cyclical variation', 'N/A for annual models'],
+        ['Debt Structure', 'Constant debt levels unless assumption overrides used', 'Use scenario manager'],
+        ['Performance', 'Monte Carlo with 10,000+ iterations can freeze UI for 5-15s', 'Reduce iteration count'],
+        ['PDF Export', 'Landscape A4 — may truncate columns with 8+ projected years', 'Use Excel export'],
+        ['Browser Storage', 'Model state persisted in localStorage — limited to ~5MB', 'Export to JSON regularly'],
+        ['Single Currency', 'No foreign exchange conversion or multi-currency balance sheets', 'Future enhancement planned'],
+        ['Undo/Redo', 'Only tracks assumption changes, not scenario additions/deletions', 'N/A'],
+    ],
+    [22, 53, 25],
+));
+children.push(emptyLine());
+children.push(heading2('Planned Improvements'));
+children.push(bullet('Web Worker for Monte Carlo (non-blocking UI)'));
+children.push(bullet('Tax loss carryforward logic'));
+children.push(bullet('Debt covenants and revolving credit facility'));
+children.push(bullet('Real-time API integration (Yahoo Finance, FMP)'));
+children.push(bullet('Multi-currency support'));
+children.push(bullet('Industry-specific templates'));
 
 // ════════════════════════════════════════════════════════
 // CREATE AND SAVE DOCUMENT

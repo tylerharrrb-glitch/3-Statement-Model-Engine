@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useModelStore } from '@/lib/store';
 import Sidebar from '@/components/Sidebar';
 import Dashboard from '@/components/Dashboard';
@@ -19,9 +19,11 @@ import DepreciationPage from '@/components/schedules/DepreciationPage';
 import DebtSchedulePage from '@/components/schedules/DebtSchedulePage';
 import ValidationPage from '@/components/ValidationPage';
 import CompanySettings from '@/components/CompanySettings';
+import ErrorBanner from '@/components/ErrorBanner';
+import ConflictModal from '@/components/ConflictModal';
 
 export default function Home() {
-  const { activeTab, calculateAllScenarios, scenarios } = useModelStore();
+  const { activeTab, calculateAllScenarios, scenarios, calculationError, conflictDetected, dataVersion } = useModelStore();
 
   useEffect(() => {
     const hasResults = scenarios.some(s => s.results !== null);
@@ -36,10 +38,31 @@ export default function Home() {
         e.preventDefault();
         calculateAllScenarios();
       }
+      // Undo/Redo keyboard shortcuts
+      if (e.ctrlKey && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        useModelStore.getState().undo();
+      }
+      if (e.ctrlKey && e.shiftKey && e.key === 'Z') {
+        e.preventDefault();
+        useModelStore.getState().redo();
+      }
     };
     window.addEventListener('keydown', handleKeyboard);
     return () => window.removeEventListener('keydown', handleKeyboard);
   }, [calculateAllScenarios]);
+
+  // Conflict detection via localStorage 'storage' event (FIX #13)
+  useEffect(() => {
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === 'financial-model-storage' && e.newValue) {
+        // Another tab modified the data
+        useModelStore.setState({ conflictDetected: true });
+      }
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
 
   // Show ScenarioSelector on statement, dashboard, and schedule tabs
   const showScenarioSelector = ['dashboard', 'income', 'balance', 'cashflow', 'working-capital', 'depreciation', 'debt-schedule'].includes(activeTab);
@@ -68,11 +91,18 @@ export default function Home() {
   return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>
       <Sidebar />
-      <main className="main-content animate-fade-in" key={activeTab}>
+      <main className="main-content animate-fade-in" key={activeTab} role="main" aria-label="Main content area">
+        {/* Error banner (FIX #11) */}
+        <ErrorBanner />
+        {/* Conflict modal (FIX #13) */}
+        <ConflictModal />
         {showScenarioSelector && <ScenarioSelector />}
         {renderPage()}
       </main>
+      {/* Skip to content link for accessibility (FIX #10) */}
+      <a href="#" className="sr-only" style={{ position: 'absolute', top: -9999, left: -9999 }}>
+        Skip to main content
+      </a>
     </div>
   );
 }
-

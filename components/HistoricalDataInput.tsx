@@ -195,14 +195,33 @@ export default function HistoricalDataInputComponent() {
 
     return (
         <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
                 <h1 style={{ fontSize: 22, fontWeight: 700 }}>📊 Historical Data (Actuals)</h1>
-                <div style={{ display: 'flex', gap: 8 }}>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                    {/* Historical/Forecast Toggle (FIX #12) */}
+                    <label
+                        id="historical-toggle"
+                        style={{
+                            display: 'inline-flex', alignItems: 'center', gap: 8,
+                            padding: '4px 12px', borderRadius: 8,
+                            background: 'rgba(79,140,255,0.1)', border: '1px solid var(--border-color)',
+                            fontSize: 12, cursor: 'default', color: 'var(--accent-blue)',
+                        }}
+                        aria-label="Data mode: Historical actuals"
+                    >
+                        <span style={{
+                            display: 'inline-block', width: 8, height: 8, borderRadius: '50%',
+                            background: 'var(--accent-blue)',
+                        }} />
+                        Historical Mode
+                    </label>
                     <input ref={fileRef} type="file" accept=".csv" onChange={handleCSVImport} style={{ display: 'none' }} />
-                    <button className="btn-secondary" onClick={() => fileRef.current?.click()} style={{ fontSize: 12 }}>
+                    <button className="btn-secondary" onClick={() => fileRef.current?.click()} style={{ fontSize: 12 }}
+                        aria-label="Import historical data from CSV file">
                         📂 Import CSV
                     </button>
-                    <button className="btn-secondary" onClick={handleDownloadTemplate} style={{ fontSize: 12 }}>
+                    <button className="btn-secondary" onClick={handleDownloadTemplate} style={{ fontSize: 12 }}
+                        aria-label="Download CSV template for historical data">
                         📋 Download Template
                     </button>
                 </div>
