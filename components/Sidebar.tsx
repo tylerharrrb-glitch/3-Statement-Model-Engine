@@ -185,6 +185,7 @@ export default function Sidebar() {
                         style={{ flex: 1, fontSize: 12, padding: '6px 8px', opacity: undoStack.length === 0 ? 0.4 : 1 }}
                         onClick={undo}
                         disabled={undoStack.length === 0}
+                        aria-disabled={undoStack.length === 0}
                         title="Undo (Ctrl+Z)"
                         aria-label={`Undo${undoStack.length > 0 ? `: ${undoStack[undoStack.length - 1].description}` : ''}`}
                     >
@@ -196,6 +197,7 @@ export default function Sidebar() {
                         style={{ flex: 1, fontSize: 12, padding: '6px 8px', opacity: redoStack.length === 0 ? 0.4 : 1 }}
                         onClick={redo}
                         disabled={redoStack.length === 0}
+                        aria-disabled={redoStack.length === 0}
                         title="Redo (Ctrl+Shift+Z)"
                         aria-label={`Redo${redoStack.length > 0 ? `: ${redoStack[redoStack.length - 1].description}` : ''}`}
                     >

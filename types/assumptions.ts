@@ -149,8 +149,8 @@ export function getDefaultAssumptions(): AssumptionSet {
         depreciationRate: fill(0.10),
         amortizationAmount: fill(5_000),
 
-        interestRate: 0.05,
-        interestIncomeRate: 0.02,
+        interestRate: 0.22,
+        interestIncomeRate: 0.15,
         shortTermDebtAmount: fill(50_000),
         longTermDebtIssuance: fill(0),
         longTermDebtRepayment: fill(20_000),
@@ -161,7 +161,7 @@ export function getDefaultAssumptions(): AssumptionSet {
         shareRepurchaseAmount: fill(0),
         stockBasedCompAmount: fill(10_000),
 
-        taxRate: fill(0.25),
+        taxRate: fill(0.225),
 
         otherIncomeExpense: fill(0),
         goodwill: fill(100_000),
@@ -179,14 +179,14 @@ export function getDefaultAssumptions(): AssumptionSet {
         investmentSales: fill(0),
         equityIssuance: fill(0),
 
-        // Egyptian / localization defaults (off)
-        countryPreset: 'us',
-        vatRate: 0,
-        enableVAT: false,
-        dividendWithholdingRate: 0,
-        useEgyptianRates: false,
-        fiscalYearEnd: 12,
-        fiscalYearPreset: 'calendar',
+        // Egyptian / localization defaults
+        countryPreset: 'egypt',
+        vatRate: 0.14,
+        enableVAT: true,
+        dividendWithholdingRate: 0.10,
+        useEgyptianRates: true,
+        fiscalYearEnd: 6,
+        fiscalYearPreset: 'egyptian-govt',
 
         projectionYears: years,
         historicalYears: 2,

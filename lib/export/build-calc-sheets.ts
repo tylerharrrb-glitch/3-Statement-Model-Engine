@@ -426,7 +426,7 @@ function buildOneCalcSheet(cfg: CalcSheetConfig): CalcSheetRowMap {
             const sr = (key: string) => sRef(key, yr);
 
             // IS formulas
-            // Revenue = prior * (1 + growth)
+            // Revenue — chain from prior year using growth rate (independent formula, no Scenarios output ref)
             setF(R.revenue, yr,
                 `${pc}${R.revenue}*(1+${sr('revenueGrowthRate')})`,
                 isData?.revenue ?? 0);
@@ -440,7 +440,7 @@ function buildOneCalcSheet(cfg: CalcSheetConfig): CalcSheetRowMap {
             setF(R.sga, yr, `${c}${R.revenue}*${sr('sgaPercent')}`, isData?.sgaExpense ?? 0);
             setF(R.rd, yr, `${c}${R.revenue}*${sr('rdPercent')}`, isData?.rdExpense ?? 0);
 
-            // Depreciation = (prevGrossPPE + Revenue*CapEx%/2) * DepRate
+            // Depreciation — independent formula: (prevGrossPPE + rev*capex%/2) * depRate
             setF(R.depreciation, yr,
                 `(${pc}${R.grossPPE}+${c}${R.revenue}*${sr('capexPercent')}/2)*${sr('depreciationRate')}`,
                 isData?.depreciation ?? 0);
@@ -453,16 +453,14 @@ function buildOneCalcSheet(cfg: CalcSheetConfig): CalcSheetRowMap {
                 isData?.totalOpex ?? 0);
             setF(R.ebit, yr, `${c}${R.grossProfit}-${c}${R.totalOpex}`, isData?.ebit ?? 0);
 
-            // Interest Income = beginning-of-period cash * interest income rate
-            // NOTE: Using beginning-of-period (prior column) cash to AVOID circular reference.
-            // Circular chain was: IntIncome → EBT → NI → CFO → Cash → IntIncome
+            // Interest Income — engine-computed (circular: IntIncome ↔ Cash ↔ NI)
             setF(R.interestIncome, yr,
-                `${pc}${R.cash}*${sr('interestIncomeRate')}`,
+                sr('interestIncomeComputed'),
                 isData?.interestIncome ?? 0);
 
-            // Interest Expense = avg(prior LTD, LTD) * interest rate
+            // Interest Expense — engine-computed (circular: IntExpense ↔ LTD ↔ NI)
             setF(R.interestExpense, yr,
-                `(${pc}${R.longTermDebt}+${c}${R.longTermDebt})/2*${sr('interestRate')}`,
+                sr('interestExpenseComputed'),
                 isData?.interestExpense ?? 0);
 
             setF(R.otherIncomeExpense, yr, sr('otherIncomeExpense'), isData?.otherIncomeExpense ?? 0);
@@ -475,13 +473,13 @@ function buildOneCalcSheet(cfg: CalcSheetConfig): CalcSheetRowMap {
             // Tax = MAX(0, EBT * TaxRate)
             setF(R.tax, yr, `MAX(0,${c}${R.ebt}*${sr('taxRate')})`, isData?.taxExpense ?? 0);
 
-            // Net Income
+            // Net Income — computed locally: EBT - Tax
             setF(R.netIncome, yr, `${c}${R.ebt}-${c}${R.tax}`, isData?.netIncome ?? 0);
 
             // ── BS formulas ──
-            // Cash = Beginning Cash + CFO + CFI + CFF  (CIRCULAR with Interest Income)
+            // Cash — engine-computed plug item (circular: Cash ↔ IntIncome ↔ NI ↔ CFO)
             setF(R.cash, yr,
-                `${pc}${R.cash}+${c}${R.cf_cfo}+${c}${R.cf_cfi}+${c}${R.cf_cff}`,
+                sr('out_cash'),
                 bsData?.cash ?? 0);
 
             // A/R = Revenue * DSO / 365
@@ -501,17 +499,17 @@ function buildOneCalcSheet(cfg: CalcSheetConfig): CalcSheetRowMap {
             // Total CA
             setF(R.totalCA, yr, `SUM(${c}${R.cash}:${c}${R.otherCA})`, bsData?.totalCurrentAssets ?? 0);
 
-            // Gross PPE = prior + Revenue * CapEx%
+            // Gross PPE — independent formula: prev + Revenue * CapEx%
             setF(R.grossPPE, yr,
                 `${pc}${R.grossPPE}+${c}${R.revenue}*${sr('capexPercent')}`,
                 bsData?.grossPPE ?? 0);
-            // Accum Dep = prior + Depreciation
+            // Accum Dep — independent formula: prev + Depreciation
             setF(R.accumDep, yr,
                 `${pc}${R.accumDep}+${c}${R.depreciation}`,
                 bsData?.accumulatedDepreciation ?? 0);
-            // Net PPE
+            // Net PPE — independent formula: Gross PPE - Accum Dep
             setF(R.netPPE, yr, `${c}${R.grossPPE}-${c}${R.accumDep}`, bsData?.netPPE ?? 0);
-            // Intangibles = MAX(0, prev - Amortization)
+            // Intangibles — independent formula: MAX(0, prev - Amortization)
             setF(R.intangibles, yr,
                 `MAX(0,${pc}${R.intangibles}-${c}${R.amortization})`,
                 bsData?.intangibles ?? 0);
@@ -547,9 +545,9 @@ function buildOneCalcSheet(cfg: CalcSheetConfig): CalcSheetRowMap {
             // Total CL
             setF(R.totalCL, yr, `SUM(${c}${R.accountsPayable}:${c}${R.otherCL})`, bsData?.totalCurrentLiabilities ?? 0);
 
-            // Long-Term Debt = prev + issuance - repayment
+            // Long-Term Debt — independent formula: prev + issuance - repayment
             setF(R.longTermDebt, yr,
-                `${pc}${R.longTermDebt}+${sr('longTermDebtIssuance')}-${sr('longTermDebtRepayment')}`,
+                `${pc}${R.longTermDebt}+${sr('longTermDebtIssuance')}-ABS(${sr('longTermDebtRepayment')})`,
                 bsData?.longTermDebt ?? 0);
             // DTL
             setF(R.deferredTaxLiab, yr, sr('deferredTaxLiabilities'), bsData?.deferredTaxLiabilities ?? 0);
@@ -562,17 +560,17 @@ function buildOneCalcSheet(cfg: CalcSheetConfig): CalcSheetRowMap {
 
             // Common Stock
             setF(R.commonStock, yr, sr('commonStock'), bsData?.commonStock ?? 0);
-            // APIC = prev + equity issuance + SBC
+            // APIC — independent formula: prev + SBC
             setF(R.apic, yr,
-                `${pc}${R.apic}+${sr('equityIssuance')}+${sr('stockBasedCompAmount')}`,
+                `${pc}${R.apic}+${c}${R.sbc}`,
                 bsData?.additionalPaidInCapital ?? 0);
-            // Retained Earnings = prev + NI - dividends (MAX(0, NI * payoutRatio))
+            // Retained Earnings — independent formula: prev + NI - dividends paid
             setF(R.retainedEarnings, yr,
-                `${pc}${R.retainedEarnings}+${c}${R.netIncome}-MAX(0,${c}${R.netIncome}*${sr('dividendPayoutRatio')})`,
+                `${pc}${R.retainedEarnings}+${c}${R.netIncome}+${c}${R.cf_dividends}`,
                 bsData?.retainedEarnings ?? 0);
-            // Treasury Stock = prev - shareRepurchaseAmount
+            // Treasury Stock — independent formula: prev - repurchases
             setF(R.treasuryStock, yr,
-                `${pc}${R.treasuryStock}-${sr('shareRepurchaseAmount')}`,
+                `${pc}${R.treasuryStock}+${c}${R.cf_shareRepurchases}`,
                 bsData?.treasuryStock ?? 0);
             // OCI
             setF(R.oci, yr, sr('oci'), bsData?.otherComprehensiveIncome ?? 0);

@@ -124,7 +124,7 @@ export function buildDashboardSheet(
     // Description formula
     ws.mergeCells(6, 5, 6, lastCol);
     ws.getCell(6, 5).value = {
-        formula: 'IF(B6="Base Case","Central planning — stable market | Revenue 10%→5% | COGS 60%",IF(B6="Optimistic","Bull case — strong execution | Revenue 15%→8% | COGS 55%","Bear case — headwinds | Revenue 5%→2% | COGS 63%"))',
+        formula: 'IF(B6="Base Case","Central planning — stable market | Revenue 10%→5% | COGS 60%",IF(B6="Optimistic","Optimistic case — strong execution | Revenue 15%→8% | COGS 55%","Conservative case — headwinds | Revenue 5%→2% | COGS 63%"))',
         result: 'Central planning — stable market | Revenue 10%→5% | COGS 60%',
     };
     ws.getCell(6, 5).font = { name: 'Calibri', size: 9, italic: true, color: { argb: DARK_GRAY } };

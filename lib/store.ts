@@ -58,7 +58,7 @@ export const useModelStore = create<ModelStore>()(
             industry: 'Technology',
             currency: 'EGP',
             country: 'Egypt',
-            fiscalYearEnd: 'Dec 31',
+            fiscalYearEnd: 'June 30',
             valuationDate: 'Dec 31, 2023',
             historicalData: getDefaultHistoricalData(),
             historicalInputs: getDefaultHistoricalInputs(),
