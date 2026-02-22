@@ -257,6 +257,8 @@ export const useModelStore = create<ModelStore>()(
                     'taxRate', 'vatRate', 'enableVAT', 'dividendWithholdingRate',
                     'useEgyptianRates', 'countryPreset', 'fiscalYearPreset', 'fiscalYearEnd',
                     'projectionYears', 'historicalYears',
+                    'cbeRate', 'legacyDebtRate', 'employeeProfitSharingRate',
+                    'interestRateOnDebt', 'interestRateOnCash',
                 ] as const;
 
                 // Compute each scenario INDEPENDENTLY — if one fails, others still succeed
@@ -413,6 +415,12 @@ export const useModelStore = create<ModelStore>()(
                         updatedAssumptions.useEgyptianRates = true;
                         updatedAssumptions.fiscalYearPreset = 'egyptian-govt';
                         updatedAssumptions.fiscalYearEnd = 6;
+                        // CBE-linked defaults
+                        updatedAssumptions.cbeRate = 0.2725;
+                        updatedAssumptions.interestRateOnDebt = [0.22, 0.22, 0.20, 0.18, 0.18];
+                        updatedAssumptions.interestRateOnCash = [0.22, 0.20, 0.18, 0.16, 0.15];
+                        updatedAssumptions.legacyDebtRate = 0.045;
+                        updatedAssumptions.employeeProfitSharingRate = 0.10;
                     } else if (preset === 'us') {
                         updatedAssumptions.countryPreset = 'us';
                         updatedAssumptions.taxRate = updatedAssumptions.taxRate.map(() => 0.25);
@@ -453,6 +461,31 @@ export const useModelStore = create<ModelStore>()(
                 activeScenarioId: state.activeScenarioId,
                 isDarkMode: state.isDarkMode,
             }),
+            // Migration: convert old scalar interestRate → per-year arrays
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            migrate: (persisted: any) => {
+                if (persisted?.scenarios) {
+                    for (const s of persisted.scenarios) {
+                        const a = s.assumptions;
+                        if (!a) continue;
+                        // Migrate scalar interestRate → interestRateOnDebt[]
+                        if (typeof a.interestRate === 'number' && !a.interestRateOnDebt) {
+                            a.interestRateOnDebt = Array(5).fill(a.interestRate);
+                            delete a.interestRate;
+                        }
+                        if (typeof a.interestIncomeRate === 'number' && !a.interestRateOnCash) {
+                            a.interestRateOnCash = Array(5).fill(a.interestIncomeRate);
+                            delete a.interestIncomeRate;
+                        }
+                        // Default new fields
+                        if (a.cbeRate === undefined) a.cbeRate = 0.2725;
+                        if (a.legacyDebtRate === undefined) a.legacyDebtRate = 0.045;
+                        if (a.employeeProfitSharingRate === undefined) a.employeeProfitSharingRate = 0.10;
+                    }
+                }
+                return persisted;
+            },
+            version: 2, // Bump version to trigger migration
         },
     ),
 );

@@ -3,6 +3,7 @@
 import { useModelStore } from '@/lib/store';
 import { EGYPTIAN_DEPRECIATION_RATES } from '@/lib/schedules/egyptian-depreciation';
 import { FISCAL_YEAR_PRESETS } from '@/lib/schedules/egyptian-depreciation';
+import { SECTOR_WC_PRESETS } from '@/lib/engines/valuation';
 
 export default function EgyptianSettings() {
     const { scenarios, activeScenarioId, updateAssumption, setCountryPreset } = useModelStore();
@@ -11,6 +12,23 @@ export default function EgyptianSettings() {
 
     const a = scenario.assumptions;
     const isEgypt = a.countryPreset === 'egypt';
+
+    const applySectorPreset = (sectorKey: string) => {
+        const preset = SECTOR_WC_PRESETS[sectorKey];
+        if (!preset) return;
+        const fill = (v: number) => Array(a.projectionYears).fill(v);
+        updateAssumption('dso', fill(preset.dso));
+        updateAssumption('dio', fill(preset.dio));
+        updateAssumption('dpo', fill(preset.dpo));
+        // Store sectorPreset directly on assumptions via setState
+        const store = useModelStore.getState();
+        const updatedScenarios = store.scenarios.map(s =>
+            s.id === activeScenarioId
+                ? { ...s, assumptions: { ...s.assumptions, sectorPreset: sectorKey as typeof a.sectorPreset } }
+                : s
+        );
+        useModelStore.setState({ scenarios: updatedScenarios });
+    };
 
     return (
         <div className="metric-card" style={{ marginTop: 16 }}>
@@ -31,6 +49,26 @@ export default function EgyptianSettings() {
                     <option value="egypt">🇪🇬 Egypt</option>
                     <option value="custom">⚙️ Custom</option>
                 </select>
+            </div>
+
+            {/* Sector WC Preset */}
+            <div style={{ marginBottom: 16, padding: 12, background: 'var(--bg-tertiary)', borderRadius: 8 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+                    Working Capital Sector Preset
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <label style={{ fontSize: 13, minWidth: 120 }}>Sector</label>
+                    <select
+                        className="fin-select"
+                        value={a.sectorPreset || 'technology'}
+                        onChange={(e) => applySectorPreset(e.target.value)}
+                        style={{ flex: 1 }}
+                    >
+                        {Object.entries(SECTOR_WC_PRESETS).map(([key, p]) => (
+                            <option key={key} value={key}>{p.label} (DSO:{p.dso} / DIO:{p.dio} / DPO:{p.dpo})</option>
+                        ))}
+                    </select>
+                </div>
             </div>
 
             {/* VAT Settings */}

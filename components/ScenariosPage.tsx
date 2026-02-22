@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useModelStore } from '@/lib/store';
 import { formatCurrency, formatPercent, formatEPS } from '@/lib/utils';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
@@ -12,8 +12,26 @@ export default function ScenariosPage() {
         const r = s.results!;
         const lastIS = r.incomeStatements[r.incomeStatements.length - 1];
         const lastCF = r.cashFlowStatements[r.cashFlowStatements.length - 1];
-        return { name: s.name, type: s.type, revenue: lastIS.revenue, ebitda: lastIS.ebitda, netIncome: lastIS.netIncome, eps: lastIS.eps, fcf: lastCF.freeCashFlow, grossMargin: lastIS.grossMargin, netMargin: lastIS.netMargin };
+        const lastBS = r.balanceSheets[r.balanceSheets.length - 1];
+        const firstIS = r.incomeStatements.find(is => is.periodType === 'projected') ?? r.incomeStatements[0];
+        const years = r.incomeStatements.filter(is => is.periodType === 'projected').length;
+        const cagr = years > 1 && firstIS.revenue > 0 ? Math.pow(lastIS.revenue / firstIS.revenue, 1 / (years - 1)) - 1 : 0;
+        const ic = lastIS.interestExpense !== 0 ? lastIS.ebit / lastIS.interestExpense : 0;
+        return {
+            name: s.name, type: s.type,
+            revenue: lastIS.revenue, ebitda: lastIS.ebitda, netIncome: lastIS.netIncome,
+            eps: lastIS.eps, fcf: lastCF.freeCashFlow, grossMargin: lastIS.grossMargin,
+            netMargin: lastIS.netMargin, endingCash: lastBS.cash, cagr, interestCoverage: ic,
+        };
     });
+
+    // Find best/worst for color coding
+    const bestWorst = (key: string, higherBetter = true) => {
+        const vals = comparison.map(c => (c as unknown as Record<string, number>)[key]);
+        const best = higherBetter ? Math.max(...vals) : Math.min(...vals);
+        const worst = higherBetter ? Math.min(...vals) : Math.max(...vals);
+        return { best, worst };
+    };
 
     return (
         <div>
@@ -51,7 +69,7 @@ export default function ScenariosPage() {
 
             {/* Comparison Chart */}
             {comparison.length > 0 && (
-                <div className="metric-card">
+                <div className="metric-card" style={{ marginBottom: 24 }}>
                     <h3 style={{ fontSize: 14, fontWeight: 600, marginBottom: 16, color: 'var(--text-secondary)' }}>Scenario Comparison</h3>
                     <ResponsiveContainer width="100%" height={300}>
                         <BarChart data={comparison}>
@@ -65,6 +83,59 @@ export default function ScenariosPage() {
                             <Bar dataKey="fcf" name="FCF" fill="#fbbf24" radius={[4, 4, 0, 0]} />
                         </BarChart>
                     </ResponsiveContainer>
+                </div>
+            )}
+
+            {/* Side-by-side Comparison Table */}
+            {comparison.length > 0 && (
+                <div className="metric-card">
+                    <h3 style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-secondary)' }}>Side-by-Side Comparison (Terminal Year)</h3>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+                        <thead>
+                            <tr style={{ borderBottom: '2px solid var(--border-color)' }}>
+                                <th style={{ textAlign: 'left', padding: 10, color: 'var(--text-muted)' }}>Metric</th>
+                                {comparison.map(c => (
+                                    <th key={c.name} style={{ textAlign: 'right', padding: 10, color: c.type === 'optimistic' ? '#34d399' : c.type === 'conservative' ? '#f43f5e' : '#4f8cff' }}>
+                                        {c.name}
+                                    </th>
+                                ))}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {[
+                                { label: 'Revenue', key: 'revenue', fmt: (v: number) => formatCurrency(v, currency, true), higherBetter: true },
+                                { label: 'EBITDA', key: 'ebitda', fmt: (v: number) => formatCurrency(v, currency, true), higherBetter: true },
+                                { label: 'Net Income', key: 'netIncome', fmt: (v: number) => formatCurrency(v, currency, true), higherBetter: true },
+                                { label: 'EPS', key: 'eps', fmt: (v: number) => formatEPS(v, currency), higherBetter: true },
+                                { label: 'Free Cash Flow', key: 'fcf', fmt: (v: number) => formatCurrency(v, currency, true), higherBetter: true },
+                                { label: 'Ending Cash', key: 'endingCash', fmt: (v: number) => formatCurrency(v, currency, true), higherBetter: true },
+                                { label: 'Net Margin', key: 'netMargin', fmt: (v: number) => formatPercent(v), higherBetter: true },
+                                { label: '5Y Revenue CAGR', key: 'cagr', fmt: (v: number) => formatPercent(v), higherBetter: true },
+                                { label: 'Interest Coverage', key: 'interestCoverage', fmt: (v: number) => v.toFixed(1) + 'x', higherBetter: true },
+                            ].map(row => {
+                                const bw = bestWorst(row.key, row.higherBetter);
+                                return (
+                                    <tr key={row.label} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                                        <td style={{ padding: 10, fontWeight: 600 }}>{row.label}</td>
+                                        {comparison.map(c => {
+                                            const val = (c as unknown as Record<string, number>)[row.key];
+                                            const isBest = val === bw.best && comparison.length > 1;
+                                            const isWorst = val === bw.worst && comparison.length > 1;
+                                            return (
+                                                <td key={c.name} style={{
+                                                    textAlign: 'right', padding: 10,
+                                                    color: isBest ? '#34d399' : isWorst ? '#f43f5e' : 'var(--text-primary)',
+                                                    fontWeight: isBest ? 700 : 400,
+                                                }}>
+                                                    {row.fmt(val)}
+                                                </td>
+                                            );
+                                        })}
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
                 </div>
             )}
         </div>

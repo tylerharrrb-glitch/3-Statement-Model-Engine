@@ -175,8 +175,8 @@ async function main() {
     aSheet.getCell(aRow, 1).value = '── Debt & Financing ──';
     styleRow(aSheet.getRow(aRow), { subheader: true }); aRow++;
 
-    addAssumptionRow('Interest Rate (on Debt)', 'interestRate', Array(nYears).fill(assumptions.interestRate), PCT_FMT);
-    addAssumptionRow('Interest Income Rate (on Cash)', 'interestIncomeRate', Array(nYears).fill(assumptions.interestIncomeRate), PCT_FMT);
+    addAssumptionRow('Interest Rate (on Debt)', 'interestRate', [...histBS.map(() => 0), ...assumptions.interestRateOnDebt], PCT_FMT);
+    addAssumptionRow('Interest Income Rate (on Cash)', 'interestIncomeRate', [...histBS.map(() => 0), ...assumptions.interestRateOnCash], PCT_FMT);
     addAssumptionRow('Short-Term Debt', 'shortTermDebtAmount', [...histBS.map(bs => bs.shortTermDebt), ...assumptions.shortTermDebtAmount], NUM_FMT);
     addAssumptionRow('LT Debt Issuance', 'longTermDebtIssuance', [...histBS.map((bs, i) => {
         if (i === 0) return 0;

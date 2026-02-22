@@ -15,6 +15,8 @@ const navItems: { id: ModelState['activeTab']; label: string; icon: string }[] =
     { id: 'debt-schedule', label: 'Debt Schedule', icon: '🏛️' },
     { id: 'scenarios', label: 'Scenarios', icon: '🔀' },
     { id: 'sensitivity', label: 'Sensitivity', icon: '📈' },
+    { id: 'dcf', label: 'DCF Valuation', icon: '💎' },
+    { id: 'valuation', label: 'Valuation Multiples', icon: '📊' },
     { id: 'montecarlo', label: 'Monte Carlo', icon: '🎲' },
     { id: 'validation', label: 'Validation', icon: '✅' },
     { id: 'historicaldata', label: 'Historical Data', icon: '📋' },

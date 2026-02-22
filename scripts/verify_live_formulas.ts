@@ -183,11 +183,11 @@ async function main() {
             // Interest Expense: AVG(begDebt, endDebt) * rate
             const begDebt = prevBS.shortTermDebt + prevBS.longTermDebt + prevBS.currentPortionLTD;
             const endDebt = currBS.shortTermDebt + currBS.longTermDebt + currBS.currentPortionLTD;
-            const expectedIntExp = ((begDebt + endDebt) / 2) * a.interestRate;
+            const expectedIntExp = ((begDebt + endDebt) / 2) * (a.interestRateOnDebt[projYr] ?? 0.22);
             checkValue(checks, name, 'IS', 'Interest Expense', yr, expectedIntExp, currIS.interestExpense);
 
             // Interest Income: AVG(prevCash, currCash) * rate
-            const expectedIntInc = ((prevBS.cash + currBS.cash) / 2) * a.interestIncomeRate;
+            const expectedIntInc = ((prevBS.cash + currBS.cash) / 2) * (a.interestRateOnCash[projYr] ?? 0.15);
             checkValue(checks, name, 'IS', 'Interest Income', yr, expectedIntInc, currIS.interestIncome);
 
             // ── BS chain items ──
@@ -207,10 +207,12 @@ async function main() {
             const expectedLTD = prevBS.longTermDebt + (a.longTermDebtIssuance[projYr] ?? 0) - (a.longTermDebtRepayment[projYr] ?? 0);
             checkValue(checks, name, 'BS', 'Long-Term Debt', yr, expectedLTD, currBS.longTermDebt);
 
-            // RE = prev + NI - dividends
+            // RE = prev + NI - dividends - EPD
             const divPayout = a.dividendPayoutRatio[projYr] ?? 0;
-            const dividends = Math.max(0, currIS.netIncome * divPayout);
-            const expectedRE = prevBS.retainedEarnings + currIS.netIncome - dividends;
+            const epd = Math.max(0, currIS.netIncome) * (a.employeeProfitSharingRate ?? 0.10);
+            const niAfterEPD = currIS.netIncome - epd;
+            const dividends = Math.max(0, niAfterEPD * divPayout);
+            const expectedRE = prevBS.retainedEarnings + currIS.netIncome - dividends - epd;
             checkValue(checks, name, 'BS', 'Retained Earnings', yr, expectedRE, currBS.retainedEarnings);
 
             // APIC = prev + equityIssuance + SBC

@@ -28,7 +28,7 @@ export function resolveCircularReferences(
     yearIndex: number,
     previousIncomeStatement: IncomeStatement,
     previousBalanceSheet: BalanceSheet,
-    maxIterations: number = 100,
+    maxIterations: number = 500,
     tolerance: number = 0.01,
 ): ResolverResult {
     let iteration = 0;
@@ -97,14 +97,14 @@ export function resolveCircularReferences(
         estimatedInterestExpense = calculateInterestExpense(
             beginDebt,
             endDebt,
-            assumptions.interestRate,
+            assumptions.interestRateOnDebt[yearIndex] ?? assumptions.legacyDebtRate ?? 0.22,
         );
 
         // Interest income: average of beginning & ending cash
         estimatedInterestIncome = calculateInterestIncome(
             previousBalanceSheet.cash,
             cashFlow.endingCash,
-            assumptions.interestIncomeRate,
+            assumptions.interestRateOnCash[yearIndex] ?? 0.15,
         );
 
         // Check convergence on ending cash
@@ -184,8 +184,9 @@ export function validateIntegration(
         difference: balanceSheet.grossPPE - expectedGrossPPE,
     });
 
-    // 5. Retained earnings flows
-    const expectedRE = previousBalanceSheet.retainedEarnings + incomeStatement.netIncome + cashFlow.dividendsPaid;
+    // 5. Retained earnings flows (account for EPD deduction)
+    const expectedRE = previousBalanceSheet.retainedEarnings +
+        incomeStatement.netIncomeAfterEPD + cashFlow.dividendsPaid;
     const retainedEarningsFlows = Math.abs(balanceSheet.retainedEarnings - expectedRE) < 0.01;
     details.push({
         name: 'Retained Earnings Roll Forward',

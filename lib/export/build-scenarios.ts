@@ -218,8 +218,11 @@ function buildAllArrays(
     });
     out['amortizationAmount'] = allIS.map(is => is.amortization);
 
-    out['interestRate'] = Array(nYears).fill(a.interestRate);
-    out['interestIncomeRate'] = Array(nYears).fill(a.interestIncomeRate);
+    // Per-year interest rate arrays (from assumptions, NOT scalar fill)
+    out['interestRate'] = a.interestRateOnDebt.slice(0, nYears);
+    while (out['interestRate'].length < nYears) out['interestRate'].push(out['interestRate'][out['interestRate'].length - 1] ?? 0.22);
+    out['interestIncomeRate'] = a.interestRateOnCash.slice(0, nYears);
+    while (out['interestIncomeRate'].length < nYears) out['interestIncomeRate'].push(out['interestIncomeRate'][out['interestIncomeRate'].length - 1] ?? 0.15);
     out['shortTermDebtAmount'] = allBS.map(bs => bs.shortTermDebt);
     // LTD Issuance/Repayment — back-compute from BS LTD changes
     out['longTermDebtIssuance'] = allBS.map((bs, i) => {

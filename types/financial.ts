@@ -45,6 +45,10 @@ export interface IncomeStatement {
   netIncome: number;
   netMargin: number;
 
+  // Employee Profit Sharing (Art. 47, Law 159/1981)
+  employeeProfitSharing: number;   // 10% of NI (Egyptian mandatory)
+  netIncomeAfterEPD: number;       // NI minus EPD
+
   // Per Share Metrics
   sharesOutstanding: number;
   eps: number;
@@ -145,6 +149,8 @@ export interface CashFlowStatement {
   debtRepayment: number;
   equityIssuance: number;
   dividendsPaid: number;
+  dividendWHT: number;              // Dividend withholding tax (memo, 10% ETA)
+  employeeProfitSharingPaid: number; // EPD cash outflow
   shareRepurchases: number;
   cashFromFinancing: number;
 
@@ -237,4 +243,41 @@ export interface ModelResults {
     iterations: number;
     finalDelta: number;
   };
+  dcfValuation?: DCFValuation;
+  valuationMultiples?: ValuationMultiples;
+}
+
+// ── DCF Valuation ──
+export interface DCFValuation {
+  fcfProjections: number[];           // FCF for each projection year
+  discountedFCFs: number[];           // PV of each FCF
+  terminalValue: number;              // TV = FCF_n × (1+g) / (WACC - g)
+  pvTerminalValue: number;            // PV of terminal value
+  enterpriseValue: number;            // Sum of discounted FCFs + PV(TV)
+  netDebt: number;                    // Total debt − cash
+  equityValue: number;                // EV − Net Debt
+  impliedSharePrice: number;          // Equity Value / shares outstanding
+  wacc: number;                       // Weighted average cost of capital
+  costOfEquity: number;               // CAPM: rf + β × ERP
+  costOfDebt: number;                 // After-tax: rate × (1 − tax)
+  debtWeight: number;                 // D / (D+E)
+  equityWeight: number;               // E / (D+E)
+}
+
+// ── Trading Multiples ──
+export interface ValuationMultiples {
+  pe: number | null;                  // Price / EPS (null if no share price)
+  evEbitda: number | null;            // EV / EBITDA
+  priceBook: number | null;           // Price / Book Value per Share
+  fcfYield: number | null;            // FCF / Market Cap
+  dividendYield: number | null;       // DPS / Share Price
+  marketCap: number | null;           // Share Price × Shares
+  enterpriseValueMarket: number | null; // Market Cap + Net Debt
+}
+
+// ── EGX 30 Benchmarks (Q1 2026 reference) ──
+export interface EGXBenchmarks {
+  pe: { low: number; high: number; avg: number };
+  evEbitda: { low: number; high: number; avg: number };
+  priceBook: { low: number; high: number; avg: number };
 }

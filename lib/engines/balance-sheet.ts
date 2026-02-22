@@ -94,10 +94,10 @@ export function calculateBalanceSheet(inputs: BalanceSheetInputs): BalanceSheet 
         (assumptions.equityIssuance[yr] ?? 0) +
         (assumptions.stockBasedCompAmount[yr] ?? 0);
 
-    // Retained Earnings: Prior RE + Net Income - Dividends
+    // Retained Earnings: Prior RE + NI (after EPD) - Dividends
     const dividendPayoutRatio = assumptions.dividendPayoutRatio[yr] ?? 0;
-    const dividendsPaid = Math.max(0, incomeStatement.netIncome * dividendPayoutRatio);
-    const retainedEarnings = prev.retainedEarnings + incomeStatement.netIncome - dividendsPaid;
+    const dividendsPaid = Math.max(0, incomeStatement.netIncomeAfterEPD * dividendPayoutRatio);
+    const retainedEarnings = prev.retainedEarnings + incomeStatement.netIncomeAfterEPD - dividendsPaid;
 
     // Treasury Stock: Prior - Buybacks
     const shareRepurchases = assumptions.shareRepurchaseAmount[yr] ?? 0;

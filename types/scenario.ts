@@ -37,7 +37,7 @@ export interface ModelState {
 
     // UI State
     isDarkMode: boolean;
-    activeTab: 'dashboard' | 'model' | 'income' | 'balance' | 'cashflow' | 'scenarios' | 'sensitivity' | 'montecarlo' | 'import' | 'historicaldata' | 'working-capital' | 'depreciation' | 'debt-schedule' | 'validation' | 'company-settings';
+    activeTab: 'dashboard' | 'model' | 'income' | 'balance' | 'cashflow' | 'scenarios' | 'sensitivity' | 'montecarlo' | 'import' | 'historicaldata' | 'working-capital' | 'depreciation' | 'debt-schedule' | 'validation' | 'company-settings' | 'dcf' | 'valuation';
     isCalculating: boolean;
     lastSaved: string | null;
 
@@ -87,7 +87,7 @@ export interface TwoWaySensitivityConfig {
     outputMetric: OutputMetric;
 }
 
-export type OutputMetric = 'fcf' | 'netIncome' | 'roe' | 'eps' | 'ebitda' | 'revenue';
+export type OutputMetric = 'fcf' | 'netIncome' | 'roe' | 'eps' | 'ebitda' | 'revenue' | 'interestCoverage';
 
 export interface SensitivityResult {
     inputValue: number;

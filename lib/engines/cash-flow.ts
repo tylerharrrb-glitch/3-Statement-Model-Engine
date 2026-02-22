@@ -57,10 +57,17 @@ export function calculateCashFlow(inputs: CashFlowInputs): CashFlowStatement {
     const debtRepayment = -(assumptions.longTermDebtRepayment[yr] ?? 0);
     const equityIssuance = assumptions.equityIssuance[yr] ?? 0;
     const dividendPayoutRatio = assumptions.dividendPayoutRatio[yr] ?? 0;
-    const dividendsPaid = -(Math.max(0, incomeStatement.netIncome * dividendPayoutRatio));
+    const dividendsPaid = -(Math.max(0, incomeStatement.netIncomeAfterEPD * dividendPayoutRatio));
     const shareRepurchases = -(assumptions.shareRepurchaseAmount[yr] ?? 0);
 
-    const cashFromFinancing = debtIssuance + debtRepayment + equityIssuance + dividendsPaid + shareRepurchases;
+    // Employee Profit Sharing paid as cash outflow
+    const employeeProfitSharingPaid = -(incomeStatement.employeeProfitSharing);
+
+    // Dividend withholding tax (memo — 10% of gross dividend to ETA)
+    const dividendWHT = dividendsPaid * (assumptions.dividendWithholdingRate ?? 0);
+
+    const cashFromFinancing = debtIssuance + debtRepayment + equityIssuance +
+        dividendsPaid + employeeProfitSharingPaid + shareRepurchases;
 
     // ── NET CASH FLOW ───────────────────────────────────
     const netChangeInCash = cashFromOperations + cashFromInvesting + cashFromFinancing;
@@ -99,6 +106,8 @@ export function calculateCashFlow(inputs: CashFlowInputs): CashFlowStatement {
         debtRepayment,
         equityIssuance,
         dividendsPaid,
+        dividendWHT,
+        employeeProfitSharingPaid,
         shareRepurchases,
         cashFromFinancing,
         netChangeInCash,
@@ -200,6 +209,8 @@ export function buildHistoricalCashFlows(
             debtRepayment,
             equityIssuance,
             dividendsPaid,
+            dividendWHT: 0,                   // Historical — not retroactively modeled
+            employeeProfitSharingPaid: 0,      // Historical — not retroactively modeled
             shareRepurchases,
             cashFromFinancing,
             netChangeInCash,

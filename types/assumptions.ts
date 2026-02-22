@@ -26,9 +26,11 @@ export interface AssumptionSet {
     depreciationRate: number[];         // % of gross PP&E
     amortizationAmount: number[];       // Absolute value
 
-    // Debt & Financing
-    interestRate: number;               // Annual rate on debt
-    interestIncomeRate: number;         // Rate on cash balances
+    // Debt & Financing — per-year rates (Egyptian market: CBE-linked)
+    cbeRate: number;                    // CBE overnight rate (master input)
+    interestRateOnDebt: number[];       // Per projected year, e.g. [0.22, 0.22, 0.20, 0.18, 0.18]
+    interestRateOnCash: number[];       // Per projected year, e.g. [0.22, 0.20, 0.18, 0.16, 0.15]
+    legacyDebtRate: number;             // Rate on existing historical debt tranches
     shortTermDebtAmount: number[];
     longTermDebtIssuance: number[];
     longTermDebtRepayment: number[];
@@ -40,8 +42,9 @@ export interface AssumptionSet {
     shareRepurchaseAmount: number[];
     stockBasedCompAmount: number[];
 
-    // Tax
+    // Tax & Employee Distribution
     taxRate: number[];
+    employeeProfitSharingRate: number;  // EPD rate (Art. 47, Law 159/1981) — default 0.10
 
     // Other
     otherIncomeExpense: number[];
@@ -59,6 +62,21 @@ export interface AssumptionSet {
     investmentPurchases: number[];
     investmentSales: number[];
     equityIssuance: number[];
+
+    // Valuation
+    sharePrice?: number;                // Optional — enables P/E, EV/EBITDA, FCF yield
+
+    // DCF Valuation
+    terminalGrowthRate: number;         // Gordon Growth g (nominal GDP), default 0.05
+    equityRiskPremium: number;          // Egypt ERP ~6-8%, default 0.07
+    beta: number;                       // Company beta, default 1.0
+
+    // Inflation
+    inflationRate?: number[];           // Per projected year (Egyptian CPI)
+    linkRevenueToInflation?: boolean;   // If true, revenue growth = real growth + inflation
+
+    // Sector Working Capital Preset
+    sectorPreset?: 'technology' | 'manufacturing' | 'retail' | 'government-contractor' | 'export-oriented' | 'real-estate' | 'custom';
 
     // Egyptian Market / Localization (all optional — backward compatible)
     countryPreset?: 'us' | 'egypt' | 'custom';
@@ -149,8 +167,10 @@ export function getDefaultAssumptions(): AssumptionSet {
         depreciationRate: fill(0.10),
         amortizationAmount: fill(5_000),
 
-        interestRate: 0.22,
-        interestIncomeRate: 0.15,
+        cbeRate: 0.2725,
+        interestRateOnDebt: [0.22, 0.22, 0.20, 0.18, 0.18],
+        interestRateOnCash: [0.22, 0.20, 0.18, 0.16, 0.15],
+        legacyDebtRate: 0.045,
         shortTermDebtAmount: fill(50_000),
         longTermDebtIssuance: fill(0),
         longTermDebtRepayment: fill(20_000),
@@ -162,6 +182,7 @@ export function getDefaultAssumptions(): AssumptionSet {
         stockBasedCompAmount: fill(10_000),
 
         taxRate: fill(0.225),
+        employeeProfitSharingRate: 0.10,
 
         otherIncomeExpense: fill(0),
         goodwill: fill(100_000),
@@ -187,6 +208,17 @@ export function getDefaultAssumptions(): AssumptionSet {
         useEgyptianRates: true,
         fiscalYearEnd: 6,
         fiscalYearPreset: 'egyptian-govt',
+
+        // DCF Valuation defaults
+        terminalGrowthRate: 0.05,
+        equityRiskPremium: 0.07,
+        beta: 1.0,
+
+        // Inflation defaults (Egyptian CPI path)
+        inflationRate: [0.25, 0.18, 0.14, 0.10, 0.08],
+
+        // Sector preset
+        sectorPreset: 'technology',
 
         projectionYears: years,
         historicalYears: 2,

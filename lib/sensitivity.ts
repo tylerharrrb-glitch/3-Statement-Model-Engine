@@ -23,6 +23,7 @@ function getOutputValue(
         case 'eps': return lastIS.eps;
         case 'fcf': return lastCF.freeCashFlow;
         case 'roe': return lastBS.totalEquity !== 0 ? lastIS.netIncome / lastBS.totalEquity : 0;
+        case 'interestCoverage': return lastIS.interestExpense !== 0 ? lastIS.ebit / lastIS.interestExpense : 0;
         default: return lastIS.netIncome;
     }
 }

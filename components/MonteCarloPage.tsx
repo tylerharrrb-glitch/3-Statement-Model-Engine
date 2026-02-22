@@ -14,6 +14,7 @@ const metricLabels: Record<OutputMetric, string> = {
     revenue: 'Revenue',
     ebitda: 'EBITDA',
     roe: 'Return on Equity',
+    interestCoverage: 'Interest Coverage',
 };
 
 function buildHistogramData(values: number[], bins: number = 40) {

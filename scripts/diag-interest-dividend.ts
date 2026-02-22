@@ -23,8 +23,8 @@ async function main() {
     // Print assumption values
     for (const s of scenarios) {
         console.log(`\n${s.name}:`);
-        console.log(`  interestRate = ${s.assumptions.interestRate}`);
-        console.log(`  interestIncomeRate = ${s.assumptions.interestIncomeRate}`);
+        console.log(`  interestRateOnDebt = [${s.assumptions.interestRateOnDebt.join(', ')}]`);
+        console.log(`  interestRateOnCash = [${s.assumptions.interestRateOnCash.join(', ')}]`);
         console.log(`  dividendPayoutRatio = [${s.assumptions.dividendPayoutRatio.join(', ')}]`);
     }
 

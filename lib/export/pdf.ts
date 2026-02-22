@@ -160,7 +160,7 @@ export function exportToPDF(
         `Projected Periods: ${results.incomeStatements.filter(s => s.periodType === 'projected').length}`,
         `Currency: ${currency} (${currCfg.symbol}) | Locale: ${currency === 'EGP' ? 'Egypt' : 'International'}`,
         `Model Validation: ${results.convergenceInfo.converged ? 'Converged' : 'Not Converged'} (${results.convergenceInfo.iterations} iter.)`,
-        `Integration Checks: ${results.integrationChecks[results.integrationChecks.length - 1]?.allPassed ? 'All 15 Passed' : 'Some Failed'}`,
+        `Integration Checks: ${results.integrationChecks[results.integrationChecks.length - 1]?.allPassed ? `All ${results.integrationChecks[results.integrationChecks.length - 1]?.details?.length ?? 16} Passed` : 'Some Failed'}`,
     ];
     details.forEach((d, i) => {
         doc.text(d, pw / 2, 95 + i * 8, { align: 'center' });
@@ -187,7 +187,7 @@ export function exportToPDF(
         { label: 'EBITDA', value: fc(lastIS.ebitda), sub: `Margin: ${fp(lastIS.ebitda / (lastIS.revenue || 1))}`, color: ACCENT_TEAL },
         { label: 'Net Income', value: fc(lastIS.netIncome), sub: `Margin: ${fp(lastIS.netMargin)}`, color: GREEN },
         { label: 'EPS', value: `${_currencySymbol}${lastIS.eps.toFixed(2)}`, sub: `Shares: ${fn(lastIS.sharesOutstanding)}`, color: ORANGE },
-        { label: 'Free Cash Flow', value: fc(lastCF.freeCashFlow), sub: `FCF Yield: ${fp(lastCF.freeCashFlow / (lastIS.revenue || 1))}`, color: ACCENT_BLUE },
+        { label: 'Free Cash Flow', value: fc(lastCF.freeCashFlow), sub: `FCF % Rev: ${fp(lastCF.freeCashFlow / (lastIS.revenue || 1))}`, color: ACCENT_BLUE },
         { label: 'Total Assets', value: fc(lastBS.totalAssets), sub: `ROA: ${fp(lastRatios.roa)}`, color: ACCENT_TEAL },
         { label: 'Total Debt', value: fc(lastBS.shortTermDebt + lastBS.longTermDebt + lastBS.currentPortionLTD), sub: `D/E: ${fx(lastRatios.debtToEquity)}`, color: RED },
         { label: 'Total Equity', value: fc(lastBS.totalEquity), sub: `ROE: ${fp(lastRatios.roe)}`, color: GREEN },
@@ -347,6 +347,9 @@ export function exportToPDF(
             ['', ...periods.map(() => '')],
             ['Net Income', ...results.incomeStatements.map(s => fc(s.netIncome))],
             ['Net Margin', ...results.incomeStatements.map(s => fp(s.netMargin))],
+            ['', ...periods.map(() => '')],
+            ['Employee Profit Sharing (Art. 47)', ...results.incomeStatements.map(s => fc(s.employeeProfitSharing))],
+            ['Net Income After EPD', ...results.incomeStatements.map(s => fc(s.netIncomeAfterEPD))],
             ['EPS', ...results.incomeStatements.map(s => `${_currencySymbol}${s.eps.toFixed(2)}`)],
         ],
         headStyles: HEAD_STYLE,
@@ -360,7 +363,7 @@ export function exportToPDF(
             }
         },
         didParseCell: (data) => {
-            const boldRows = ['Revenue', 'Gross Profit', 'Total OpEx', 'EBIT', 'EBITDA', 'EBT', 'Net Income'];
+            const boldRows = ['Revenue', 'Gross Profit', 'Total OpEx', 'EBIT', 'EBITDA', 'EBT', 'Net Income', 'Net Income After EPD'];
             const label = rowLabel(data);
             if (data.section === 'body' && boldRows.includes(label)) {
                 data.cell.styles.fontStyle = 'bold';
@@ -483,6 +486,8 @@ export function exportToPDF(
             ['Debt Issuance', ...results.cashFlowStatements.map(s => fc(s.debtIssuance))],
             ['Debt Repayment', ...results.cashFlowStatements.map(s => fc(s.debtRepayment))],
             ['Dividends Paid', ...results.cashFlowStatements.map(s => fc(s.dividendsPaid))],
+            ['  Dividend WHT to ETA', ...results.cashFlowStatements.map(s => fc(s.dividendWHT))],
+            ['Employee Profit Sharing', ...results.cashFlowStatements.map(s => fc(s.employeeProfitSharingPaid))],
             ['Equity Issuance', ...results.cashFlowStatements.map(s => fc(s.equityIssuance))],
             ['Share Repurchases', ...results.cashFlowStatements.map(s => fc(s.shareRepurchases))],
             ['Cash from Financing', ...results.cashFlowStatements.map(s => fc(s.cashFromFinancing))],
@@ -604,7 +609,7 @@ export function exportToPDF(
                 const capex = cfIdx < results.cashFlowStatements.length ? Math.abs(results.cashFlowStatements[cfIdx].capex) : 0;
                 return fp(results.incomeStatements[i].revenue !== 0 ? capex / results.incomeStatements[i].revenue : 0);
             })],
-            ['  Dep Rate (% Gross PPE)', ...results.balanceSheets.map((b, i) => fp(b.grossPPE !== 0 ? results.incomeStatements[i].depreciation / b.grossPPE : 0))],
+            ['  Dep Rate (Assumption: 10.0%)', ...results.balanceSheets.map((b, i) => fp(b.grossPPE !== 0 ? results.incomeStatements[i].depreciation / b.grossPPE : 0))],
             ['  Implied Useful Life', ...results.balanceSheets.map((b, i) => {
                 const r = b.grossPPE !== 0 ? results.incomeStatements[i].depreciation / b.grossPPE : 0;
                 return r !== 0 ? `${(1 / r).toFixed(1)} yrs` : '—';
@@ -845,7 +850,8 @@ export function exportToPDF(
         '• Cash on the Balance Sheet is computed as the "plug" value ensuring Assets = Liabilities + Equity.',
         '• Depreciation is calculated as a percentage of Gross PP&E. CapEx is driven as a percentage of Revenue.',
         '• Working capital items (AR, Inventory, AP) are driven by efficiency ratios (DSO, DIO, DPO).',
-        '• The model includes 15 integration checks to verify internal consistency across all three statements.',
+        '• The model includes 16 integration checks to verify internal consistency across all three statements.',
+        '• Employee Profit Sharing (10% EPD) is calculated per Egyptian Labor Law Article 47 and deducted from Net Income.',
     ];
     methodology.forEach(m => {
         doc.text(m, 14, dy, { maxWidth: pw - 28 });
@@ -869,6 +875,26 @@ export function exportToPDF(
     ];
     disclaimer.forEach(d => {
         doc.text(d, 14, dy, { maxWidth: pw - 28 });
+        dy += 6;
+    });
+
+    dy += 6;
+    doc.setFontSize(10);
+    doc.setTextColor(...NAVY);
+    doc.text('Egyptian Tax & Regulatory Compliance', 14, dy);
+    dy += 6;
+
+    doc.setFontSize(8);
+    doc.setTextColor(60, 60, 60);
+    const compliance = [
+        '• Dividend Withholding Tax (WHT): 10% withheld at source per ETA regulations and disclosed in Cash Flow from Financing.',
+        '• VAT: 14% Value Added Tax applied per Law No. 67/2016. This model includes a VAT Schedule memo for compliance.',
+        '• ETA E-Invoicing: All invoices subject to ETA e-invoicing mandate (Resolution No. 619/2021). This model does not',
+        '  generate e-invoices but revenue projections should reconcile with ETA-submitted totals.',
+        '• Corporate Tax Rate: 22.5% per Egyptian Tax Law. Interest deductibility and thin-cap rules may apply.',
+    ];
+    compliance.forEach(c => {
+        doc.text(c, 14, dy, { maxWidth: pw - 28 });
         dy += 6;
     });
 

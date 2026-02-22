@@ -19,6 +19,8 @@ import DepreciationPage from '@/components/schedules/DepreciationPage';
 import DebtSchedulePage from '@/components/schedules/DebtSchedulePage';
 import ValidationPage from '@/components/ValidationPage';
 import CompanySettings from '@/components/CompanySettings';
+import DCFPage from '@/components/DCFPage';
+import ValuationPage from '@/components/ValuationPage';
 import ErrorBanner from '@/components/ErrorBanner';
 import ConflictModal from '@/components/ConflictModal';
 
@@ -79,6 +81,8 @@ export default function Home() {
       case 'debt-schedule': return <DebtSchedulePage />;
       case 'scenarios': return <ScenariosPage />;
       case 'sensitivity': return <SensitivityPage />;
+      case 'dcf': return <DCFPage />;
+      case 'valuation': return <ValuationPage />;
       case 'montecarlo': return <MonteCarloPage />;
       case 'import': return <HistoricalImportPage />;
       case 'historicaldata': return <HistoricalDataInput />;

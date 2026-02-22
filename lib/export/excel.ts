@@ -282,8 +282,8 @@ export async function exportToExcel(
     const allDepRate = allIS.map((is, i) => safeDiv(is.depreciation, allBS[i]?.grossPPE ?? 1));
     const allAmort = allIS.map(is => is.amortization);
 
-    const allInterestRate = Array(nYears).fill(assumptions.interestRate);
-    const allInterestIncRate = Array(nYears).fill(assumptions.interestIncomeRate);
+    const allInterestRate = assumptions.interestRateOnDebt;
+    const allInterestIncRate = assumptions.interestRateOnCash;
     const allSTDebt = allBS.map(bs => bs.shortTermDebt);
     // LTD Issuance/Repayment — back-compute from BS LTD changes
     const allLTDIssuance = allBS.map((bs, i) => {
@@ -446,6 +446,8 @@ export async function exportToExcel(
 
     addAssumptionRow('Interest Rate (on Debt)', 'interestRate', allInterestRate, PCT_FMT);
     addAssumptionRow('Interest Income Rate (on Cash)', 'interestIncomeRate', allInterestIncRate, PCT_FMT);
+    addAssumptionRow('EPD Rate (Employee Profit Sharing)', 'employeeProfitSharingRate',
+        Array(nYears).fill(assumptions.employeeProfitSharingRate ?? 0.10), PCT_FMT);
     addAssumptionRow('Short-Term Debt', 'shortTermDebtAmount', allSTDebt, NUM_FMT);
     addAssumptionRow('LT Debt Issuance', 'longTermDebtIssuance', allLTDIssuance, NUM_FMT);
     addAssumptionRow('LT Debt Repayment', 'longTermDebtRepayment', allLTDRepayment, NUM_FMT);
@@ -2344,12 +2346,63 @@ export async function exportToExcel(
     }
 
     // ════════════════════════════════════════════════════════
+    // VAT SCHEDULE (Memo)
+    // ════════════════════════════════════════════════════════
+    if (assumptions.enableVAT && (assumptions.vatRate ?? 0) > 0) {
+        const vatSheet = workbook.addWorksheet('VAT Schedule');
+        const vatRate = assumptions.vatRate ?? 0.14;
+        const periods = results.incomeStatements.length;
+        const histCount = results.incomeStatements.filter(is => (is as any).periodType === 'historical').length;
+
+        // Header
+        const vatHeaderRow = vatSheet.addRow(['VAT Schedule — Memo']);
+        vatHeaderRow.font = { name: 'Calibri', size: 14, bold: true, color: { argb: 'FFFFFFFF' } };
+        vatHeaderRow.fill = DARK_BG;
+        vatSheet.addRow([]); // blank
+
+        // Column headers
+        const vatColHeaders = ['', ...results.incomeStatements.map((is, i) =>
+            i < histCount ? `FY${assumptions.startYear - histCount + i}A` : `FY${assumptions.startYear + i - histCount}E`
+        )];
+        const vatColRow = vatSheet.addRow(vatColHeaders);
+        vatColRow.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FFFFFFFF' } };
+        vatColRow.fill = MED_BG;
+        vatColRow.eachCell((cell) => { cell.border = BORDERS; });
+
+        // VAT on Revenue (Output VAT)
+        const outputVAT = results.incomeStatements.map(is => is.revenue * vatRate);
+        const oRow = vatSheet.addRow(['VAT on Revenue (Output)', ...outputVAT]);
+        styleRow(oRow, { numFmt: NUM_FMT });
+
+        // VAT on Purchases (Input VAT) — approximate as COGS × VAT rate
+        const inputVAT = results.incomeStatements.map(is => is.cogs * vatRate);
+        const iRow = vatSheet.addRow(['VAT on Purchases (Input)', ...inputVAT]);
+        styleRow(iRow, { numFmt: NUM_FMT });
+
+        // Net VAT Payable
+        const netVAT = outputVAT.map((o, idx) => o - inputVAT[idx]);
+        const nRow = vatSheet.addRow(['Net VAT Payable', ...netVAT]);
+        styleRow(nRow, { bold: true, numFmt: NUM_FMT });
+
+        vatSheet.addRow([]); // blank
+        const noteRow = vatSheet.addRow([`Note: VAT rate = ${(vatRate * 100).toFixed(0)}% (Egyptian standard). ETA e-invoicing compliance required.`]);
+        noteRow.font = { name: 'Calibri', size: 9, italic: true, color: { argb: 'FF888888' } };
+
+        // Column widths
+        vatSheet.getColumn(1).width = 30;
+        for (let c = 2; c <= periods + 1; c++) vatSheet.getColumn(c).width = 16;
+
+        applyZebraAndNegatives(vatSheet);
+    }
+
+    // ════════════════════════════════════════════════════════
     // TAB REORDERING & TAB COLORS
     // ════════════════════════════════════════════════════════
     const DESIRED_ORDER = [
         'Dashboard', 'Company Info', 'Scenarios', 'Assumptions',
         'Income Statement', 'Balance Sheet', 'Cash Flow Statement', 'Ratios',
         'Working Capital', 'Depreciation Schedule', 'Debt Schedule', 'CBE Banking Metrics',
+        'VAT Schedule',
     ];
     const TAB_COLORS: Record<string, string> = {
         'Dashboard': 'FF1F3864', 'Company Info': 'FF2E75B6', 'Scenarios': 'FF1A7A4A',

@@ -57,9 +57,14 @@ export function calculateIncomeStatement(inputs: IncomeStatementInputs): IncomeS
     const netIncome = ebt - taxExpense;
     const netMargin = revenue !== 0 ? netIncome / revenue : 0;
 
-    // Per Share
+    // Employee Profit Sharing (Art. 47, Law 159/1981)
+    // EPD is an appropriation of profit (not tax-deductible), applied after tax
+    const employeeProfitSharing = Math.max(0, netIncome * (assumptions.employeeProfitSharingRate ?? 0));
+    const netIncomeAfterEPD = netIncome - employeeProfitSharing;
+
+    // Per Share — EPS uses post-EPD income
     const sharesOutstanding = assumptions.sharesOutstanding[yr] ?? 100_000;
-    const eps = sharesOutstanding !== 0 ? netIncome / sharesOutstanding : 0;
+    const eps = sharesOutstanding !== 0 ? netIncomeAfterEPD / sharesOutstanding : 0;
 
     // VAT memo (Egyptian market) — revenue stays exclusive-of-VAT throughout the model
     let revenueInclVAT: number | undefined;
@@ -97,6 +102,8 @@ export function calculateIncomeStatement(inputs: IncomeStatementInputs): IncomeS
         taxExpense,
         netIncome,
         netMargin,
+        employeeProfitSharing,
+        netIncomeAfterEPD,
         sharesOutstanding,
         eps,
         // VAT memo (only present when VAT is enabled)
@@ -172,6 +179,8 @@ export function buildHistoricalIncomeStatements(
             taxExpense,
             netIncome,
             netMargin: revenue !== 0 ? netIncome / revenue : 0,
+            employeeProfitSharing: 0,   // Historical — not modeled retroactively
+            netIncomeAfterEPD: netIncome,
             sharesOutstanding,
             eps: sharesOutstanding !== 0 ? netIncome / sharesOutstanding : 0,
         };

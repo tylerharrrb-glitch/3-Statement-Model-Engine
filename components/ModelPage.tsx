@@ -41,9 +41,18 @@ const assumptionGroups: { title: string; items: AssumptionItem[] }[] = [
     },
     {
         title: 'Debt & Tax', items: [
-            { label: 'Interest Rate', path: 'interestRate', type: 'single' as const, pct: true },
+            { label: 'Interest Rate (Debt)', path: 'interestRateOnDebt', type: 'array' as const, pct: true },
+            { label: 'Interest Rate (Cash)', path: 'interestRateOnCash', type: 'array' as const, pct: true },
             { label: 'Tax Rate', path: 'taxRate', type: 'array' as const, pct: true },
             { label: 'Dividend Payout', path: 'dividendPayoutRatio', type: 'array' as const, pct: true },
+        ]
+    },
+    {
+        title: 'DCF & Valuation', items: [
+            { label: 'CBE Rate', path: 'cbeRate', type: 'single' as const, pct: true },
+            { label: 'Terminal Growth', path: 'terminalGrowthRate', type: 'single' as const, pct: true },
+            { label: 'Equity Risk Premium', path: 'equityRiskPremium', type: 'single' as const, pct: true },
+            { label: 'Beta', path: 'beta', type: 'single' as const },
         ]
     },
 ];
