@@ -24,6 +24,7 @@ import { buildCompanyInfoSheet } from './build-company-info';
 import { buildScenariosSheet, ROW_SPECS } from './build-scenarios';
 import { buildDashboardSheet } from './build-dashboard';
 import { buildCalcSheets } from './build-calc-sheets';
+import JSZip from 'jszip';
 
 // ── Helpers ──────────────────────────────────────────────────
 
@@ -136,7 +137,7 @@ export async function exportToExcel(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const calcProps = workbook.calcProperties as any;
     calcProps.iterate = true;
-    calcProps.iterateCount = 100;
+    calcProps.iterateCount = 1000;
     calcProps.iterateDelta = 0.001;
 
     const nYears = results.incomeStatements.length;
@@ -1159,12 +1160,11 @@ export async function exportToExcel(
                 'out_roa': 0,
             };
 
-            // Only Dashboard Output rows ('out_' prefix) get formulas referencing _Calc_* sheets.
-            // Engine-Computed rows ('*Computed' suffix) stay as plain numeric values written by
-            // buildScenariosSheet() — overwriting them with _Calc_* formulas would create ~240
-            // circular loops because _Calc_* Interest Income/Expense read those same rows back.
-            const isDashboardOutput = (key: string) =>
-                key.startsWith('out_');
+            // Now that _Calc_* sheets compute interest income/expense independently
+            // (using avg-balance formulas instead of reading from Scenarios computed rows),
+            // ALL computed rows can safely reference _Calc_* sheets without circular loops.
+            const isComputedOrDashboard = (key: string) =>
+                key.startsWith('out_') || key.endsWith('Computed');
 
             // Scenario block info
             const SCENARIO_BLOCKS = [
@@ -1174,7 +1174,7 @@ export async function exportToExcel(
             ];
 
             for (const spec of ROW_SPECS) {
-                if (!isDashboardOutput(spec.key)) continue; // Skip input rows and computed rows
+                if (!isComputedOrDashboard(spec.key)) continue; // Skip input rows
                 const calcRow = COMPUTED_KEY_TO_CALC[spec.key];
 
                 for (const block of SCENARIO_BLOCKS) {
@@ -2160,127 +2160,7 @@ export async function exportToExcel(
 
     applyHistoricalStyling(debtSheet, numHistorical, nYears);
 
-    // ════════════════════════════════════════════════════════
-    // CBE BANKING METRICS (Egyptian market only)
-    // ════════════════════════════════════════════════════════
     let allSheets = [aSheet, isSheet, bsSheet, cfSheet, ratioSheet, wcSheet, depSheet, debtSheet];
-
-    if (assumptions.countryPreset === 'egypt') {
-        const cbeSheet = workbook.addWorksheet('CBE Banking Metrics');
-        styleHeader(cbeSheet);
-
-        // Header row
-        cbeSheet.getCell(1, 1).value = 'CBE Compliance Metric';
-        cbeSheet.getColumn(1).width = 32;
-        for (let i = 0; i < nYears; i++) {
-            cbeSheet.getCell(1, i + 2).value = periods[i] ?? `Year ${i + 1}`;
-        }
-        cbeSheet.getCell(1, nYears + 2).value = 'CBE Min';
-        cbeSheet.getCell(1, nYears + 3).value = 'CBE Max';
-
-        let cbeRow = 2;
-
-        // Section header
-        cbeSheet.getCell(cbeRow, 1).value = 'CBE COMPLIANCE DASHBOARD';
-        styleRow(cbeSheet.getRow(cbeRow), { subheader: true }); cbeRow++;
-
-        // 1. Current Ratio (≥ 1.2x)
-        cbeSheet.getCell(cbeRow, 1).value = 'Current Ratio';
-        for (let i = 0; i < nYears; i++) {
-            const c = colLetter(i + 2);
-            const cell = cbeSheet.getCell(cbeRow, i + 2);
-            cell.value = {
-                formula: `IF('Balance Sheet'!${c}${bsRows['totalCurrentLiabilities']}=0,0,'Balance Sheet'!${c}${bsRows['totalCurrentAssets']}/'Balance Sheet'!${c}${bsRows['totalCurrentLiabilities']})`,
-                result: results.ratios[i]?.currentRatio ?? 0,
-            };
-            cell.numFmt = '0.00"x"';
-        }
-        cbeSheet.getCell(cbeRow, nYears + 2).value = '1.20x';
-        cbeSheet.getCell(cbeRow, nYears + 3).value = '—';
-        styleRow(cbeSheet.getRow(cbeRow), {}); cbeRow++;
-
-        // Status row
-        cbeSheet.getCell(cbeRow, 1).value = '  └ Status';
-        for (let i = 0; i < nYears; i++) {
-            const cr = results.ratios[i]?.currentRatio ?? 0;
-            const cell = cbeSheet.getCell(cbeRow, i + 2);
-            cell.value = cr >= 1.2 ? '✓ PASS' : '✗ FAIL';
-            cell.font = { color: { argb: cr >= 1.2 ? 'FF00AA55' : 'FFFF4444' }, bold: true, size: 10 };
-        }
-        styleRow(cbeSheet.getRow(cbeRow), {}); cbeRow++;
-
-        // 2. Debt-to-Equity (≤ 2.5x)
-        cbeSheet.getCell(cbeRow, 1).value = ''; cbeRow++;
-        cbeSheet.getCell(cbeRow, 1).value = 'Debt-to-Equity';
-        for (let i = 0; i < nYears; i++) {
-            const c = colLetter(i + 2);
-            const cell = cbeSheet.getCell(cbeRow, i + 2);
-            cell.value = {
-                formula: `IF('Balance Sheet'!${c}${bsRows['totalEquity']}=0,0,'Debt Schedule'!${c}${dbtRows['totalDebt']}/'Balance Sheet'!${c}${bsRows['totalEquity']})`,
-                result: results.ratios[i]?.debtToEquity ?? 0,
-            };
-            cell.numFmt = '0.00"x"';
-        }
-        cbeSheet.getCell(cbeRow, nYears + 2).value = '—';
-        cbeSheet.getCell(cbeRow, nYears + 3).value = '2.50x';
-        styleRow(cbeSheet.getRow(cbeRow), {}); cbeRow++;
-
-        // Status row
-        cbeSheet.getCell(cbeRow, 1).value = '  └ Status';
-        for (let i = 0; i < nYears; i++) {
-            const de = results.ratios[i]?.debtToEquity ?? 0;
-            const cell = cbeSheet.getCell(cbeRow, i + 2);
-            cell.value = de <= 2.5 ? '✓ PASS' : '✗ FAIL';
-            cell.font = { color: { argb: de <= 2.5 ? 'FF00AA55' : 'FFFF4444' }, bold: true, size: 10 };
-        }
-        styleRow(cbeSheet.getRow(cbeRow), {}); cbeRow++;
-
-        // 3. Interest Coverage (≥ 2.0x)
-        cbeSheet.getCell(cbeRow, 1).value = ''; cbeRow++;
-        cbeSheet.getCell(cbeRow, 1).value = 'Interest Coverage (EBIT / Interest Expense)';
-        for (let i = 0; i < nYears; i++) {
-            const c = colLetter(i + 2);
-            const cell = cbeSheet.getCell(cbeRow, i + 2);
-            cell.value = {
-                formula: `IF('Income Statement'!${c}${isRows['interestExpense']}=0,0,'Income Statement'!${c}${isRows['ebit']}/'Income Statement'!${c}${isRows['interestExpense']})`,
-                result: results.ratios[i]?.interestCoverage ?? 0,
-            };
-            cell.numFmt = '0.00"x"';
-        }
-        cbeSheet.getCell(cbeRow, nYears + 2).value = '2.00x';
-        cbeSheet.getCell(cbeRow, nYears + 3).value = '—';
-        styleRow(cbeSheet.getRow(cbeRow), {}); cbeRow++;
-
-        // Status row
-        cbeSheet.getCell(cbeRow, 1).value = '  └ Status';
-        for (let i = 0; i < nYears; i++) {
-            const ic = results.ratios[i]?.interestCoverage ?? 0;
-            const cell = cbeSheet.getCell(cbeRow, i + 2);
-            cell.value = ic >= 2.0 ? '✓ PASS' : '✗ FAIL';
-            cell.font = { color: { argb: ic >= 2.0 ? 'FF00AA55' : 'FFFF4444' }, bold: true, size: 10 };
-        }
-        styleRow(cbeSheet.getRow(cbeRow), {}); cbeRow++;
-
-        // Summary
-        cbeSheet.getCell(cbeRow, 1).value = ''; cbeRow++;
-        cbeSheet.getCell(cbeRow, 1).value = 'OVERALL COMPLIANCE';
-        styleRow(cbeSheet.getRow(cbeRow), { subheader: true }); cbeRow++;
-
-        cbeSheet.getCell(cbeRow, 1).value = '  Compliance Score';
-        for (let i = 0; i < nYears; i++) {
-            const cr = results.ratios[i]?.currentRatio ?? 0;
-            const de = results.ratios[i]?.debtToEquity ?? 0;
-            const ic = results.ratios[i]?.interestCoverage ?? 0;
-            const passed = (cr >= 1.2 ? 1 : 0) + (de <= 2.5 ? 1 : 0) + (ic >= 2.0 ? 1 : 0);
-            const cell = cbeSheet.getCell(cbeRow, i + 2);
-            cell.value = `${passed}/3`;
-            cell.font = { bold: true, size: 11, color: { argb: passed === 3 ? 'FF00AA55' : passed >= 2 ? 'FFFFAA00' : 'FFFF4444' } };
-        }
-        styleRow(cbeSheet.getRow(cbeRow), {}); cbeRow++;
-
-        applyHistoricalStyling(cbeSheet, numHistorical, nYears);
-        allSheets.push(cbeSheet);
-    }
 
     // ════════════════════════════════════════════════════════
     // DASHBOARD  (cross-sheet formula references)
@@ -2346,6 +2226,476 @@ export async function exportToExcel(
     }
 
     // ════════════════════════════════════════════════════════
+    // DCF VALUATION SHEET
+    // ════════════════════════════════════════════════════════
+    {
+        const dcfSheet = workbook.addWorksheet('DCF Valuation');
+        dcfSheet.getColumn(1).width = 30;
+        for (let i = 2; i <= 12; i++) dcfSheet.getColumn(i).width = 16;
+
+        let dRow = 1;
+        dcfSheet.getCell(dRow, 1).value = companyName + ' — DCF Valuation';
+        dcfSheet.getCell(dRow, 1).font = { name: 'Calibri', size: 14, bold: true, color: { argb: 'FFFFFFFF' } };
+        dcfSheet.getCell(dRow, 1).fill = DARK_BG;
+        dcfSheet.mergeCells(dRow, 1, dRow, 8);
+        dRow += 2;
+
+        // ── WACC Inputs ──
+        dcfSheet.getCell(dRow, 1).value = '── WACC Calculation ──';
+        styleRow(dcfSheet.getRow(dRow), { subheader: true });
+        dRow++;
+
+        const riskFreeRate = assumptions.cbeRate ?? 0.2725;
+        const erp = assumptions.equityRiskPremium ?? 0.07;
+        const beta = assumptions.beta ?? 1.0;
+        const lastIS = results.incomeStatements[results.incomeStatements.length - 1];
+        const lastBS = results.balanceSheets[results.balanceSheets.length - 1];
+        const projIdx = nYears - numHistorical - 1;
+        const debtRate = assumptions.interestRateOnDebt?.[Math.max(0, projIdx)] ?? 0.18;
+        const taxRate = lastIS?.taxRate ?? 0.225;
+        const totalDebtVal = (lastBS?.shortTermDebt ?? 0) + (lastBS?.longTermDebt ?? 0) + (lastBS?.currentPortionLTD ?? 0);
+        const totalEquityVal = Math.max(lastBS?.totalEquity ?? 1, 1);
+        const totalCapital = totalDebtVal + totalEquityVal;
+
+        const dcfRows: Record<string, number> = {};
+        const addDCFInput = (label: string, key: string, value: number, fmt: string = PCT_FMT) => {
+            dcfRows[key] = dRow;
+            dcfSheet.getCell(dRow, 1).value = label;
+            dcfSheet.getCell(dRow, 1).font = { name: 'Calibri', size: 10 };
+            const cell = dcfSheet.getCell(dRow, 2);
+            cell.value = value;
+            cell.numFmt = fmt;
+            cell.border = BORDERS;
+            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFF2CC' } }; // light yellow = editable
+            dRow++;
+        };
+
+        addDCFInput('Risk-Free Rate (CBE)', 'rf', riskFreeRate);
+        addDCFInput('Equity Risk Premium', 'erp', erp);
+        addDCFInput('Beta (β)', 'beta', beta, '0.00');
+        addDCFInput('Cost of Debt (pre-tax)', 'kd_pre', debtRate);
+        addDCFInput('Tax Rate', 'tax', taxRate);
+        addDCFInput('Debt Weight', 'wd', totalDebtVal / totalCapital);
+        addDCFInput('Equity Weight', 'we', totalEquityVal / totalCapital);
+        addDCFInput('Terminal Growth Rate', 'g', assumptions.terminalGrowthRate ?? 0.05);
+
+        // Computed WACC lines
+        dcfRows['ke'] = dRow;
+        dcfSheet.getCell(dRow, 1).value = 'Cost of Equity (CAPM)';
+        dcfSheet.getCell(dRow, 1).font = { name: 'Calibri', size: 10, bold: true };
+        const keC = colLetter(2);
+        dcfSheet.getCell(dRow, 2).value = { formula: `${keC}${dcfRows['rf']}+${keC}${dcfRows['beta']}*${keC}${dcfRows['erp']}`, result: riskFreeRate + beta * erp };
+        dcfSheet.getCell(dRow, 2).numFmt = PCT_FMT;
+        dcfSheet.getCell(dRow, 2).border = BORDERS;
+        dRow++;
+
+        dcfRows['kd'] = dRow;
+        dcfSheet.getCell(dRow, 1).value = 'Cost of Debt (after-tax)';
+        dcfSheet.getCell(dRow, 1).font = { name: 'Calibri', size: 10, bold: true };
+        dcfSheet.getCell(dRow, 2).value = { formula: `${keC}${dcfRows['kd_pre']}*(1-${keC}${dcfRows['tax']})`, result: debtRate * (1 - taxRate) };
+        dcfSheet.getCell(dRow, 2).numFmt = PCT_FMT;
+        dcfSheet.getCell(dRow, 2).border = BORDERS;
+        dRow++;
+
+        dcfRows['wacc'] = dRow;
+        dcfSheet.getCell(dRow, 1).value = 'WACC';
+        dcfSheet.getCell(dRow, 1).font = { name: 'Calibri', size: 11, bold: true };
+        dcfSheet.getCell(dRow, 2).value = {
+            formula: `${keC}${dcfRows['we']}*${keC}${dcfRows['ke']}+${keC}${dcfRows['wd']}*${keC}${dcfRows['kd']}`,
+            result: (totalEquityVal / totalCapital) * (riskFreeRate + beta * erp) + (totalDebtVal / totalCapital) * debtRate * (1 - taxRate),
+        };
+        dcfSheet.getCell(dRow, 2).numFmt = PCT_FMT;
+        dcfSheet.getCell(dRow, 2).font = { name: 'Calibri', size: 11, bold: true };
+        dcfSheet.getCell(dRow, 2).border = BORDERS;
+        dRow += 2;
+
+        // ── FCF Projections ──
+        dcfSheet.getCell(dRow, 1).value = '── FCF Projections ──';
+        styleRow(dcfSheet.getRow(dRow), { subheader: true });
+        dRow++;
+
+        // Headers for projected periods
+        const projPeriods = periods.slice(numHistorical);
+        const nProj2 = projPeriods.length;
+        dcfSheet.getCell(dRow, 1).value = 'Period';
+        for (let p = 0; p < nProj2; p++) dcfSheet.getCell(dRow, p + 2).value = projPeriods[p];
+        styleRow(dcfSheet.getRow(dRow), { bold: true });
+        dRow++;
+
+        // FCF values from CF statements (projected only)
+        const projCFs = results.cashFlowStatements.slice(numHistorical > 0 ? numHistorical - 1 : 0);
+        dcfRows['fcf'] = dRow;
+        dcfSheet.getCell(dRow, 1).value = 'Free Cash Flow';
+        for (let p = 0; p < nProj2 && p < projCFs.length; p++) {
+            dcfSheet.getCell(dRow, p + 2).value = projCFs[p]?.freeCashFlow ?? 0;
+            dcfSheet.getCell(dRow, p + 2).numFmt = NUM_FMT;
+            dcfSheet.getCell(dRow, p + 2).border = BORDERS;
+        }
+        dRow++;
+
+        // Discount factors
+        dcfRows['df'] = dRow;
+        dcfSheet.getCell(dRow, 1).value = 'Discount Factor';
+        for (let p = 0; p < nProj2; p++) {
+            const c = colLetter(p + 2);
+            dcfSheet.getCell(dRow, p + 2).value = { formula: `1/(1+${keC}${dcfRows['wacc']})^${p + 1}`, result: 1 / Math.pow(1 + (riskFreeRate + beta * erp) * (totalEquityVal / totalCapital) + debtRate * (1 - taxRate) * (totalDebtVal / totalCapital), p + 1) };
+            dcfSheet.getCell(dRow, p + 2).numFmt = '0.0000';
+            dcfSheet.getCell(dRow, p + 2).border = BORDERS;
+        }
+        dRow++;
+
+        // PV of FCFs
+        dcfRows['pvfcf'] = dRow;
+        dcfSheet.getCell(dRow, 1).value = 'PV of FCF';
+        dcfSheet.getCell(dRow, 1).font = { name: 'Calibri', size: 10, bold: true };
+        for (let p = 0; p < nProj2; p++) {
+            const c = colLetter(p + 2);
+            dcfSheet.getCell(dRow, p + 2).value = { formula: `${c}${dcfRows['fcf']}*${c}${dcfRows['df']}`, result: (projCFs[p]?.freeCashFlow ?? 0) / Math.pow(1.1, p + 1) };
+            dcfSheet.getCell(dRow, p + 2).numFmt = NUM_FMT;
+            dcfSheet.getCell(dRow, p + 2).border = BORDERS;
+        }
+        dRow += 2;
+
+        // ── Terminal Value & Equity Bridge ──
+        dcfSheet.getCell(dRow, 1).value = '── Valuation Summary ──';
+        styleRow(dcfSheet.getRow(dRow), { subheader: true });
+        dRow++;
+
+        const lastFCFCol = colLetter(nProj2 + 1);
+        const addBridgeRow = (label: string, key: string, formula: string, result: number, bold = false) => {
+            dcfRows[key] = dRow;
+            dcfSheet.getCell(dRow, 1).value = label;
+            dcfSheet.getCell(dRow, 1).font = { name: 'Calibri', size: 10, bold };
+            dcfSheet.getCell(dRow, 2).value = { formula, result };
+            dcfSheet.getCell(dRow, 2).numFmt = NUM_FMT;
+            dcfSheet.getCell(dRow, 2).border = BORDERS;
+            if (bold) dcfSheet.getCell(dRow, 2).font = { name: 'Calibri', size: 11, bold: true };
+            dRow++;
+        };
+
+        const waccEst = (totalEquityVal / totalCapital) * (riskFreeRate + beta * erp) + (totalDebtVal / totalCapital) * debtRate * (1 - taxRate);
+        const lastFCF = projCFs[projCFs.length - 1]?.freeCashFlow ?? 0;
+        const termGrowth = assumptions.terminalGrowthRate ?? 0.05;
+        const tv = waccEst > termGrowth ? (lastFCF * (1 + termGrowth)) / (waccEst - termGrowth) : 0;
+        const pvTV = tv / Math.pow(1 + waccEst, nProj2);
+        const sumPVFCF = projCFs.reduce((sum, cf, i) => sum + (cf?.freeCashFlow ?? 0) / Math.pow(1 + waccEst, i + 1), 0);
+        const ev = sumPVFCF + pvTV;
+        const netDebtVal = totalDebtVal - (lastBS?.cash ?? 0);
+        const equityVal = ev - netDebtVal;
+        const shares = lastIS?.sharesOutstanding ?? 1;
+
+        addBridgeRow('Terminal Value', 'tv', `${lastFCFCol}${dcfRows['fcf']}*(1+${keC}${dcfRows['g']})/(${keC}${dcfRows['wacc']}-${keC}${dcfRows['g']})`, tv);
+        addBridgeRow('PV of Terminal Value', 'pvtv', `${keC}${dcfRows['tv']}/(1+${keC}${dcfRows['wacc']})^${nProj2}`, pvTV);
+        addBridgeRow('Sum of PV(FCF)', 'sumpv', `SUM(${colLetter(2)}${dcfRows['pvfcf']}:${lastFCFCol}${dcfRows['pvfcf']})`, sumPVFCF);
+        addBridgeRow('Enterprise Value', 'ev', `${keC}${dcfRows['pvtv']}+${keC}${dcfRows['sumpv']}`, ev, true);
+        addBridgeRow('Less: Net Debt', 'nd', String(netDebtVal), netDebtVal);
+        addBridgeRow('Equity Value', 'eqv', `${keC}${dcfRows['ev']}-${keC}${dcfRows['nd']}`, equityVal, true);
+        addBridgeRow('Shares Outstanding', 'shares', String(shares), shares);
+        addBridgeRow('Implied Share Price', 'price', `${keC}${dcfRows['eqv']}/${keC}${dcfRows['shares']}`, equityVal / shares, true);
+        dRow++;
+
+        // ── 5×5 Sensitivity Table (WACC × Terminal Growth) ──
+        dcfSheet.getCell(dRow, 1).value = '── Sensitivity: WACC × Terminal Growth ──';
+        styleRow(dcfSheet.getRow(dRow), { subheader: true });
+        dRow++;
+
+        const waccSteps = [-0.02, -0.01, 0, 0.01, 0.02];
+        const growthSteps = [-0.02, -0.01, 0, 0.01, 0.02];
+        dcfSheet.getCell(dRow, 1).value = 'Implied Share Price';
+        dcfSheet.getCell(dRow, 1).font = { name: 'Calibri', size: 10, bold: true, italic: true };
+        for (let g = 0; g < growthSteps.length; g++) {
+            const gVal = termGrowth + growthSteps[g];
+            dcfSheet.getCell(dRow, g + 2).value = gVal;
+            dcfSheet.getCell(dRow, g + 2).numFmt = '0.00%';
+            dcfSheet.getCell(dRow, g + 2).font = { name: 'Calibri', size: 10, bold: true };
+            dcfSheet.getCell(dRow, g + 2).border = BORDERS;
+        }
+        dRow++;
+
+        for (let w = 0; w < waccSteps.length; w++) {
+            const wVal = waccEst + waccSteps[w];
+            dcfSheet.getCell(dRow, 1).value = wVal;
+            dcfSheet.getCell(dRow, 1).numFmt = '0.00%';
+            dcfSheet.getCell(dRow, 1).font = { name: 'Calibri', size: 10, bold: true };
+            dcfSheet.getCell(dRow, 1).border = BORDERS;
+            for (let g = 0; g < growthSteps.length; g++) {
+                const gVal = termGrowth + growthSteps[g];
+                let impliedPrice = 0;
+                if (wVal > gVal) {
+                    const tvCalc = (lastFCF * (1 + gVal)) / (wVal - gVal);
+                    const pvTVCalc = tvCalc / Math.pow(1 + wVal, nProj2);
+                    const sumPV = projCFs.reduce((sum, cf, i) => sum + (cf?.freeCashFlow ?? 0) / Math.pow(1 + wVal, i + 1), 0);
+                    impliedPrice = (sumPV + pvTVCalc - netDebtVal) / shares;
+                }
+                dcfSheet.getCell(dRow, g + 2).value = impliedPrice;
+                dcfSheet.getCell(dRow, g + 2).numFmt = NUM_FMT;
+                dcfSheet.getCell(dRow, g + 2).border = BORDERS;
+                // Highlight the center cell
+                if (w === 2 && g === 2) {
+                    dcfSheet.getCell(dRow, g + 2).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFF2CC' } };
+                    dcfSheet.getCell(dRow, g + 2).font = { name: 'Calibri', size: 10, bold: true };
+                }
+            }
+            dRow++;
+        }
+
+        applyZebraAndNegatives(dcfSheet);
+    }
+
+    // ════════════════════════════════════════════════════════
+    // VALUATION MULTIPLES SHEET
+    // ════════════════════════════════════════════════════════
+    {
+        const valSheet = workbook.addWorksheet('Valuation Multiples');
+        valSheet.getColumn(1).width = 30;
+        for (let i = 2; i <= nYears + 1; i++) valSheet.getColumn(i).width = 16;
+
+        let vRow = 1;
+        valSheet.getCell(vRow, 1).value = companyName + ' — Valuation Multiples';
+        valSheet.getCell(vRow, 1).font = { name: 'Calibri', size: 14, bold: true, color: { argb: 'FFFFFFFF' } };
+        valSheet.getCell(vRow, 1).fill = DARK_BG;
+        valSheet.mergeCells(vRow, 1, vRow, nYears + 1);
+        vRow += 2;
+
+        // Market Inputs
+        valSheet.getCell(vRow, 1).value = '── Market Inputs ──';
+        styleRow(valSheet.getRow(vRow), { subheader: true });
+        vRow++;
+
+        const sharePrice = assumptions.sharePrice ?? 0;
+        const sharesOut = results.incomeStatements[results.incomeStatements.length - 1]?.sharesOutstanding ?? 1;
+        const marketCap = sharePrice * sharesOut;
+        const lastBS2 = results.balanceSheets[results.balanceSheets.length - 1];
+        const totalDebtV = (lastBS2?.shortTermDebt ?? 0) + (lastBS2?.longTermDebt ?? 0) + (lastBS2?.currentPortionLTD ?? 0);
+        const evV = marketCap + totalDebtV - (lastBS2?.cash ?? 0);
+
+        const valRows: Record<string, number> = {};
+        const addValInput = (label: string, key: string, value: number, fmt: string = NUM_FMT) => {
+            valRows[key] = vRow;
+            valSheet.getCell(vRow, 1).value = label;
+            valSheet.getCell(vRow, 2).value = value;
+            valSheet.getCell(vRow, 2).numFmt = fmt;
+            valSheet.getCell(vRow, 2).border = BORDERS;
+            valSheet.getCell(vRow, 2).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFF2CC' } };
+            vRow++;
+        };
+        addValInput('Share Price', 'sharePrice', sharePrice);
+        addValInput('Shares Outstanding', 'shares', sharesOut);
+        addValInput('Market Cap', 'mcap', marketCap);
+        addValInput('Total Debt', 'debt', totalDebtV);
+        addValInput('Cash', 'cash', lastBS2?.cash ?? 0);
+        addValInput('Enterprise Value', 'ev', evV);
+        vRow++;
+
+        // Trading Multiples
+        valSheet.getCell(vRow, 1).value = '── Trading Multiples ──';
+        styleRow(valSheet.getRow(vRow), { subheader: true });
+        vRow++;
+
+        // Headers
+        valSheet.getCell(vRow, 1).value = 'Multiple';
+        for (let i = 0; i < nYears; i++) valSheet.getCell(vRow, i + 2).value = periods[i];
+        styleRow(valSheet.getRow(vRow), { bold: true });
+        vRow++;
+
+        const addMultipleRow = (label: string, key: string, computeFn: (yr: number) => number, fmt: string = '0.0x') => {
+            valRows[key] = vRow;
+            valSheet.getCell(vRow, 1).value = label;
+            for (let i = 0; i < nYears; i++) {
+                const val = computeFn(i);
+                valSheet.getCell(vRow, i + 2).value = isFinite(val) ? val : 0;
+                valSheet.getCell(vRow, i + 2).numFmt = fmt;
+                valSheet.getCell(vRow, i + 2).border = BORDERS;
+            }
+            vRow++;
+        };
+
+        addMultipleRow('EV / Revenue', 'evRev', yr => (results.incomeStatements[yr]?.revenue ?? 0) !== 0 ? evV / results.incomeStatements[yr].revenue : 0);
+        addMultipleRow('EV / EBITDA', 'evEbitda', yr => {
+            const ebitdaV = (results.incomeStatements[yr]?.ebit ?? 0) + (results.incomeStatements[yr]?.depreciation ?? 0) + (results.incomeStatements[yr]?.amortization ?? 0);
+            return ebitdaV !== 0 ? evV / ebitdaV : 0;
+        });
+        addMultipleRow('P / E', 'pe', yr => results.incomeStatements[yr]?.netIncome !== 0 ? marketCap / results.incomeStatements[yr].netIncome : 0);
+        addMultipleRow('P / Book', 'pb', yr => results.balanceSheets[yr]?.totalEquity !== 0 ? marketCap / results.balanceSheets[yr].totalEquity : 0);
+        addMultipleRow('FCF Yield', 'fcfYield', yr => {
+            const ci = yr - 1;
+            if (ci < 0 || ci >= results.cashFlowStatements.length) return 0;
+            return marketCap !== 0 ? results.cashFlowStatements[ci].freeCashFlow / marketCap : 0;
+        }, '0.0%');
+        addMultipleRow('Dividend Yield', 'divYield', yr => {
+            const ci = yr - 1;
+            if (ci < 0 || ci >= results.cashFlowStatements.length) return 0;
+            return marketCap !== 0 ? Math.abs(results.cashFlowStatements[ci].dividendsPaid) / marketCap : 0;
+        }, '0.0%');
+        vRow++;
+
+        // EGX Benchmark Reference
+        valSheet.getCell(vRow, 1).value = '── EGX 30 Benchmark Reference ──';
+        styleRow(valSheet.getRow(vRow), { subheader: true });
+        vRow++;
+
+        const egxRef: [string, string][] = [
+            ['EGX 30 Avg P/E', '12.0–15.0x'],
+            ['EGX 30 Avg P/B', '1.5–2.5x'],
+            ['EGX 30 Avg Div Yield', '2.0–4.0%'],
+            ['Egyptian Market EV/EBITDA', '6.0–10.0x'],
+        ];
+        for (const [label, value] of egxRef) {
+            valSheet.getCell(vRow, 1).value = label;
+            valSheet.getCell(vRow, 2).value = value;
+            valSheet.getCell(vRow, 2).font = { name: 'Calibri', size: 10, italic: true, color: { argb: 'FF666666' } };
+            valSheet.getCell(vRow, 2).border = BORDERS;
+            vRow++;
+        }
+
+        applyZebraAndNegatives(valSheet);
+    }
+
+    // ════════════════════════════════════════════════════════
+    // CBE BANKING METRICS SHEET
+    // ════════════════════════════════════════════════════════
+    {
+        const cbeSheet = workbook.addWorksheet('CBE Banking Metrics');
+        cbeSheet.getColumn(1).width = 28;
+        cbeSheet.getColumn(2).width = 14;
+        for (let i = 3; i <= nYears + 2; i++) cbeSheet.getColumn(i).width = 14;
+
+        let cRow = 1;
+        cbeSheet.getCell(cRow, 1).value = 'CBE Banking Metrics — Regulatory Compliance';
+        cbeSheet.getCell(cRow, 1).font = { name: 'Calibri', size: 14, bold: true, color: { argb: 'FFFFFFFF' } };
+        cbeSheet.getCell(cRow, 1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFC0392B' } };
+        cbeSheet.mergeCells(cRow, 1, cRow, nYears + 2);
+        cRow += 2;
+
+        // Headers
+        cbeSheet.getCell(cRow, 1).value = 'Metric';
+        cbeSheet.getCell(cRow, 2).value = 'Threshold';
+        for (let i = 0; i < nYears; i++) cbeSheet.getCell(cRow, i + 3).value = periods[i];
+        styleRow(cbeSheet.getRow(cRow), { bold: true });
+        cRow++;
+
+        interface CBEMetricDef {
+            label: string;
+            threshold: string;
+            compute: (yr: number) => number;
+            passFormula: (col: string, row: number) => string; // formula for PASS/FAIL
+        }
+
+        const cbeMetricDefs: CBEMetricDef[] = [
+            {
+                label: 'Current Ratio',
+                threshold: '≥ 1.20x',
+                compute: yr => {
+                    const ca = results.balanceSheets[yr]?.totalCurrentAssets ?? 0;
+                    const cl = results.balanceSheets[yr]?.totalCurrentLiabilities ?? 0;
+                    return cl !== 0 ? ca / cl : 0;
+                },
+                passFormula: (c, r) => `IF(${c}${r}>=1.2,"✓ PASS","✗ FAIL")`,
+            },
+            {
+                label: 'Debt-to-Equity',
+                threshold: '≤ 2.00x',
+                compute: yr => {
+                    const td = (results.balanceSheets[yr]?.shortTermDebt ?? 0) + (results.balanceSheets[yr]?.longTermDebt ?? 0) + (results.balanceSheets[yr]?.currentPortionLTD ?? 0);
+                    const eq = results.balanceSheets[yr]?.totalEquity ?? 0;
+                    return eq !== 0 ? td / eq : 0;
+                },
+                passFormula: (c, r) => `IF(${c}${r}<=2,"✓ PASS","✗ FAIL")`,
+            },
+            {
+                label: 'Interest Coverage',
+                threshold: '≥ 2.00x',
+                compute: yr => {
+                    const ebit = results.incomeStatements[yr]?.ebit ?? 0;
+                    const ie = results.incomeStatements[yr]?.interestExpense ?? 0;
+                    return ie !== 0 ? ebit / ie : 0;
+                },
+                passFormula: (c, r) => `IF(${c}${r}>=2,"✓ PASS","✗ FAIL")`,
+            },
+            {
+                label: 'Net Debt / EBITDA',
+                threshold: '≤ 3.00x',
+                compute: yr => {
+                    const td = (results.balanceSheets[yr]?.shortTermDebt ?? 0) + (results.balanceSheets[yr]?.longTermDebt ?? 0) + (results.balanceSheets[yr]?.currentPortionLTD ?? 0);
+                    const nd = td - (results.balanceSheets[yr]?.cash ?? 0);
+                    const ebitdaV = (results.incomeStatements[yr]?.ebit ?? 0) + (results.incomeStatements[yr]?.depreciation ?? 0) + (results.incomeStatements[yr]?.amortization ?? 0);
+                    return ebitdaV !== 0 ? nd / ebitdaV : 0;
+                },
+                passFormula: (c, r) => `IF(${c}${r}<=3,"✓ PASS","✗ FAIL")`,
+            },
+            {
+                label: 'DSCR',
+                threshold: '≥ 1.25x',
+                compute: yr => {
+                    if (yr >= results.cashFlowStatements.length) return 999;
+                    const dna = (results.incomeStatements[yr]?.depreciation ?? 0) + (results.incomeStatements[yr]?.amortization ?? 0);
+                    const debtService = Math.abs(results.cashFlowStatements[yr]?.debtRepayment ?? 0) + (results.incomeStatements[yr]?.interestExpense ?? 0);
+                    return debtService !== 0 ? ((results.incomeStatements[yr]?.netIncome ?? 0) + dna) / debtService : 999;
+                },
+                passFormula: (c, r) => `IF(${c}${r}>=1.25,"✓ PASS","✗ FAIL")`,
+            },
+        ];
+
+        for (const metric of cbeMetricDefs) {
+            // Value row
+            const valueRow = cRow;
+            cbeSheet.getCell(cRow, 1).value = metric.label;
+            cbeSheet.getCell(cRow, 1).font = { name: 'Calibri', size: 10, bold: true };
+            cbeSheet.getCell(cRow, 2).value = metric.threshold;
+            cbeSheet.getCell(cRow, 2).font = { name: 'Calibri', size: 10, italic: true, color: { argb: 'FF666666' } };
+            cbeSheet.getCell(cRow, 2).border = BORDERS;
+            for (let yr = 0; yr < nYears; yr++) {
+                const val = metric.compute(yr);
+                cbeSheet.getCell(cRow, yr + 3).value = isFinite(val) ? val : 0;
+                cbeSheet.getCell(cRow, yr + 3).numFmt = '0.00x';
+                cbeSheet.getCell(cRow, yr + 3).border = BORDERS;
+            }
+            cRow++;
+
+            // Status row with dynamic IF formula
+            cbeSheet.getCell(cRow, 1).value = '  Status';
+            cbeSheet.getCell(cRow, 1).font = { name: 'Calibri', size: 10, italic: true };
+            for (let yr = 0; yr < nYears; yr++) {
+                const c = colLetter(yr + 3);
+                const val = metric.compute(yr);
+                const passStr = metric.passFormula(c, valueRow);
+                const isPass = val !== 0;
+                cbeSheet.getCell(cRow, yr + 3).value = { formula: passStr, result: isPass ? '✓ PASS' : '✗ FAIL' };
+                cbeSheet.getCell(cRow, yr + 3).border = BORDERS;
+                cbeSheet.getCell(cRow, yr + 3).font = { name: 'Calibri', size: 10, bold: true, color: { argb: isPass ? 'FF006100' : 'FF9C0006' } };
+                cbeSheet.getCell(cRow, yr + 3).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: isPass ? 'FFC6EFCE' : 'FFFFC7CE' } };
+            }
+            cRow++;
+            cRow++; // blank between metrics
+        }
+
+        // Reference rates
+        cRow++;
+        cbeSheet.getCell(cRow, 1).value = '── Market Reference Rates ──';
+        styleRow(cbeSheet.getRow(cRow), { subheader: true });
+        cRow++;
+
+        const refs: [string, string][] = [
+            ['CBE Overnight Deposit Rate', '27.25% (Q1 2026)'],
+            ['Commercial Lending Rate', '29–30% (CBE + 2–3%)'],
+            ['Corporate Tax Rate (ETA)', '22.5%'],
+            ['Egyptian VAT Rate', '14%'],
+        ];
+        for (const [label, value] of refs) {
+            cbeSheet.getCell(cRow, 1).value = label;
+            cbeSheet.getCell(cRow, 2).value = value;
+            cbeSheet.getCell(cRow, 2).border = BORDERS;
+            cRow++;
+        }
+
+        cRow++;
+        cbeSheet.getCell(cRow, 1).value = 'Note: ETA e-invoicing compliance required for all B2B transactions.';
+        cbeSheet.getCell(cRow, 1).font = { name: 'Calibri', size: 9, italic: true, color: { argb: 'FF888888' } };
+
+        applyZebraAndNegatives(cbeSheet);
+    }
+
+    // ════════════════════════════════════════════════════════
     // VAT SCHEDULE (Memo)
     // ════════════════════════════════════════════════════════
     if (assumptions.enableVAT && (assumptions.vatRate ?? 0) > 0) {
@@ -2401,14 +2751,16 @@ export async function exportToExcel(
     const DESIRED_ORDER = [
         'Dashboard', 'Company Info', 'Scenarios', 'Assumptions',
         'Income Statement', 'Balance Sheet', 'Cash Flow Statement', 'Ratios',
-        'Working Capital', 'Depreciation Schedule', 'Debt Schedule', 'CBE Banking Metrics',
+        'Working Capital', 'Depreciation Schedule', 'Debt Schedule',
+        'DCF Valuation', 'Valuation Multiples', 'CBE Banking Metrics',
         'VAT Schedule',
     ];
     const TAB_COLORS: Record<string, string> = {
         'Dashboard': 'FF1F3864', 'Company Info': 'FF2E75B6', 'Scenarios': 'FF1A7A4A',
         'Assumptions': 'FF7F7F7F', 'Income Statement': 'FF4472C4', 'Balance Sheet': 'FF4472C4',
-        'Cash Flow Statement': 'FF4472C4', 'Ratios': 'FF4472C4', 'Working Capital': 'FF8B4000',
-        'Depreciation Schedule': 'FF8B4000', 'Debt Schedule': 'FF8B4000', 'CBE Banking Metrics': 'FFC0392B',
+        'Cash Flow Statement': 'FF4472C4', 'Ratios': 'FF7030A0', 'Working Capital': 'FF8B4000',
+        'Depreciation Schedule': 'FF8B4000', 'Debt Schedule': 'FF8B4000',
+        'DCF Valuation': 'FF2E75B6', 'Valuation Multiples': 'FF2E75B6', 'CBE Banking Metrics': 'FFC0392B',
     };
     // Apply tab colors
     for (const [name, color] of Object.entries(TAB_COLORS)) {
@@ -2450,7 +2802,32 @@ export async function exportToExcel(
     // ════════════════════════════════════════════════════════
     // DOWNLOAD
     // ════════════════════════════════════════════════════════
-    const buffer = await workbook.xlsx.writeBuffer();
+    let buffer = await workbook.xlsx.writeBuffer();
+
+    // ── Patch calcPr to ensure iterate attributes are in OOXML ──
+    // ExcelJS doesn't reliably write iterate/iterateCount/iterateDelta
+    // to <calcPr>, causing Excel to show a circular reference warning.
+    try {
+        const zip = await JSZip.loadAsync(buffer);
+        const wbXmlFile = zip.file('xl/workbook.xml');
+        if (wbXmlFile) {
+            let wbXml = await wbXmlFile.async('string');
+            // Remove existing iterate attrs if present (avoid duplicates)
+            wbXml = wbXml.replace(/\s+iterate="[^"]*"/g, '');
+            wbXml = wbXml.replace(/\s+iterateCount="[^"]*"/g, '');
+            wbXml = wbXml.replace(/\s+iterateDelta="[^"]*"/g, '');
+            // Inject iterate attributes into <calcPr ...>
+            wbXml = wbXml.replace(
+                /<calcPr([^/>]*)(\/?\s*>)/,
+                '<calcPr$1 iterate="1" iterateCount="1000" iterateDelta="0.001"$2'
+            );
+            zip.file('xl/workbook.xml', wbXml);
+            buffer = await zip.generateAsync({ type: 'arraybuffer' });
+        }
+    } catch (e) {
+        console.warn('calcPr patch skipped (non-critical):', e);
+    }
+
     const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
     const safeName = companyName.replace(/[^a-zA-Z0-9]/g, '_');
     const filename = `${safeName}_Financial_Model.xlsx`;

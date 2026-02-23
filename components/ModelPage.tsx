@@ -116,8 +116,9 @@ export default function ModelPage() {
                                 <td>{item.label}</td>
                                 {item.type === 'array' ? (
                                     Array.from({ length: years }, (_, i) => {
-                                        const arr = getValue(item.path) as number[];
-                                        const displayVal = item.pct ? (arr[i] * 100).toFixed(1) : arr[i].toFixed(0);
+                                        const arr = getValue(item.path) as number[] | undefined;
+                                        const rawVal = arr?.[i] ?? 0;
+                                        const displayVal = item.pct ? (rawVal * 100).toFixed(1) : rawVal.toFixed(0);
                                         return (
                                             <td key={i}>
                                                 <input
@@ -137,7 +138,7 @@ export default function ModelPage() {
                                             className="fin-input"
                                             type="number"
                                             step={item.pct ? '0.1' : '1000'}
-                                            value={item.pct ? ((getValue(item.path) as number) * 100).toFixed(1) : (getValue(item.path) as number).toFixed(0)}
+                                            value={item.pct ? (((getValue(item.path) as number | undefined) ?? 0) * 100).toFixed(1) : ((getValue(item.path) as number | undefined) ?? 0).toFixed(0)}
                                             onChange={e => handleChange(item.path, e.target.value)}
                                             style={{ width: 150, textAlign: 'right' }}
                                         />

@@ -453,14 +453,19 @@ function buildOneCalcSheet(cfg: CalcSheetConfig): CalcSheetRowMap {
                 isData?.totalOpex ?? 0);
             setF(R.ebit, yr, `${c}${R.grossProfit}-${c}${R.totalOpex}`, isData?.ebit ?? 0);
 
-            // Interest Income — engine-computed (circular: IntIncome ↔ Cash ↔ NI)
+            // Interest Income — self-contained avg-balance formula:
+            // (prevCash + currCash)/2 × interestIncomeRate
+            // This avoids the old circular reference (Scenarios computed → Calc → Scenarios)
+            // and is resolved by workbook iterative calculation (cash depends on NI which depends on interest income)
             setF(R.interestIncome, yr,
-                sr('interestIncomeComputed'),
+                `(${pc}${R.cash}+${c}${R.cash})/2*${sr('interestIncomeRate')}`,
                 isData?.interestIncome ?? 0);
 
-            // Interest Expense — engine-computed (circular: IntExpense ↔ LTD ↔ NI)
+            // Interest Expense — self-contained avg-balance formula:
+            // (prevTotalDebt + currTotalDebt)/2 × interestRate
+            // where TotalDebt = ShortTermDebt + CurrentPortionLTD + LongTermDebt
             setF(R.interestExpense, yr,
-                sr('interestExpenseComputed'),
+                `(${pc}${R.shortTermDebt}+${pc}${R.currentPortionLTD}+${pc}${R.longTermDebt}+${c}${R.shortTermDebt}+${c}${R.currentPortionLTD}+${c}${R.longTermDebt})/2*${sr('interestRate')}`,
                 isData?.interestExpense ?? 0);
 
             setF(R.otherIncomeExpense, yr, sr('otherIncomeExpense'), isData?.otherIncomeExpense ?? 0);

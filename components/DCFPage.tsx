@@ -90,6 +90,31 @@ export default function DCFPage() {
                 </div>
             </div>
 
+            {/* Rate Warning */}
+            {(() => {
+                const projIdx2 = (scenario.results?.incomeStatements.length ?? 0) - (scenario.results?.incomeStatements.filter((s: any) => s.periodType === 'historical').length ?? 0) - 1;
+                const modelDebtRate = scenario.assumptions.interestRateOnDebt?.[Math.max(0, projIdx2)] ?? 0.18;
+                const CBE_RATE = 0.2725;
+                if (modelDebtRate < 0.20) {
+                    return (
+                        <div style={{ ...card, borderLeft: '4px solid #f59e0b', background: 'rgba(245,158,11,0.06)' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                                <span style={{ fontSize: 20 }}>⚠️</span>
+                                <div>
+                                    <div style={{ fontWeight: 600, fontSize: 13 }}>Debt Rate Below Egyptian Market</div>
+                                    <div style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                                        Model debt rate ({formatPercent(modelDebtRate)}) is below the CBE overnight deposit rate ({formatPercent(CBE_RATE)}).
+                                        Commercial lending rates are typically CBE + 2–3% spread (29–30%).
+                                        Consider adjusting the debt rate in Assumptions to reflect current Egyptian market conditions.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    );
+                }
+                return null;
+            })()}
+
             {/* FCF Projection */}
             <div style={card}>
                 <h3 style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-secondary)' }}>Free Cash Flow Projections</h3>

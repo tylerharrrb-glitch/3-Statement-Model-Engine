@@ -106,6 +106,7 @@ export default function ValuationPage() {
                             <th style={{ textAlign: 'right', padding: 8, color: 'var(--text-muted)' }}>EGX Avg</th>
                             <th style={{ textAlign: 'right', padding: 8, color: 'var(--text-muted)' }}>EGX High</th>
                             <th style={{ textAlign: 'right', padding: 8, color: '#fbbf24' }}>Company</th>
+                            <th style={{ textAlign: 'right', padding: 8, color: 'var(--text-muted)' }}>vs EGX Avg</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -113,19 +114,41 @@ export default function ValuationPage() {
                             { label: 'P/E', bench: benchmarks.pe, company: multiples?.pe },
                             { label: 'EV/EBITDA', bench: benchmarks.evEbitda, company: multiples?.evEbitda },
                             { label: 'P/Book', bench: benchmarks.priceBook, company: multiples?.priceBook },
-                        ].map(r => (
-                            <tr key={r.label} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                                <td style={{ padding: 8, fontWeight: 600 }}>{r.label}</td>
-                                <td style={{ textAlign: 'right', padding: 8 }}>{r.bench.low.toFixed(1)}x</td>
-                                <td style={{ textAlign: 'right', padding: 8 }}>{r.bench.avg.toFixed(1)}x</td>
-                                <td style={{ textAlign: 'right', padding: 8 }}>{r.bench.high.toFixed(1)}x</td>
-                                <td style={{ textAlign: 'right', padding: 8, color: '#fbbf24', fontWeight: 600 }}>
-                                    {r.company != null ? r.company.toFixed(1) + 'x' : '—'}
-                                </td>
-                            </tr>
-                        ))}
+                        ].map(r => {
+                            const prem = r.company != null && r.bench.avg > 0 ? ((r.company - r.bench.avg) / r.bench.avg) : null;
+                            const premColor = prem != null ? (prem > 0.1 ? '#f43f5e' : prem < -0.1 ? '#34d399' : 'var(--text-primary)') : 'var(--text-muted)';
+                            const premLabel = prem != null ? (prem > 0 ? `+${(prem * 100).toFixed(0)}% Premium` : `${(prem * 100).toFixed(0)}% Discount`) : '—';
+                            return (
+                                <tr key={r.label} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                                    <td style={{ padding: 8, fontWeight: 600 }}>{r.label}</td>
+                                    <td style={{ textAlign: 'right', padding: 8 }}>{r.bench.low.toFixed(1)}x</td>
+                                    <td style={{ textAlign: 'right', padding: 8 }}>{r.bench.avg.toFixed(1)}x</td>
+                                    <td style={{ textAlign: 'right', padding: 8 }}>{r.bench.high.toFixed(1)}x</td>
+                                    <td style={{ textAlign: 'right', padding: 8, color: '#fbbf24', fontWeight: 600 }}>
+                                        {r.company != null ? r.company.toFixed(1) + 'x' : '—'}
+                                    </td>
+                                    <td style={{ textAlign: 'right', padding: 8, color: premColor, fontWeight: 600, fontSize: 11 }}>
+                                        {premLabel}
+                                    </td>
+                                </tr>
+                            );
+                        })}
                     </tbody>
                 </table>
+                {multiples && (() => {
+                    const avgPrem = [
+                        multiples.pe && benchmarks.pe.avg > 0 ? (multiples.pe - benchmarks.pe.avg) / benchmarks.pe.avg : null,
+                        multiples.evEbitda && benchmarks.evEbitda.avg > 0 ? (multiples.evEbitda - benchmarks.evEbitda.avg) / benchmarks.evEbitda.avg : null,
+                        multiples.priceBook && benchmarks.priceBook.avg > 0 ? (multiples.priceBook - benchmarks.priceBook.avg) / benchmarks.priceBook.avg : null,
+                    ].filter(v => v != null) as number[];
+                    if (avgPrem.length === 0) return null;
+                    const avg = avgPrem.reduce((a, b) => a + b, 0) / avgPrem.length;
+                    return (
+                        <div style={{ textAlign: 'center', marginTop: 12, fontSize: 12, padding: '8px 12px', borderRadius: 6, background: avg > 0 ? 'rgba(244,63,94,0.06)' : 'rgba(52,211,153,0.06)', color: avg > 0 ? '#f43f5e' : '#34d399' }}>
+                            Company trades at an average <strong>{avg > 0 ? `${(avg * 100).toFixed(0)}% premium` : `${Math.abs(avg * 100).toFixed(0)}% discount`}</strong> to EGX 30 benchmarks
+                        </div>
+                    );
+                })()}
             </div>
 
             {/* Implied Prices */}

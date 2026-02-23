@@ -21,6 +21,8 @@ import ValidationPage from '@/components/ValidationPage';
 import CompanySettings from '@/components/CompanySettings';
 import DCFPage from '@/components/DCFPage';
 import ValuationPage from '@/components/ValuationPage';
+import RatiosPage from '@/components/RatiosPage';
+import CBEMetricsPage from '@/components/CBEMetricsPage';
 import ErrorBanner from '@/components/ErrorBanner';
 import ConflictModal from '@/components/ConflictModal';
 
@@ -83,6 +85,8 @@ export default function Home() {
       case 'sensitivity': return <SensitivityPage />;
       case 'dcf': return <DCFPage />;
       case 'valuation': return <ValuationPage />;
+      case 'ratios': return <RatiosPage />;
+      case 'cbe-metrics': return <CBEMetricsPage />;
       case 'montecarlo': return <MonteCarloPage />;
       case 'import': return <HistoricalImportPage />;
       case 'historicaldata': return <HistoricalDataInput />;

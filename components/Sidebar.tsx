@@ -17,6 +17,8 @@ const navItems: { id: ModelState['activeTab']; label: string; icon: string }[] =
     { id: 'sensitivity', label: 'Sensitivity', icon: '📈' },
     { id: 'dcf', label: 'DCF Valuation', icon: '💎' },
     { id: 'valuation', label: 'Valuation Multiples', icon: '📊' },
+    { id: 'ratios', label: 'Financial Ratios', icon: '📈' },
+    { id: 'cbe-metrics', label: 'CBE Banking Metrics', icon: '🏦' },
     { id: 'montecarlo', label: 'Monte Carlo', icon: '🎲' },
     { id: 'validation', label: 'Validation', icon: '✅' },
     { id: 'historicaldata', label: 'Historical Data', icon: '📋' },
