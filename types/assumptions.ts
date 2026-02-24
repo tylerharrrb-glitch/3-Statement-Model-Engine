@@ -45,6 +45,36 @@ export interface AssumptionSet {
     // Tax & Employee Distribution
     taxRate: number[];
     employeeProfitSharingRate: number;  // EPD rate (Art. 47, Law 159/1981) — default 0.10
+    enableEmployeeProfitShare: boolean; // default: true
+
+    // Tax Loss Carryforward (Tax Law Art. 29)
+    enableTaxLossCarryforward: boolean; // default: true
+    taxLossCarryforwardYears: number;   // default: 5
+
+    // Legal Reserve (Companies Law Art. 40)
+    enableLegalReserve: boolean;        // default: true
+    legalReservePercent: number;        // default: 0.05
+    paidUpCapital: number;              // for 50% cap calculation
+    legalReserveCap: number;            // default: 0.50
+    initialLegalReserve: number;        // starting balance from prior years
+
+    // Dividend Withholding Tax (Tax Law Art. 56 bis)
+    dividendWithholdingTaxRate: number; // default: 0.10
+
+    // Depreciation Method
+    depreciationMethod: 'straight-line' | 'declining-balance' | 'egyptian-tax';
+    assetMix: {
+        buildings: number;   // default: 0.30
+        machinery: number;   // default: 0.35
+        vehicles: number;    // default: 0.15
+        computers: number;   // default: 0.10
+        furniture: number;   // default: 0.10
+    };
+
+    // End of Service Benefits (Labor Law + EAS 38)
+    enableEndOfServiceBenefit: boolean; // default: false (optional)
+    averageMonthlyBasicSalary: number;  // EGP
+    numberOfEmployees: number[];        // per projection year
 
     // Other
     otherIncomeExpense: number[];
@@ -183,6 +213,36 @@ export function getDefaultAssumptions(): AssumptionSet {
 
         taxRate: fill(0.225),
         employeeProfitSharingRate: 0.10,
+        enableEmployeeProfitShare: true,
+
+        // Tax Loss Carryforward
+        enableTaxLossCarryforward: true,
+        taxLossCarryforwardYears: 5,
+
+        // Legal Reserve
+        enableLegalReserve: true,
+        legalReservePercent: 0.05,
+        paidUpCapital: 10_000,
+        legalReserveCap: 0.50,
+        initialLegalReserve: 0,
+
+        // Dividend WHT
+        dividendWithholdingTaxRate: 0.10,
+
+        // Depreciation
+        depreciationMethod: 'egyptian-tax',
+        assetMix: {
+            buildings: 0.30,
+            machinery: 0.35,
+            vehicles: 0.15,
+            computers: 0.10,
+            furniture: 0.10,
+        },
+
+        // End of Service Benefits
+        enableEndOfServiceBenefit: false,
+        averageMonthlyBasicSalary: 5_000,
+        numberOfEmployees: fill(50),
 
         otherIncomeExpense: fill(0),
         goodwill: fill(100_000),

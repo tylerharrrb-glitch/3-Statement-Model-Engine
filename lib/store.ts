@@ -254,10 +254,13 @@ export const useModelStore = create<ModelStore>()(
                 // should be consistent — they don't vary by scenario.
                 const baseScenario = state.scenarios.find(s => s.type === 'base');
                 const GLOBAL_KEYS = [
-                    'taxRate', 'vatRate', 'enableVAT', 'dividendWithholdingRate',
+                    'taxRate', 'vatRate', 'enableVAT', 'dividendWithholdingRate', 'dividendWithholdingTaxRate',
                     'useEgyptianRates', 'countryPreset', 'fiscalYearPreset', 'fiscalYearEnd',
                     'projectionYears', 'historicalYears',
                     'cbeRate', 'legacyDebtRate', 'employeeProfitSharingRate',
+                    'enableEmployeeProfitShare', 'enableTaxLossCarryforward', 'taxLossCarryforwardYears',
+                    'enableLegalReserve', 'legalReservePercent', 'paidUpCapital', 'legalReserveCap',
+                    'depreciationMethod', 'enableEndOfServiceBenefit',
                     'interestRateOnDebt', 'interestRateOnCash',
                 ] as const;
 
@@ -412,6 +415,7 @@ export const useModelStore = create<ModelStore>()(
                         updatedAssumptions.vatRate = EGYPTIAN_TAX_DEFAULTS.vatRate;
                         updatedAssumptions.enableVAT = true;
                         updatedAssumptions.dividendWithholdingRate = EGYPTIAN_TAX_DEFAULTS.dividendWithholdingRate;
+                        updatedAssumptions.dividendWithholdingTaxRate = EGYPTIAN_TAX_DEFAULTS.dividendWithholdingRate;
                         updatedAssumptions.useEgyptianRates = true;
                         updatedAssumptions.fiscalYearPreset = 'egyptian-govt';
                         updatedAssumptions.fiscalYearEnd = 6;
@@ -427,6 +431,7 @@ export const useModelStore = create<ModelStore>()(
                         updatedAssumptions.vatRate = 0;
                         updatedAssumptions.enableVAT = false;
                         updatedAssumptions.dividendWithholdingRate = 0;
+                        updatedAssumptions.dividendWithholdingTaxRate = 0;
                         updatedAssumptions.useEgyptianRates = false;
                         updatedAssumptions.fiscalYearPreset = 'calendar';
                         updatedAssumptions.fiscalYearEnd = 12;

@@ -41,6 +41,10 @@ export function runFullModel(
     let maxDelta = 0;
     let allConverged = true;
 
+    // Carry-forward state between projection years
+    let taxLossVintages: import('./income-statement').TaxLossVintage[] = [];
+    let currentLegalReserve = assumptions.initialLegalReserve ?? 0;
+
     for (let yr = 0; yr < assumptions.projectionYears; yr++) {
         // Get previous period statements
         const prevIS = yr === 0
@@ -56,7 +60,13 @@ export function runFullModel(
             yr,
             prevIS,
             prevBS,
+            taxLossVintages,
+            currentLegalReserve,
         );
+
+        // Update carry-forward state for next year
+        taxLossVintages = result.updatedTaxLossVintages;
+        currentLegalReserve = result.newLegalReserve;
 
         projectedIS.push(result.incomeStatement);
         projectedBS.push(result.balanceSheet);

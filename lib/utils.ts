@@ -12,7 +12,7 @@ interface CurrencyConfig {
 
 export const CURRENCY_MAP: Record<SupportedCurrency, CurrencyConfig> = {
     USD: { code: 'USD', symbol: '$', label: 'US Dollar ($)' },
-    EGP: { code: 'EGP', symbol: 'E£', label: 'Egyptian Pound (E£)' },
+    EGP: { code: 'EGP', symbol: 'EGP ', label: 'Egyptian Pound (EGP)' },
     EUR: { code: 'EUR', symbol: '€', label: 'Euro (€)' },
     GBP: { code: 'GBP', symbol: '£', label: 'British Pound (£)' },
     SAR: { code: 'SAR', symbol: 'SR', label: 'Saudi Riyal (SR)' },
@@ -78,4 +78,15 @@ export function colorForValue(value: number): string {
 
 export function cn(...classes: (string | boolean | undefined | null)[]): string {
     return classes.filter(Boolean).join(' ');
+}
+
+/**
+ * Format a fiscal year label based on the fiscal year end month.
+ * For calendar year (Dec end): "FY2024"
+ * For Egyptian govt (Jun end): "FY2024/25"
+ */
+export function formatFiscalYear(year: number, fiscalYearEnd: number = 12): string {
+    if (fiscalYearEnd === 12) return `FY${year}`;
+    const nextYear = (year + 1) % 100;
+    return `FY${year}/${nextYear.toString().padStart(2, '0')}`;
 }

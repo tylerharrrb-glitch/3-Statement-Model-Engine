@@ -455,6 +455,12 @@ export async function exportToExcel(
     addAssumptionRow('Current Portion LTD', 'currentPortionLTD', allCPLTD, NUM_FMT);
     addAssumptionRow('Dividend Payout Ratio', 'dividendPayoutRatio', allDivPayout, PCT_FMT);
     addAssumptionRow('Share Repurchase Amount', 'shareRepurchaseAmount', allShareRepurch, NUM_FMT);
+    addAssumptionRow('Legal Reserve %', 'legalReservePercent',
+        Array(nYears).fill(assumptions.legalReservePercent ?? 0.05), PCT_FMT);
+    addAssumptionRow('Paid-Up Capital', 'paidUpCapital',
+        Array(nYears).fill(assumptions.paidUpCapital ?? 0), NUM_FMT);
+    addAssumptionRow('Dividend WHT Rate', 'dividendWHTRate',
+        Array(nYears).fill(assumptions.dividendWithholdingTaxRate ?? 0.10), PCT_FMT);
 
     // Equity issuance: derive from engine CF results for all periods
     const allEquityIssuance = allIS.map((_, i) => {
@@ -497,6 +503,11 @@ export async function exportToExcel(
     addAssumptionRow('Retained Earnings (Computed)', 'reComputed', allRE, NUM_FMT);
     addAssumptionRow('Treasury Stock (Computed)', 'tsComputed', allTS, NUM_FMT);
     addAssumptionRow('APIC (Computed)', 'apicComputed', allAPICValues, NUM_FMT);
+    // Legal Reserve and EOS Provision computed values
+    const allLegalReserve = allBS.map(bs => bs.legalReserve ?? 0);
+    addAssumptionRow('Legal Reserve (Computed)', 'legalReserveComputed', allLegalReserve, NUM_FMT);
+    const allEOSProvision = allBS.map(bs => bs.endOfServiceProvision ?? 0);
+    addAssumptionRow('EOS Provision (Computed)', 'eosProvisionComputed', allEOSProvision, NUM_FMT);
 
     // Engine-computed CF values (padded to nYears: index 0 = IS year 0 with no CF entry)
     const allDividendsPaidPadded = [0, ...results.cashFlowStatements.map(cf => cf.dividendsPaid)];
@@ -752,6 +763,48 @@ export async function exportToExcel(
         bold: true,
     });
 
+    // Legal Reserve Addition = MIN(NI After EPD * legalReservePercent, MAX(0, paidUpCapital*0.5 - priorLegalReserve))
+    // Simplified in Excel: NI After EPD * 5% (the cap is engine-computed)
+    addISRow('Legal Reserve (5%)', 'legalReserveAddition', {
+        formula: (c, yr) => `${c}${isRows['netIncomeAfterEPD']}*${aRef('legalReservePercent', yr)}`,
+        value: yr => results.incomeStatements[yr]?.legalReserveAddition ?? 0,
+    });
+
+    // Distributable Profit = NI After EPD - Legal Reserve
+    addISRow('Distributable Profit', 'distributableProfit', {
+        formula: (c) => `${c}${isRows['netIncomeAfterEPD']}-${c}${isRows['legalReserveAddition']}`,
+        value: yr => results.incomeStatements[yr]?.distributableProfit ?? 0,
+        bold: true,
+    });
+
+    // Gross Dividends = MIN(Distributable Profit, NI * Payout Ratio)
+    addISRow('Gross Dividends', 'grossDividends', {
+        formula: (c, yr) => `MIN(${c}${isRows['distributableProfit']},MAX(0,${c}${isRows['netIncome']}*${aRef('dividendPayoutRatio', yr)}))`,
+        value: yr => results.incomeStatements[yr]?.grossDividends ?? 0,
+    });
+
+    // Dividend WHT = Gross Dividends * WHT Rate
+    addISRow('Dividend WHT (10%)', 'dividendWHT', {
+        formula: (c, yr) => `${c}${isRows['grossDividends']}*${aRef('dividendWHTRate', yr)}`,
+        value: yr => results.incomeStatements[yr]?.dividendWHT ?? 0,
+    });
+
+    // Net Dividends = Gross - WHT
+    addISRow('Net Dividends', 'netDividends', {
+        formula: (c) => `${c}${isRows['grossDividends']}-${c}${isRows['dividendWHT']}`,
+        value: yr => results.incomeStatements[yr]?.netDividends ?? 0,
+    });
+
+    // Addition to Retained Earnings = Distributable Profit - Gross Dividends
+    addISRow('Addition to Retained Earnings', 'additionToRE', {
+        formula: (c) => `${c}${isRows['distributableProfit']}-${c}${isRows['grossDividends']}`,
+        value: yr => results.incomeStatements[yr]?.additionToRE ?? 0,
+        bold: true,
+    });
+
+    isSheet.getCell(isRow, 1).value = '';
+    isRow++;
+
     // Net Margin
     addISRow('Net Margin', 'netMargin', {
         formula: (c) => `IF(${c}${isRows['revenue']}=0,0,${c}${isRows['netIncome']}/${c}${isRows['revenue']})`,
@@ -764,6 +817,24 @@ export async function exportToExcel(
         formula: (c, yr) => `IF(${aRef('sharesOutstanding', yr)}=0,0,${c}${isRows['netIncomeAfterEPD']}/${aRef('sharesOutstanding', yr)})`,
         value: yr => results.incomeStatements[yr]?.eps ?? 0,
         numFmt: EPS_FMT,
+    });
+
+    isSheet.getCell(isRow, 1).value = '';
+    isRow++;
+    isSheet.getCell(isRow, 1).value = 'MEMO ITEMS';
+    styleRow(isSheet.getRow(isRow), { subheader: true });
+    isRow++;
+
+    // NOPAT = EBIT * (1 - Tax Rate)
+    addISRow('NOPAT', 'nopat', {
+        formula: (c, yr) => `${c}${isRows['ebit']}*(1-${aRef('taxRate', yr)})`,
+        value: yr => results.incomeStatements[yr]?.nopat ?? 0,
+    });
+
+    // FCFF = NOPAT + D&A - ΔWC - CapEx (engine-computed value for accuracy)
+    addISRow('FCFF', 'fcff', {
+        value: yr => results.incomeStatements[yr]?.fcff ?? 0,
+        bold: true,
     });
 
     // SBC (for reference / CF use) — use combined array to cover all years
@@ -985,6 +1056,11 @@ export async function exportToExcel(
         formula: (_c, yr) => `${aRef('deferredTaxLiabilities', yr)}`,
         value: yr => results.balanceSheets[yr]?.deferredTaxLiabilities ?? 0,
     });
+    // End of Service Provision (Labor Law)
+    addBSRow('End of Service Provision', 'endOfServiceProvision', {
+        formula: (_c, yr) => `${aRef('eosProvisionComputed', yr)}`,
+        value: yr => results.balanceSheets[yr]?.endOfServiceProvision ?? 0,
+    });
     addBSRow('Other LT Liabilities', 'otherLongTermLiabilities', {
         formula: (_c, yr) => `${aRef('otherLongTermLiabilities', yr)}`,
         value: yr => results.balanceSheets[yr]?.otherLongTermLiabilities ?? 0,
@@ -1023,14 +1099,25 @@ export async function exportToExcel(
         },
         value: yr => results.balanceSheets[yr]?.additionalPaidInCapital ?? 0,
     });
-    // Retained Earnings — live rollforward: prev + NI After EPD - dividends
+    // Legal Reserve — rollforward: prev + IS Legal Reserve Addition
+    addBSRow('Legal Reserve', 'legalReserve', {
+        formula: (c, yr) => {
+            if (yr < numHistorical) {
+                return `${aRef('legalReserveComputed', yr)}`;
+            }
+            const prevC = colLetter(yr + 1);
+            return `${prevC}${bsRows['legalReserve']}+'Income Statement'!${c}${isRows['legalReserveAddition']}`;
+        },
+        value: yr => results.balanceSheets[yr]?.legalReserve ?? 0,
+    });
+    // Retained Earnings — live rollforward: prev + Addition to RE (from IS profit appropriation)
     addBSRow('Retained Earnings', 'retainedEarnings', {
         formula: (c, yr) => {
             if (yr < numHistorical) {
                 return `${aRef('reComputed', yr)}`;
             }
             const prevC = colLetter(yr + 1);
-            return `${prevC}${bsRows['retainedEarnings']}+'Income Statement'!${c}${isRows['netIncomeAfterEPD']}-MAX(0,'Income Statement'!${c}${isRows['netIncomeAfterEPD']}*${aRef('dividendPayoutRatio', yr)})`;
+            return `${prevC}${bsRows['retainedEarnings']}+'Income Statement'!${c}${isRows['additionToRE']}`;
         },
         value: yr => results.balanceSheets[yr]?.retainedEarnings ?? 0,
     });
@@ -1473,6 +1560,12 @@ export async function exportToExcel(
     addCFRow('Employee Profit Sharing Paid', 'employeeProfitSharingPaid', {
         formula: (_cfCol, isCol) => `-'Income Statement'!${isCol}${isRows['employeeProfitSharing']}`,
         value: j => results.cashFlowStatements[j]?.employeeProfitSharingPaid ?? 0,
+    });
+
+    // Dividend WHT — 10% withheld from gross dividends
+    addCFRow('Dividend WHT', 'dividendWHT', {
+        formula: (_cfCol, isCol) => `-'Income Statement'!${isCol}${isRows['dividendWHT']}`,
+        value: j => results.cashFlowStatements[j]?.dividendWHT ?? 0,
     });
 
     // Equity Issuance: historical = engine back-solved (from APIC/CS changes), projected = assumption

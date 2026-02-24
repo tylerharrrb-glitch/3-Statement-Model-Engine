@@ -40,6 +40,7 @@ export default function CashFlowPage() {
             title: 'FINANCING ACTIVITIES', rows: [
                 { label: 'Debt Issuance', key: 'debtIssuance' }, { label: 'Debt Repayment', key: 'debtRepayment' },
                 { label: 'Dividends Paid', key: 'dividendsPaid' },
+                { label: 'Dividend WHT', key: 'dividendWHT' },
                 { label: 'EPD Paid', key: 'employeeProfitSharingPaid' },
                 { label: 'Equity Issuance', key: 'equityIssuance' },
                 { label: 'Share Repurchases', key: 'shareRepurchases' },

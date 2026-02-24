@@ -5,6 +5,13 @@
 import { IncomeStatement } from '@/types/financial';
 import { AssumptionSet } from '@/types/assumptions';
 
+// Tax Loss Carryforward vintage tracking
+export interface TaxLossVintage {
+    year: number;
+    amount: number;
+    expiresAfterYear: number; // year + carryforwardYears
+}
+
 export interface IncomeStatementInputs {
     assumptions: AssumptionSet;
     yearIndex: number;
@@ -12,12 +19,109 @@ export interface IncomeStatementInputs {
     depreciationFromSchedule: number;
     interestExpenseFromDebt: number;
     interestIncomeFromCash: number;
+    // Tax loss carryforward
+    taxLossVintages: TaxLossVintage[];
+    // Legal reserve
+    priorLegalReserve: number;
+    // NWC for FCFF calculation
+    currentNWC: number;
+    previousNWC: number;
+    capex: number;
 }
 
-export function calculateIncomeStatement(inputs: IncomeStatementInputs): IncomeStatement {
-    const { assumptions, yearIndex, previousRevenue, depreciationFromSchedule, interestExpenseFromDebt, interestIncomeFromCash } = inputs;
+export interface IncomeStatementResult {
+    incomeStatement: IncomeStatement;
+    updatedTaxLossVintages: TaxLossVintage[];
+    newLegalReserve: number;
+}
+
+function calculateTaxWithCarryforward(
+    ebt: number,
+    taxRate: number,
+    lossVintages: TaxLossVintage[],
+    currentYear: number,
+    carryforwardYears: number,
+    enabled: boolean,
+): {
+    tax: number;
+    taxableIncome: number;
+    taxLossUtilized: number;
+    taxLossRemaining: number;
+    updatedVintages: TaxLossVintage[];
+    taxLossCarryforward: number;
+} {
+    // 1. Expire vintages older than allowed years
+    const activeVintages = lossVintages.filter(v => v.expiresAfterYear >= currentYear);
+    const taxLossCarryforward = activeVintages.reduce((s, v) => s + v.amount, 0);
+
+    if (!enabled || ebt <= 0) {
+        // Add new loss vintage if EBT < 0
+        const newVintages = ebt < 0
+            ? [...activeVintages, { year: currentYear, amount: Math.abs(ebt), expiresAfterYear: currentYear + carryforwardYears }]
+            : activeVintages;
+        return {
+            tax: 0,
+            taxableIncome: ebt,
+            taxLossUtilized: 0,
+            taxLossRemaining: newVintages.reduce((s, v) => s + v.amount, 0),
+            updatedVintages: newVintages,
+            taxLossCarryforward,
+        };
+    }
+
+    // 2. Utilize oldest losses first (FIFO)
+    let remainingProfit = ebt;
+    let utilized = 0;
+    const updatedVintages = activeVintages.map(v => {
+        if (remainingProfit <= 0) return v;
+        const use = Math.min(remainingProfit, v.amount);
+        remainingProfit -= use;
+        utilized += use;
+        return { ...v, amount: v.amount - use };
+    }).filter(v => v.amount > 0.01);
+
+    const taxableIncome = Math.max(0, ebt - utilized);
+    const tax = taxableIncome * taxRate;
+
+    return {
+        tax,
+        taxableIncome,
+        taxLossUtilized: utilized,
+        taxLossRemaining: updatedVintages.reduce((s, v) => s + v.amount, 0),
+        updatedVintages,
+        taxLossCarryforward,
+    };
+}
+
+function calculateLegalReserveAddition(
+    netIncomeAfterEPS: number,
+    priorLegalReserve: number,
+    paidUpCapital: number,
+    reservePercent: number = 0.05,
+    reserveCap: number = 0.50,
+    enabled: boolean = true,
+): { addition: number; newBalance: number } {
+    if (!enabled) return { addition: 0, newBalance: priorLegalReserve };
+    const maxReserve = paidUpCapital * reserveCap;
+    if (priorLegalReserve >= maxReserve || netIncomeAfterEPS <= 0) {
+        return { addition: 0, newBalance: priorLegalReserve };
+    }
+    const proposed = netIncomeAfterEPS * reservePercent;
+    const room = maxReserve - priorLegalReserve;
+    const addition = Math.min(proposed, room);
+    return { addition, newBalance: priorLegalReserve + addition };
+}
+
+export function calculateIncomeStatement(inputs: IncomeStatementInputs): IncomeStatementResult {
+    const {
+        assumptions, yearIndex, previousRevenue, depreciationFromSchedule,
+        interestExpenseFromDebt, interestIncomeFromCash,
+        taxLossVintages, priorLegalReserve,
+        currentNWC, previousNWC, capex,
+    } = inputs;
     const yr = yearIndex;
-    const period = `${assumptions.startYear + yr}E`;
+    const currentYear = assumptions.startYear + yr;
+    const period = `${currentYear}E`;
 
     // Revenue — always grow from prior period (historical last → projected chain)
     const growthRate = assumptions.revenueGrowthRate[yr] ?? 0;
@@ -48,25 +152,62 @@ export function calculateIncomeStatement(inputs: IncomeStatementInputs): IncomeS
     const interestExpense = interestExpenseFromDebt;
     const otherIncomeExpense = assumptions.otherIncomeExpense[yr] ?? 0;
 
-    // Pre-Tax & Tax
+    // Pre-Tax
     const ebt = ebit + interestIncome - interestExpense + otherIncomeExpense;
-    const taxRate = assumptions.taxRate[yr] ?? 0.25;
-    const taxExpense = Math.max(0, ebt * taxRate);
+    const taxRate = assumptions.taxRate[yr] ?? 0.225;
+
+    // Tax with carryforward (C1)
+    const taxResult = calculateTaxWithCarryforward(
+        ebt, taxRate, taxLossVintages, currentYear,
+        assumptions.taxLossCarryforwardYears ?? 5,
+        assumptions.enableTaxLossCarryforward ?? true,
+    );
+    const taxExpense = taxResult.tax;
 
     // Net Income
     const netIncome = ebt - taxExpense;
     const netMargin = revenue !== 0 ? netIncome / revenue : 0;
 
-    // Employee Profit Sharing (Art. 47, Law 159/1981)
-    // EPD is an appropriation of profit (not tax-deductible), applied after tax
-    const employeeProfitSharing = Math.max(0, netIncome * (assumptions.employeeProfitSharingRate ?? 0));
+    // Employee Profit Sharing (C2 — Art. 41, Labor Law 12/2003)
+    const employeeProfitSharing = (
+        (assumptions.enableEmployeeProfitShare ?? true) && netIncome > 0
+    ) ? netIncome * (assumptions.employeeProfitSharingRate ?? 0.10) : 0;
     const netIncomeAfterEPD = netIncome - employeeProfitSharing;
 
-    // Per Share — EPS uses post-EPD income
-    const sharesOutstanding = assumptions.sharesOutstanding[yr] ?? 100_000;
-    const eps = sharesOutstanding !== 0 ? netIncomeAfterEPD / sharesOutstanding : 0;
+    // Legal Reserve (C3 — Companies Law Art. 40)
+    const legalReserve = calculateLegalReserveAddition(
+        netIncomeAfterEPD,
+        priorLegalReserve,
+        assumptions.paidUpCapital ?? 10_000,
+        assumptions.legalReservePercent ?? 0.05,
+        assumptions.legalReserveCap ?? 0.50,
+        assumptions.enableLegalReserve ?? true,
+    );
 
-    // VAT memo (Egyptian market) — revenue stays exclusive-of-VAT throughout the model
+    // Distributable Profit
+    const distributableProfit = netIncomeAfterEPD - legalReserve.addition;
+
+    // Dividends with WHT (C8)
+    const dividendPayoutRatio = assumptions.dividendPayoutRatio[yr] ?? 0;
+    const grossDividends = distributableProfit > 0 ? distributableProfit * dividendPayoutRatio : 0;
+    const dividendWHTRate = assumptions.dividendWithholdingTaxRate ?? 0.10;
+    const dividendWHT = grossDividends * dividendWHTRate;
+    const netDividends = grossDividends - dividendWHT;
+    const additionToRE = distributableProfit - grossDividends;
+
+    // NOPAT (C7 memo)
+    const effectiveTaxRate = ebt > 0 ? taxExpense / ebt : taxRate;
+    const nopat = ebit * (1 - effectiveTaxRate);
+
+    // FCFF (C7 memo)
+    const changeInNWC = currentNWC - previousNWC;
+    const fcff = nopat + depreciation + amortization - capex - changeInNWC;
+
+    // Per Share — EPS uses distributable profit
+    const sharesOutstanding = assumptions.sharesOutstanding[yr] ?? 100_000;
+    const eps = sharesOutstanding !== 0 ? distributableProfit / sharesOutstanding : 0;
+
+    // VAT memo (Egyptian market)
     let revenueInclVAT: number | undefined;
     let revenueExclVAT: number | undefined;
     let vatCollected: number | undefined;
@@ -76,7 +217,7 @@ export function calculateIncomeStatement(inputs: IncomeStatementInputs): IncomeS
         revenueInclVAT = revenue + vatCollected;
     }
 
-    return {
+    const incomeStatement: IncomeStatement = {
         period,
         periodType: 'projected',
         revenue,
@@ -104,10 +245,31 @@ export function calculateIncomeStatement(inputs: IncomeStatementInputs): IncomeS
         netMargin,
         employeeProfitSharing,
         netIncomeAfterEPD,
+        // Tax Loss Carryforward
+        taxLossCarryforward: taxResult.taxLossCarryforward,
+        taxLossUtilized: taxResult.taxLossUtilized,
+        taxLossRemaining: taxResult.taxLossRemaining,
+        taxableIncome: taxResult.taxableIncome,
+        // Profit Appropriation
+        legalReserveAddition: legalReserve.addition,
+        distributableProfit,
+        grossDividends,
+        dividendWHT,
+        netDividends,
+        additionToRE,
+        // Memo
+        nopat,
+        fcff,
         sharesOutstanding,
         eps,
-        // VAT memo (only present when VAT is enabled)
+        // VAT memo
         ...(revenueInclVAT !== undefined && { revenueInclVAT, revenueExclVAT, vatCollected }),
+    };
+
+    return {
+        incomeStatement,
+        updatedTaxLossVintages: taxResult.updatedVintages,
+        newLegalReserve: legalReserve.newBalance,
     };
 }
 
@@ -138,7 +300,7 @@ export function buildHistoricalIncomeStatements(
         const depreciation = data.depreciation[i];
         const amortization = data.amortization[i];
         const otherOpex = data.otherOpex[i];
-        const stockBasedComp = 0; // Historical SBC is not broken out — captured in other OpEx
+        const stockBasedComp = 0;
         const totalOpex = sgaExpense + rdExpense + depreciation + amortization + otherOpex + stockBasedComp;
         const ebit = grossProfit - totalOpex;
         const ebitda = ebit + depreciation + amortization;
@@ -179,8 +341,23 @@ export function buildHistoricalIncomeStatements(
             taxExpense,
             netIncome,
             netMargin: revenue !== 0 ? netIncome / revenue : 0,
-            employeeProfitSharing: 0,   // Historical — not modeled retroactively
+            employeeProfitSharing: 0,
             netIncomeAfterEPD: netIncome,
+            // Tax loss — historical: no carryforward modeled
+            taxLossCarryforward: 0,
+            taxLossUtilized: 0,
+            taxLossRemaining: 0,
+            taxableIncome: ebt,
+            // Profit appropriation — historical: not modeled
+            legalReserveAddition: 0,
+            distributableProfit: netIncome,
+            grossDividends: 0,
+            dividendWHT: 0,
+            netDividends: 0,
+            additionToRE: netIncome,
+            // Memo
+            nopat: ebit * (1 - (ebt !== 0 ? taxExpense / ebt : 0.225)),
+            fcff: 0, // historical FCFF not computed here
             sharesOutstanding,
             eps: sharesOutstanding !== 0 ? netIncome / sharesOutstanding : 0,
         };

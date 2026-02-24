@@ -151,17 +151,17 @@ export function getDefaultMonteCarloConfig(): MonteCarloConfig {
 
     variables.set('revenueGrowthRate', {
         type: 'normal',
-        params: { mean: 0.07, stdDev: 0.03 },
+        params: { mean: 0.18, stdDev: 0.08 },  // Egyptian market: higher growth, higher volatility
     });
 
     variables.set('cogsPercent', {
         type: 'normal',
-        params: { mean: 0.60, stdDev: 0.03 },
+        params: { mean: 0.60, stdDev: 0.05 },  // Wider spread for emerging market
     });
 
     variables.set('interestRate', {
         type: 'uniform',
-        params: { min: 0.03, max: 0.08 },
+        params: { min: 0.22, max: 0.28 },       // CBE corridor + spread
     });
 
     return {

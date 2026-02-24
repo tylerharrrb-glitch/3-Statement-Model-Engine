@@ -1,7 +1,7 @@
 'use client';
 
 import { useModelStore } from '@/lib/store';
-import { EGYPTIAN_DEPRECIATION_RATES } from '@/lib/schedules/egyptian-depreciation';
+import { EGYPTIAN_TAX_DEPRECIATION_RATES } from '@/lib/schedules/egyptian-depreciation';
 import { FISCAL_YEAR_PRESETS } from '@/lib/schedules/egyptian-depreciation';
 import { SECTOR_WC_PRESETS } from '@/lib/engines/valuation';
 
@@ -129,8 +129,8 @@ export default function EgyptianSettings() {
                         className="fin-input"
                         type="number"
                         step="0.1"
-                        value={((a.dividendWithholdingRate || 0) * 100).toFixed(1)}
-                        onChange={(e) => updateAssumption('dividendWithholdingRate', parseFloat(e.target.value) / 100 || 0)}
+                        value={((a.dividendWithholdingTaxRate || 0) * 100).toFixed(1)}
+                        onChange={(e) => updateAssumption('dividendWithholdingTaxRate', parseFloat(e.target.value) / 100 || 0)}
                         style={{ width: 80, textAlign: 'right' }}
                     />
                 </div>
@@ -140,26 +140,24 @@ export default function EgyptianSettings() {
             {isEgypt && (
                 <div style={{ marginBottom: 16, padding: 12, background: 'var(--bg-tertiary)', borderRadius: 8 }}>
                     <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
-                        Egyptian Depreciation Rate Ranges
+                        Egyptian Tax Depreciation Rates (Fixed by Law)
                     </div>
                     <table className="fin-table" style={{ fontSize: 12 }}>
                         <thead>
                             <tr>
                                 <th>Asset Class</th>
                                 <th>Arabic</th>
-                                <th>Min</th>
-                                <th>Typical</th>
-                                <th>Max</th>
+                                <th>Rate</th>
+                                <th>Method</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {EGYPTIAN_DEPRECIATION_RATES.map(r => (
-                                <tr key={r.name}>
+                            {Object.entries(EGYPTIAN_TAX_DEPRECIATION_RATES).map(([key, r]) => (
+                                <tr key={key}>
                                     <td>{r.name}</td>
                                     <td style={{ direction: 'rtl' }}>{r.nameArabic}</td>
-                                    <td>{(r.minRate * 100).toFixed(1)}%</td>
-                                    <td style={{ fontWeight: 600 }}>{(r.typical * 100).toFixed(1)}%</td>
-                                    <td>{(r.maxRate * 100).toFixed(1)}%</td>
+                                    <td style={{ fontWeight: 600 }}>{(r.rate * 100).toFixed(1)}%</td>
+                                    <td>{r.method}</td>
                                 </tr>
                             ))}
                         </tbody>

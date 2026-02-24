@@ -1,6 +1,8 @@
 // ============================================================
 // Financial Ratio Calculations
 // ============================================================
+// Includes standard ratios + DuPont Analysis (3F & 5F),
+// Altman Z'-Score (private companies), and Break-Even Analysis.
 
 import { FinancialRatios, IncomeStatement, BalanceSheet } from '@/types/financial';
 
@@ -29,6 +31,51 @@ export function calculateFinancialRatios(
     const dio = is.cogs !== 0 ? (bs.inventory / is.cogs) * 365 : 0;
     const dpo = is.cogs !== 0 ? (bs.accountsPayable / is.cogs) * 365 : 0;
 
+    // ROE and ROA
+    const roe = avgEquity !== 0 ? is.netIncome / avgEquity : 0;
+    const roa = avgTotalAssets !== 0 ? is.netIncome / avgTotalAssets : 0;
+    const assetTurnover = avgTotalAssets !== 0 ? is.revenue / avgTotalAssets : 0;
+    const equityMultiplier = avgEquity !== 0 ? avgTotalAssets / avgEquity : 0;
+
+    // ── DuPont Analysis (I2) ────────────────────────────
+    // 3-Factor: ROE = Net Margin × Asset Turnover × Equity Multiplier
+    const dupontNetMargin = is.netMargin;
+    const dupontAssetTurnover = assetTurnover;
+    const dupontEquityMultiplier = equityMultiplier;
+    const dupontROE_3F = dupontNetMargin * dupontAssetTurnover * dupontEquityMultiplier;
+
+    // 5-Factor: ROE = Tax Burden × Interest Burden × Operating Margin × Asset Turnover × Equity Multiplier
+    const dupontTaxBurden = is.ebt !== 0 ? is.netIncome / is.ebt : 1;
+    const dupontInterestBurden = is.ebit !== 0 ? is.ebt / is.ebit : 1;
+    const dupontOperatingMargin = is.revenue !== 0 ? is.ebit / is.revenue : 0;
+    const dupontROE_5F = dupontTaxBurden * dupontInterestBurden * dupontOperatingMargin *
+        dupontAssetTurnover * dupontEquityMultiplier;
+
+    // ── Altman Z'-Score for Private Companies (I3) ──────
+    // Z' = 0.717×X1 + 0.847×X2 + 3.107×X3 + 0.420×X4 + 0.998×X5
+    const workingCapital = bs.totalCurrentAssets - bs.totalCurrentLiabilities;
+    const x1 = bs.totalAssets !== 0 ? workingCapital / bs.totalAssets : 0;
+    const x2 = bs.totalAssets !== 0 ? bs.retainedEarnings / bs.totalAssets : 0;
+    const x3 = bs.totalAssets !== 0 ? is.ebit / bs.totalAssets : 0;
+    const bookEquity = bs.totalEquity;
+    const x4 = totalDebt !== 0 ? bookEquity / totalDebt : 0;
+    const x5 = bs.totalAssets !== 0 ? is.revenue / bs.totalAssets : 0;
+    const altmanZScore = 0.717 * x1 + 0.847 * x2 + 3.107 * x3 + 0.420 * x4 + 0.998 * x5;
+    const altmanZone: 'safe' | 'grey' | 'distress' =
+        altmanZScore > 2.90 ? 'safe' : altmanZScore > 1.23 ? 'grey' : 'distress';
+
+    // ── Break-Even Analysis (I4) ────────────────────────
+    // Assume: Variable Costs = COGS, Fixed Costs = SGA + D&A + Other OpEx
+    const variableCostRatio = is.revenue !== 0 ? is.cogs / is.revenue : 0;
+    const contributionMarginRatio = 1 - variableCostRatio;
+    const fixedCosts = is.sgaExpense + is.depreciation + is.amortization +
+        is.otherOpex + is.stockBasedComp + is.rdExpense;
+    const breakEvenRevenue = contributionMarginRatio !== 0 ? fixedCosts / contributionMarginRatio : 0;
+    const marginOfSafety = is.revenue !== 0 ? (is.revenue - breakEvenRevenue) / is.revenue : 0;
+    // Operating Leverage = % change in EBIT / % change in Revenue ≈ Contribution Margin / EBIT
+    const contributionMargin = is.revenue - is.cogs;
+    const operatingLeverage = is.ebit !== 0 ? contributionMargin / is.ebit : 0;
+
     return {
         period: is.period,
 
@@ -36,8 +83,8 @@ export function calculateFinancialRatios(
         grossMargin: is.grossMargin,
         operatingMargin: is.ebitMargin,
         netMargin: is.netMargin,
-        roe: avgEquity !== 0 ? is.netIncome / avgEquity : 0,
-        roa: avgTotalAssets !== 0 ? is.netIncome / avgTotalAssets : 0,
+        roe,
+        roa,
         roic: avgInvestedCapital !== 0 ? nopat / avgInvestedCapital : 0,
 
         // Liquidity
@@ -54,13 +101,32 @@ export function calculateFinancialRatios(
         interestCoverage: is.interestExpense !== 0 ? is.ebit / is.interestExpense : 999,
 
         // Efficiency
-        assetTurnover: avgTotalAssets !== 0 ? is.revenue / avgTotalAssets : 0,
+        assetTurnover,
         inventoryTurnover: avgInventory !== 0 ? is.cogs / avgInventory : 0,
         receivablesTurnover: avgAR !== 0 ? is.revenue / avgAR : 0,
         dso,
         dio,
         dpo,
         cashConversionCycle: dso + dio - dpo,
+
+        // DuPont Analysis (I2)
+        dupontNetMargin,
+        dupontAssetTurnover,
+        dupontEquityMultiplier,
+        dupontROE_3F,
+        dupontTaxBurden,
+        dupontInterestBurden,
+        dupontOperatingMargin,
+        dupontROE_5F,
+
+        // Altman Z'-Score (I3)
+        altmanZScore,
+        altmanZone,
+
+        // Break-Even (I4)
+        breakEvenRevenue,
+        marginOfSafety,
+        operatingLeverage,
     };
 }
 

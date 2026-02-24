@@ -56,15 +56,17 @@ export function calculateCashFlow(inputs: CashFlowInputs): CashFlowStatement {
     const debtIssuance = assumptions.longTermDebtIssuance[yr] ?? 0;
     const debtRepayment = -(assumptions.longTermDebtRepayment[yr] ?? 0);
     const equityIssuance = assumptions.equityIssuance[yr] ?? 0;
-    const dividendPayoutRatio = assumptions.dividendPayoutRatio[yr] ?? 0;
-    const dividendsPaid = -(Math.max(0, incomeStatement.netIncomeAfterEPD * dividendPayoutRatio));
+
+    // Dividends: from IS profit appropriation waterfall
+    const dividendsPaid = -(incomeStatement.grossDividends);
     const shareRepurchases = -(assumptions.shareRepurchaseAmount[yr] ?? 0);
 
     // Employee Profit Sharing paid as cash outflow
     const employeeProfitSharingPaid = -(incomeStatement.employeeProfitSharing);
 
-    // Dividend withholding tax (memo — 10% of gross dividend to ETA)
-    const dividendWHT = dividendsPaid * (assumptions.dividendWithholdingRate ?? 0);
+    // Dividend withholding tax — memo: portion of gross dividends remitted to ETA
+    // NOT a separate cash outflow — already included in dividendsPaid (= grossDividends)
+    const dividendWHT = -(incomeStatement.dividendWHT);
 
     const cashFromFinancing = debtIssuance + debtRepayment + equityIssuance +
         dividendsPaid + employeeProfitSharingPaid + shareRepurchases;

@@ -41,6 +41,7 @@ export default function BalanceSheetPage() {
         {
             title: 'NON-CURRENT LIABILITIES', rows: [
                 { label: 'Long-Term Debt', key: 'longTermDebt' }, { label: 'Deferred Tax Liabilities', key: 'deferredTaxLiabilities' },
+                { label: 'End of Service Provision', key: 'endOfServiceProvision' },
                 { label: 'Other LT Liabilities', key: 'otherLongTermLiabilities' },
                 { label: 'Total Non-Current Liabilities', key: 'totalNonCurrentLiabilities', bold: true },
             ]
@@ -49,6 +50,7 @@ export default function BalanceSheetPage() {
         {
             title: 'EQUITY', rows: [
                 { label: 'Common Stock', key: 'commonStock' }, { label: 'Additional Paid-In Capital', key: 'additionalPaidInCapital' },
+                { label: 'Legal Reserve', key: 'legalReserve' },
                 { label: 'Retained Earnings', key: 'retainedEarnings' }, { label: 'Treasury Stock', key: 'treasuryStock' },
                 { label: 'Other Comprehensive Income', key: 'otherComprehensiveIncome' },
                 { label: 'Total Equity', key: 'totalEquity', bold: true },

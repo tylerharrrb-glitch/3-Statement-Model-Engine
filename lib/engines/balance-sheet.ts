@@ -5,6 +5,7 @@
 import { BalanceSheet } from '@/types/financial';
 import { IncomeStatement } from '@/types/financial';
 import { AssumptionSet } from '@/types/assumptions';
+import { calculateEgyptianTaxDepreciation, calculateEgyptianBlendedRate, calculateStraightLineDepreciation } from '@/lib/schedules/egyptian-depreciation';
 
 export interface BalanceSheetInputs {
     assumptions: AssumptionSet;
@@ -12,16 +13,18 @@ export interface BalanceSheetInputs {
     incomeStatement: IncomeStatement;
     previousBalanceSheet: BalanceSheet;
     endingCashFromCF: number | null; // null on first iteration
+    priorLegalReserve: number;       // legal reserve from prior year
+    legalReserveAddition: number;    // addition this year (from IS)
 }
 
 export function calculateBalanceSheet(inputs: BalanceSheetInputs): BalanceSheet {
-    const { assumptions, yearIndex, incomeStatement, previousBalanceSheet, endingCashFromCF } = inputs;
+    const { assumptions, yearIndex, incomeStatement, previousBalanceSheet, endingCashFromCF,
+        priorLegalReserve, legalReserveAddition } = inputs;
     const yr = yearIndex;
     const period = `${assumptions.startYear + yr}E`;
     const prev = previousBalanceSheet;
 
     // ── CURRENT ASSETS ──────────────────────────────────
-    // Cash: from CF statement ending cash; on first iteration, use a plug
     const cash = endingCashFromCF ?? prev.cash;
 
     // Accounts Receivable: DSO * Revenue / 365
@@ -47,10 +50,10 @@ export function calculateBalanceSheet(inputs: BalanceSheetInputs): BalanceSheet 
     const accumulatedDepreciation = prev.accumulatedDepreciation + incomeStatement.depreciation;
     const netPPE = grossPPE - accumulatedDepreciation;
 
-    // Intangibles: Prior - Amortization + Acquisitions (if any)
+    // Intangibles: Prior - Amortization
     const intangibles = Math.max(0, prev.intangibles - incomeStatement.amortization);
 
-    // Goodwill & Other
+    // Goodwill & Other — non-circular (S2: use revenue or absolute values, NOT totalAssets)
     const goodwill = assumptions.goodwill[yr] ?? prev.goodwill;
     const otherLongTermAssets = assumptions.otherLongTermAssets[yr] ?? prev.otherLongTermAssets;
 
@@ -58,68 +61,68 @@ export function calculateBalanceSheet(inputs: BalanceSheetInputs): BalanceSheet 
     const totalAssets = totalCurrentAssets + totalNonCurrentAssets;
 
     // ── CURRENT LIABILITIES ─────────────────────────────
-    // Accounts Payable: DPO * COGS / 365
     const dpo = assumptions.dpo[yr] ?? 40;
     const accountsPayable = (dpo * incomeStatement.cogs) / 365;
 
-    // Accrued Expenses, Deferred Revenue
     const accruedExpenses = incomeStatement.revenue * (assumptions.accruedExpPercent[yr] ?? 0.03);
     const deferredRevenue = incomeStatement.revenue * (assumptions.deferredRevPercent[yr] ?? 0.02);
 
-    // Short-term debt & Current Portion LTD
     const shortTermDebt = assumptions.shortTermDebtAmount[yr] ?? prev.shortTermDebt;
     const currentPortionLTD = assumptions.currentPortionLTD[yr] ?? prev.currentPortionLTD;
-
     const otherCurrentLiabilities = assumptions.otherCurrentLiabilities[yr] ?? prev.otherCurrentLiabilities;
 
     const totalCurrentLiabilities = accountsPayable + accruedExpenses + shortTermDebt +
         currentPortionLTD + deferredRevenue + otherCurrentLiabilities;
 
     // ── NON-CURRENT LIABILITIES ─────────────────────────
-    // Long-term Debt Schedule
     const ltDebtIssuance = assumptions.longTermDebtIssuance[yr] ?? 0;
     const ltDebtRepayment = assumptions.longTermDebtRepayment[yr] ?? 0;
     const longTermDebt = prev.longTermDebt + ltDebtIssuance - ltDebtRepayment;
 
+    // DTL: non-circular — use absolute value from assumptions (S2 fix)
     const deferredTaxLiabilities = assumptions.deferredTaxLiabilities[yr] ?? prev.deferredTaxLiabilities;
     const otherLongTermLiabilities = assumptions.otherLongTermLiabilities[yr] ?? prev.otherLongTermLiabilities;
 
-    const totalNonCurrentLiabilities = longTermDebt + deferredTaxLiabilities + otherLongTermLiabilities;
+    // End of Service Benefits Provision (S1)
+    const eosAddition = (assumptions.enableEndOfServiceBenefit ?? false)
+        ? ((assumptions.averageMonthlyBasicSalary ?? 0) / 2) * (assumptions.numberOfEmployees?.[yr] ?? 0)
+        : 0;
+    const endOfServiceProvision = (prev.endOfServiceProvision ?? 0) + eosAddition;
+
+    const totalNonCurrentLiabilities = longTermDebt + deferredTaxLiabilities + otherLongTermLiabilities + endOfServiceProvision;
     const totalLiabilities = totalCurrentLiabilities + totalNonCurrentLiabilities;
 
     // ── EQUITY ──────────────────────────────────────────
     const commonStock = assumptions.commonStock[yr] ?? prev.commonStock;
-    // APIC accumulates from prior period + equity issuance + SBC (both increase paid-in capital)
     const additionalPaidInCapital = prev.additionalPaidInCapital +
         (assumptions.equityIssuance[yr] ?? 0) +
         (assumptions.stockBasedCompAmount[yr] ?? 0);
 
-    // Retained Earnings: Prior RE + NI (after EPD) - Dividends
-    const dividendPayoutRatio = assumptions.dividendPayoutRatio[yr] ?? 0;
-    const dividendsPaid = Math.max(0, incomeStatement.netIncomeAfterEPD * dividendPayoutRatio);
-    const retainedEarnings = prev.retainedEarnings + incomeStatement.netIncomeAfterEPD - dividendsPaid;
+    // Legal Reserve (C3)
+    const legalReserve = priorLegalReserve + legalReserveAddition;
 
-    // Treasury Stock: Prior - Buybacks
+    // Retained Earnings: Prior RE + additionToRE (distributableProfit - grossDividends)
+    // Using the profit appropriation waterfall from IS
+    const retainedEarnings = prev.retainedEarnings + incomeStatement.additionToRE;
+
+    // Treasury Stock
     const shareRepurchases = assumptions.shareRepurchaseAmount[yr] ?? 0;
-    const treasuryStock = prev.treasuryStock - shareRepurchases; // buybacks make it more negative
+    const treasuryStock = prev.treasuryStock - shareRepurchases;
 
     const otherComprehensiveIncome = assumptions.oci[yr] ?? prev.otherComprehensiveIncome;
 
-    const totalEquity = commonStock + additionalPaidInCapital + retainedEarnings +
+    const totalEquity = commonStock + additionalPaidInCapital + legalReserve + retainedEarnings +
         treasuryStock + otherComprehensiveIncome;
 
     const totalLiabilitiesEquity = totalLiabilities + totalEquity;
 
     // ── BALANCING PLUG ──────────────────────────────────
-    // Use cash as the balancing plug: if A ≠ L+E, adjust cash to force balance.
-    // This handles floating-point drift and ensures the BS always ties.
     const rawImbalance = totalAssets - totalLiabilitiesEquity;
     let finalCash = cash;
     let finalTotalCurrentAssets = totalCurrentAssets;
     let finalTotalAssets = totalAssets;
 
     if (Math.abs(rawImbalance) > 0.001) {
-        // Plug into cash: reduce cash by the overshoot (or increase if under)
         finalCash = cash - rawImbalance;
         finalTotalCurrentAssets = finalCash + accountsReceivable + inventory + prepaidExpenses + otherCurrentAssets;
         finalTotalAssets = finalTotalCurrentAssets + totalNonCurrentAssets;
@@ -159,29 +162,43 @@ export function calculateBalanceSheet(inputs: BalanceSheetInputs): BalanceSheet 
         totalLiabilities,
         commonStock,
         additionalPaidInCapital,
+        legalReserve,
         retainedEarnings,
         treasuryStock,
         otherComprehensiveIncome,
         totalEquity,
+        endOfServiceProvision,
         totalLiabilitiesEquity,
         isBalanced,
         balanceDifference,
     };
 }
 
-// Calculate depreciation for a given year based on gross PP&E
+// Calculate depreciation based on method
 export function calculateDepreciation(
     previousGrossPPE: number,
+    previousNetPPE: number,
     capex: number,
     depreciationRate: number,
+    assumptions: AssumptionSet,
 ): number {
-    // Depreciate based on average gross PPE during the period
-    const avgGrossPPE = previousGrossPPE + capex / 2;
-    return avgGrossPPE * depreciationRate;
+    const method = assumptions.depreciationMethod ?? 'straight-line';
+
+    if (method === 'egyptian-tax' || method === 'declining-balance') {
+        // Declining balance on Net Book Value with Egyptian tax rates
+        const assetMix = assumptions.assetMix ?? {
+            buildings: 0.30, machinery: 0.35, vehicles: 0.15,
+            computers: 0.10, furniture: 0.10,
+        };
+        const result = calculateEgyptianTaxDepreciation(previousNetPPE, capex, assetMix);
+        return result.totalDepreciation;
+    }
+
+    // Straight-line on average Gross PP&E
+    return calculateStraightLineDepreciation(previousGrossPPE, capex, depreciationRate);
 }
 
 // Calculate interest expense from beginning-of-period debt balance
-// Using beginning-balance method eliminates circular dependency
 export function calculateInterestExpense(
     beginningTotalDebt: number,
     _endingTotalDebt: number,
@@ -191,8 +208,6 @@ export function calculateInterestExpense(
 }
 
 // Calculate interest income from beginning-of-period cash balance
-// Using beginning-balance method eliminates circular dependency
-// (interest income no longer depends on ending cash)
 export function calculateInterestIncome(
     beginningCash: number,
     _endingCash: number,
@@ -281,10 +296,12 @@ export function buildHistoricalBalanceSheets(
             totalLiabilities,
             commonStock: data.commonStock[i],
             additionalPaidInCapital: data.additionalPaidInCapital[i],
+            legalReserve: 0,  // historical — not modeled
             retainedEarnings: data.retainedEarnings[i],
             treasuryStock: data.treasuryStock[i],
             otherComprehensiveIncome: data.otherComprehensiveIncome[i],
             totalEquity,
+            endOfServiceProvision: 0,
             totalLiabilitiesEquity,
             isBalanced: Math.abs(balanceDifference) < 0.01,
             balanceDifference,

@@ -89,6 +89,36 @@ export default function RatiosPage() {
                 { label: 'FCF / Share', compute: yr => { const ci = cfIdx(yr); if (ci < 0 || ci >= cf.length) return null; return sd(cf[ci]?.freeCashFlow ?? 0, is[yr]?.sharesOutstanding ?? 0); }, fmt: 'currency' },
             ],
         },
+        {
+            title: 'DuPont Decomposition',
+            icon: '🔬',
+            ratios: [
+                { label: 'ROE (3-Factor)', compute: yr => results.ratios[yr]?.dupontROE_3F ?? null, fmt: 'pct', threshold: { good: 0.12, direction: 'above' } },
+                { label: 'Net Profit Margin', compute: yr => results.ratios[yr]?.dupontNetMargin ?? null, fmt: 'pct' },
+                { label: 'Asset Turnover', compute: yr => results.ratios[yr]?.dupontAssetTurnover ?? null, fmt: 'x' },
+                { label: 'Equity Multiplier', compute: yr => results.ratios[yr]?.dupontEquityMultiplier ?? null, fmt: 'x' },
+                { label: 'ROE (5-Factor)', compute: yr => results.ratios[yr]?.dupontROE_5F ?? null, fmt: 'pct', threshold: { good: 0.12, direction: 'above' } },
+                { label: 'Tax Burden', compute: yr => results.ratios[yr]?.dupontTaxBurden ?? null, fmt: 'pct' },
+                { label: 'Interest Burden', compute: yr => results.ratios[yr]?.dupontInterestBurden ?? null, fmt: 'pct' },
+                { label: 'Operating Margin', compute: yr => results.ratios[yr]?.dupontOperatingMargin ?? null, fmt: 'pct' },
+            ],
+        },
+        {
+            title: "Altman Z'-Score",
+            icon: '🛡️',
+            ratios: [
+                { label: "Z'-Score", compute: yr => results.ratios[yr]?.altmanZScore ?? null, fmt: 'number', threshold: { good: 2.90, direction: 'above' } },
+            ],
+        },
+        {
+            title: 'Break-Even Analysis',
+            icon: '📐',
+            ratios: [
+                { label: 'Break-Even Revenue', compute: yr => results.ratios[yr]?.breakEvenRevenue ?? null, fmt: 'currency' },
+                { label: 'Margin of Safety', compute: yr => results.ratios[yr]?.marginOfSafety ?? null, fmt: 'pct', threshold: { good: 0.20, direction: 'above' } },
+                { label: 'Operating Leverage', compute: yr => results.ratios[yr]?.operatingLeverage ?? null, fmt: 'x' },
+            ],
+        },
     ];
 
     const formatVal = (v: number | null, fmt: string): string => {

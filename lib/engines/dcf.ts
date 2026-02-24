@@ -3,6 +3,7 @@
 // ============================================================
 // Calculates intrinsic value using Discounted Cash Flow (DCF)
 // with WACC derived from CAPM and Egyptian market inputs.
+// Uses FCFF (Free Cash Flow to Firm) for consistency.
 
 import { AssumptionSet } from '@/types/assumptions';
 import { ModelResults, DCFValuation } from '@/types/financial';
@@ -14,9 +15,10 @@ import { ModelResults, DCFValuation } from '@/types/financial';
 export function calculateWACC(
     assumptions: AssumptionSet,
     results: ModelResults,
-): { wacc: number; costOfEquity: number; costOfDebt: number; debtWeight: number; equityWeight: number } {
+): { wacc: number; costOfEquity: number; costOfDebt: number; debtWeight: number; equityWeight: number; warnings: string[] } {
     const lastBS = results.balanceSheets[results.balanceSheets.length - 1];
     const lastIS = results.incomeStatements[results.incomeStatements.length - 1];
+    const warnings: string[] = [];
 
     // Cost of Equity (CAPM): ke = rf + β × ERP
     const riskFreeRate = assumptions.cbeRate;      // CBE rate as proxy
@@ -38,30 +40,53 @@ export function calculateWACC(
     // WACC
     const wacc = equityWeight * costOfEquity + debtWeight * costOfDebt;
 
-    return { wacc, costOfEquity, costOfDebt, debtWeight, equityWeight };
+    // ── SANITY CHECKS (S4) ──────────────────────────────
+    if (wacc <= 0) {
+        warnings.push('WACC is non-positive — check inputs');
+    }
+    if (wacc > 0.50) {
+        warnings.push(`WACC (${(wacc * 100).toFixed(1)}%) exceeds 50% — unusually high`);
+    }
+    if (costOfEquity <= costOfDebt) {
+        warnings.push('Cost of Equity ≤ Cost of Debt — unusual risk pricing');
+    }
+    if (debtWeight > 0.90) {
+        warnings.push(`Debt weight (${(debtWeight * 100).toFixed(1)}%) exceeds 90% — extreme leverage`);
+    }
+    if (costOfEquity > 0.60) {
+        warnings.push(`Cost of Equity (${(costOfEquity * 100).toFixed(1)}%) exceeds 60% — check ERP/beta`);
+    }
+
+    return { wacc, costOfEquity, costOfDebt, debtWeight, equityWeight, warnings };
 }
 
 /**
- * Full DCF valuation: project FCFs, discount, terminal value, equity bridge.
+ * Full DCF valuation using FCFF (Free Cash Flow to Firm).
+ * FCFF = NOPAT + D&A − CapEx − ΔNWC (computed on IS as memo item).
  */
 export function calculateDCF(
     assumptions: AssumptionSet,
     results: ModelResults,
 ): DCFValuation {
-    const { wacc, costOfEquity, costOfDebt, debtWeight, equityWeight } = calculateWACC(assumptions, results);
+    const { wacc, costOfEquity, costOfDebt, debtWeight, equityWeight, warnings } = calculateWACC(assumptions, results);
 
-    // Extract projected FCFs
+    // Extract projected FCFF from Income Statement memo items (C7 fix)
     const numHistorical = results.incomeStatements.filter(s => s.periodType === 'historical').length;
-    const projectedCFs = results.cashFlowStatements.slice(numHistorical > 0 ? numHistorical - 1 : 0);
-    const fcfProjections = projectedCFs.map(cf => cf.freeCashFlow);
+    const projectedISs = results.incomeStatements.slice(numHistorical);
+    const fcfProjections = projectedISs.map(is => is.fcff);
 
-    // Discount each FCF to present value
+    // Terminal growth rate sanity check (S4)
+    const g = assumptions.terminalGrowthRate;
+    if (g >= wacc) {
+        warnings.push(`Terminal growth rate (${(g * 100).toFixed(1)}%) ≥ WACC (${(wacc * 100).toFixed(1)}%) — terminal value is undefined`);
+    }
+
+    // Discount each FCFF to present value
     const discountedFCFs = fcfProjections.map((fcf, i) => fcf / Math.pow(1 + wacc, i + 1));
 
-    // Terminal Value (Gordon Growth Model): TV = FCF_n × (1+g) / (WACC - g)
-    const lastFCF = fcfProjections[fcfProjections.length - 1] ?? 0;
-    const g = assumptions.terminalGrowthRate;
-    const terminalValue = wacc > g ? (lastFCF * (1 + g)) / (wacc - g) : 0;
+    // Terminal Value (Gordon Growth Model): TV = FCFF_n × (1+g) / (WACC - g)
+    const lastFCFF = fcfProjections[fcfProjections.length - 1] ?? 0;
+    const terminalValue = wacc > g ? (lastFCFF * (1 + g)) / (wacc - g) : 0;
 
     // PV of terminal value
     const nPeriods = fcfProjections.length;
@@ -70,6 +95,12 @@ export function calculateDCF(
     // Enterprise Value
     const sumDiscountedFCFs = discountedFCFs.reduce((a, b) => a + b, 0);
     const enterpriseValue = sumDiscountedFCFs + pvTerminalValue;
+
+    // TV as % of EV (S4 warning)
+    const tvAsPercentOfEV = enterpriseValue !== 0 ? pvTerminalValue / enterpriseValue : 0;
+    if (tvAsPercentOfEV > 0.85) {
+        warnings.push(`Terminal Value is ${(tvAsPercentOfEV * 100).toFixed(0)}% of EV — consider extending projection period`);
+    }
 
     // Equity bridge
     const lastBS = results.balanceSheets[results.balanceSheets.length - 1];
@@ -81,6 +112,10 @@ export function calculateDCF(
     const lastIS = results.incomeStatements[results.incomeStatements.length - 1];
     const shares = lastIS.sharesOutstanding || 1;
     const impliedSharePrice = equityValue / shares;
+
+    if (impliedSharePrice < 0) {
+        warnings.push('Implied share price is negative — entity may be insolvent');
+    }
 
     return {
         fcfProjections,
@@ -96,5 +131,7 @@ export function calculateDCF(
         costOfDebt,
         debtWeight,
         equityWeight,
+        dcfWarnings: warnings,
+        tvAsPercentOfEV,
     };
 }

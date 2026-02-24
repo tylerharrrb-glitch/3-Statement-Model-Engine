@@ -202,10 +202,12 @@ children.push(new Paragraph({
 
 const coverMeta = [
     'Framework: Next.js 16 + React 19 + TypeScript 5',
-    'Engine: Iterative Circular Resolver (100-iteration convergence)',
+    'Engine: 7 calculation modules incl. DCF, Valuation, Circular Resolver',
     'Export: Excel (9 tabs, live formulas) · PDF · CSV · JSON',
     'Analysis: Monte Carlo · Sensitivity · Scenario Comparison',
-    'Localization: English / Arabic · Egyptian Market Support',
+    'Valuation: DCF (WACC/CAPM) · Trading Multiples · EGX 30 Benchmarks',
+    'Localization: English / Arabic · Egyptian Market · CBE Metrics',
+    '27 UI Components · 19 Navigation Tabs · Zustand State Management',
 ];
 for (const line of coverMeta) {
     children.push(new Paragraph({
@@ -238,18 +240,18 @@ const tocItems = [
     ['1', 'Technology Stack'],
     ['2', 'Project Structure'],
     ['3', 'Type System'],
-    ['4', 'Engine Layer'],
+    ['4', 'Engine Layer (7 modules)'],
     ['5', 'Financial Ratios'],
     ['6', 'Analysis Tools'],
     ['7', 'State Management'],
     ['8', 'Export Layer'],
     ['9', 'Internationalization & Egyptian Localization'],
     ['10', 'Utility Functions'],
-    ['11', 'UI Components (21 total)'],
-    ['12', 'Navigation & Tab System'],
+    ['11', 'UI Components (27 total)'],
+    ['12', 'Navigation & Tab System (19 tabs)'],
     ['13', 'Data Flow Architecture'],
     ['14', 'Key Design Decisions'],
-    ['15', 'Known Limitations'],
+    ['15', 'Known Limitations & Planned Improvements'],
 ];
 
 for (const [num, title] of tocItems) {
@@ -298,12 +300,14 @@ children.push(...codeBlock([
     '│   ├── historical.ts           # HistoricalDataInput, converters, validators',
     '│   └── scenario.ts             # Scenario, ModelState, Monte Carlo types',
     '├── lib/',
-    '│   ├── engines/                # Core calculation engine',
+    '│   ├── engines/                # Core calculation engine (7 modules)',
     '│   │   ├── income-statement.ts # Revenue → Net Income waterfall',
     '│   │   ├── balance-sheet.ts    # All asset/liability/equity calculations',
     '│   │   ├── cash-flow.ts        # Indirect method CF generation',
-    '│   │   ├── circular-resolver.ts# Iterative solver for circular references',
-    '│   │   └── integrator.ts       # Master orchestrator',
+    '│   │   ├── circular-resolver.ts# Iterative solver + 16 integration checks',
+    '│   │   ├── integrator.ts       # Master orchestrator',
+    '│   │   ├── dcf.ts              # DCF valuation (WACC/CAPM/Gordon Growth)',
+    '│   │   └── valuation.ts        # Trading multiples + EGX 30 benchmarks',
     '│   ├── export/',
     '│   │   ├── excel.ts            # 9-tab Excel workbook (103 KB of formulas)',
     '│   │   ├── pdf.ts              # Multi-page PDF report (49 KB)',
@@ -317,7 +321,13 @@ children.push(...codeBlock([
     '│   ├── i18n/labels.ts          # Bilingual labels (English / Arabic)',
     '│   ├── schedules/egyptian-depreciation.ts',
     '│   └── utils.ts                # Multi-currency formatting utilities',
-    '└── components/                 # 21 React UI components',
+    '└── components/                 # 27 React UI components',
+    '    ├── Dashboard, Sidebar, ModelPage, ValidationPage, ...',
+    '    ├── DCFPage, ValuationPage, CBEMetricsPage    (NEW)',
+    '    ├── ErrorBanner, ConflictModal                (NEW)',
+    '    ├── charts/ (RevenueChart, MarginChart)',
+    '    ├── statements/ (IS, BS, CF pages)',
+    '    └── schedules/ (WorkingCapital, Depreciation, Debt)',
 ]));
 
 // ── 3. TYPE SYSTEM ──────────────────────────────────────
@@ -336,6 +346,7 @@ children.push(makeTable(
         ['Debt', 'interestRate[], shortTermDebt[], longTermDebtIssuance[], longTermDebtRepayment[], currentPortionLTD[], deferredTaxLiabilityPercent[]'],
         ['Equity', 'commonStock[], APIC[], sharesOutstanding[], stockBasedCompAmount[], dividendPayoutRatio[], equityIssuance[], shareRepurchaseAmount[]'],
         ['Tax / VAT', 'taxRate[], enableVAT, vatRate, interestIncomeRate[]'],
+        ['DCF / Valuation', 'cbeRate (CBE overnight rate, default 27.25%), beta (default 1.0), equityRiskPremium (default 7%), terminalGrowthRate (default 5%), sharePrice (optional, enables multiples)'],
         ['Egyptian', 'buildings, machinery, vehicles, computers, furniture (PP&E asset-class mix fractions)'],
         ['Model Config', 'projectionYears, historicalYears, startYear, fiscalYearEnd, fiscalYearPreset'],
     ],
@@ -352,7 +363,10 @@ children.push(makeTable(
         ['CashFlowStatement', '25 fields', 'CFO/CFI/CFF sections + FCF + reconciliation flag'],
         ['FinancialRatios', '23 fields', 'Profitability, Liquidity, Leverage, Efficiency ratios'],
         ['IntegrationChecks', '16 booleans + details[]', 'Cross-statement validation results'],
-        ['ModelResults', 'Combined arrays', 'IS[] + BS[] + CF[] + Ratios[] + IntegrationChecks[] + ConvergenceInfo'],
+        ['DCFValuation', '13 fields', 'fcfProjections[], discountedFCFs[], terminalValue, pvTerminalValue, EV, netDebt, equityValue, impliedSharePrice, wacc, costOfEquity, costOfDebt, debtWeight, equityWeight'],
+        ['ValuationMultiples', '7 fields (nullable)', 'pe, evEbitda, priceBook, fcfYield, dividendYield, marketCap, enterpriseValueMarket'],
+        ['EGXBenchmarks', '3 range objects', 'pe/evEbitda/priceBook each with {low, high, avg} for EGX 30 benchmarks'],
+        ['ModelResults', 'Combined arrays', 'IS[] + BS[] + CF[] + Ratios[] + IntegrationChecks[] + ConvergenceInfo + DCFValuation? + ValuationMultiples?'],
     ],
     [25, 20, 55],
 ));
@@ -529,6 +543,70 @@ children.push(bullet('Step 6: Calculate financial ratios for all periods'));
 children.push(bullet('Step 7: Return ModelResults { IS[], BS[], CF[], Ratios[], IntegrationChecks[], ConvergenceInfo }'));
 children.push(para('getModelSummary(results) extracts key metrics: revenue, EBITDA, NI, EPS, FCF, total debt, cash, average growth, average margin, and convergence status.'));
 
+children.push(heading2('4.6 DCF Valuation Engine (dcf.ts)'));
+children.push(para('Calculates intrinsic value using Discounted Cash Flow with WACC derived from CAPM and Egyptian market inputs.'));
+children.push(heading3('calculateWACC(assumptions, results)'));
+children.push(...codeBlock([
+    'Cost of Equity (CAPM): ke = CBE_Rate + β × Equity_Risk_Premium',
+    '  Default: 0.2725 + 1.0 × 0.07 = 34.25%',
+    'Cost of Debt (after-tax): kd = interestRate × (1 − taxRate)',
+    'Capital Structure: D/(D+E) and E/(D+E) from last projected BS',
+    'WACC = E/(D+E) × ke + D/(D+E) × kd',
+]));
+children.push(heading3('calculateDCF(assumptions, results)'));
+children.push(...codeBlock([
+    '1. Extract projected FCFs from cash flow statements',
+    '2. Discount each FCF: PV(FCF_i) = FCF_i / (1 + WACC)^i',
+    '3. Terminal Value (Gordon Growth): TV = FCF_n × (1+g) / (WACC − g)',
+    '   where g = terminalGrowthRate (default 5%)',
+    '4. PV(TV) = TV / (1 + WACC)^n',
+    '5. Enterprise Value = Sum(PV of FCFs) + PV(TV)',
+    '6. Equity Bridge: Equity Value = EV − Net Debt',
+    '   Net Debt = (ST Debt + LT Debt + Current LTD) − Cash',
+    '7. Implied Share Price = Equity Value / Shares Outstanding',
+]));
+children.push(importantBox('Returns DCFValuation with 13 fields: fcfProjections, discountedFCFs, terminalValue, pvTerminalValue, enterpriseValue, netDebt, equityValue, impliedSharePrice, wacc, costOfEquity, costOfDebt, debtWeight, equityWeight'));
+
+children.push(heading2('4.7 Valuation Multiples Engine (valuation.ts)'));
+children.push(heading3('calculateMultiples(results, assumptions)'));
+children.push(para('Calculates trading multiples from engine results + optional share price. Returns null values if sharePrice is not provided.'));
+children.push(makeTable(
+    ['Multiple', 'Formula'],
+    [
+        ['P/E', 'Share Price / EPS'],
+        ['EV/EBITDA', '(Market Cap + Net Debt) / EBITDA'],
+        ['Price/Book', 'Share Price / (Total Equity / Shares)'],
+        ['FCF Yield', 'FCF / Market Cap'],
+        ['Dividend Yield', 'DPS / Share Price'],
+    ],
+    [25, 75],
+));
+children.push(heading3('calculateImpliedPrices(results, benchmarks)'));
+children.push(para('Calculates implied share prices from EGX 30 benchmarks: fromPE (avg P/E × EPS), fromEVEBITDA (avg EV/EBITDA × EBITDA → equity → per share), fromPB (avg P/B × BVPS).'));
+children.push(heading3('EGX 30 Benchmarks (Q1 2026)'));
+children.push(makeTable(
+    ['Multiple', 'Low', 'High', 'Average'],
+    [
+        ['P/E', '8x', '12x', '10x'],
+        ['EV/EBITDA', '6x', '9x', '7.5x'],
+        ['Price/Book', '1.0x', '2.5x', '1.6x'],
+    ],
+    [25, 25, 25, 25],
+));
+children.push(heading3('Sector Working Capital Presets'));
+children.push(makeTable(
+    ['Sector', 'DSO', 'DIO', 'DPO'],
+    [
+        ['Technology / Software', '45', '0', '30'],
+        ['Manufacturing', '60', '45', '60'],
+        ['Retail', '15', '60', '45'],
+        ['Government Contractor', '90', '45', '60'],
+        ['Export-Oriented', '45', '30', '30'],
+        ['Real Estate', '180', '0', '90'],
+    ],
+    [30, 20, 20, 20],
+));
+
 // ── 5. RATIOS ───────────────────────────────────────────
 children.push(pageBreak());
 children.push(heading1('5. Financial Ratios (ratios.ts)'));
@@ -696,78 +774,104 @@ children.push(para('Supported currencies: USD ($), EGP (E£), EUR (€), GBP (£
 
 // ── 11. COMPONENTS ──────────────────────────────────────
 children.push(pageBreak());
-children.push(heading1('11. UI Components (21 total)'));
+children.push(heading1('11. UI Components (27 total)'));
 
 children.push(heading2('11.1 Core Pages'));
 children.push(makeTable(
-    ['Component', 'Size', 'Purpose'],
+    ['Component', 'Lines', 'Purpose'],
     [
-        ['Sidebar.tsx', '11.7 KB', 'Navigation (15 tabs), Calculate button, Export buttons (Excel/PDF/CSV/JSON), dark mode toggle'],
-        ['Dashboard.tsx', '14.6 KB', 'KPI cards (Revenue, EBITDA, NI, EPS, FCF), Scenario comparison table with delta vs base case'],
-        ['ModelPage.tsx', '7 KB', 'Assumptions editor — all 60+ fields organized in collapsible sections by category'],
-        ['ValidationPage.tsx', '7.8 KB', 'Displays 80 integration checks (16 checks × 5 projection years) with pass/fail indicators'],
+        ['Sidebar.tsx', '~400', 'Navigation (19 tabs), Calculate button, Export buttons (Excel/PDF/CSV/JSON), dark mode toggle'],
+        ['Dashboard.tsx', '~500', 'KPI cards (Revenue, EBITDA, NI, EPS, FCF), Scenario comparison table with delta vs base case'],
+        ['ModelPage.tsx', '~250', 'Assumptions editor — all 60+ fields organized in collapsible sections by category'],
+        ['ValidationPage.tsx', '~280', 'Displays 80+ integration checks (16 checks × projection years) with pass/fail indicators'],
     ],
-    [22, 10, 68],
+    [28, 10, 62],
 ));
 
 children.push(heading2('11.2 Financial Statement Views'));
 children.push(makeTable(
-    ['Component', 'Size', 'Purpose'],
+    ['Component', 'Lines', 'Purpose'],
     [
-        ['IncomeStatementPage.tsx', '6.5 KB', 'Full IS table with historical columns (blue tint) and projected columns'],
-        ['BalanceSheetPage.tsx', '7 KB', 'Assets, Liabilities, Equity sections with balance check indicator'],
-        ['CashFlowPage.tsx', '7.1 KB', 'CFO/CFI/CFF sections with reconciliation indicator at bottom'],
+        ['IncomeStatementPage.tsx', '~230', 'Full IS table with historical columns (blue tint) and projected columns'],
+        ['BalanceSheetPage.tsx', '~250', 'Assets, Liabilities, Equity sections with balance check indicator'],
+        ['CashFlowPage.tsx', '~250', 'CFO/CFI/CFF sections with reconciliation indicator at bottom'],
+        ['RatiosPage.tsx', '151', 'Financial ratios dashboard with color-coded thresholds (good/bad indicators)'],
     ],
     [28, 10, 62],
 ));
 
 children.push(heading2('11.3 Supporting Schedules'));
 children.push(makeTable(
-    ['Component', 'Size', 'Purpose'],
+    ['Component', 'Lines', 'Purpose'],
     [
-        ['WorkingCapitalPage.tsx', '10.9 KB', 'DSO/DIO/DPO metrics, NWC build, NWC as % of Revenue analysis'],
-        ['DepreciationPage.tsx', '8.2 KB', 'Gross PP&E rollforward, Egyptian asset-class mix sliders for blended rate'],
-        ['DebtSchedulePage.tsx', '9.1 KB', 'Debt issuance/repayment timeline, beginning/ending balances, interest calc'],
+        ['WorkingCapitalPage.tsx', '~380', 'DSO/DIO/DPO metrics, NWC build, NWC as % of Revenue analysis'],
+        ['DepreciationPage.tsx', '~290', 'Gross PP&E rollforward, Egyptian asset-class mix sliders for blended rate'],
+        ['DebtSchedulePage.tsx', '~320', 'Debt issuance/repayment timeline, beginning/ending balances, interest calc'],
     ],
     [28, 10, 62],
 ));
 
-children.push(heading2('11.4 Analysis & Settings'));
+children.push(heading2('11.4 Valuation & Analysis'));
 children.push(makeTable(
-    ['Component', 'Size', 'Purpose'],
+    ['Component', 'Lines', 'Purpose'],
     [
-        ['SensitivityPage.tsx', '6 KB', 'Tornado chart visualization + data table with one-way sensitivity results'],
-        ['MonteCarloPage.tsx', '9.4 KB', 'Histogram visualization + comprehensive percentile statistics panel'],
-        ['ScenariosPage.tsx', '5.7 KB', 'Scenario list with create / duplicate / delete actions'],
-        ['ScenarioSelector.tsx', '5.8 KB', 'Quick scenario switcher component (used in sidebar or header)'],
-        ['ScenarioComparisonModal.tsx', '12 KB', 'Full side-by-side scenario comparison modal with all key metrics'],
-        ['CompanySettings.tsx', '3.2 KB', 'Company name, ticker, industry, currency, country, fiscal year editor'],
-        ['EgyptianSettings.tsx', '8.7 KB', 'VAT toggle, tax rates, fiscal year preset, asset-class depreciation mix'],
-        ['HistoricalImportPage.tsx', '12.3 KB', 'CSV file import with automatic column mapping and preview'],
+        ['DCFPage.tsx', '215', 'DCF valuation: WACC breakdown, FCF discounting table, terminal value, equity bridge, implied share price, WACC sensitivity matrix'],
+        ['ValuationPage.tsx', '187', 'Trading multiples (P/E, EV/EBITDA, P/B, FCF Yield, Dividend Yield), EGX 30 benchmark comparison bar chart, implied share prices'],
+        ['CBEMetricsPage.tsx', '219', 'Central Bank of Egypt regulatory metrics: Debt/EBITDA, Interest Coverage, Debt Service Coverage, Current Ratio, Net Debt/Equity with CBE threshold pass/fail indicators (policy rate 27.25%)'],
+        ['SensitivityPage.tsx', '~210', 'Tornado chart visualization + data table with one-way sensitivity results'],
+        ['MonteCarloPage.tsx', '~330', 'Histogram visualization + comprehensive percentile statistics panel'],
     ],
     [28, 10, 62],
 ));
 
-children.push(heading2('11.5 Charts'));
+children.push(heading2('11.5 Scenario Management'));
 children.push(makeTable(
-    ['Component', 'Size', 'Purpose'],
+    ['Component', 'Lines', 'Purpose'],
     [
-        ['RevenueChart.tsx', '2.4 KB', 'Revenue bar chart built with Recharts, shows historical + projected'],
-        ['MarginChart.tsx', '1.5 KB', 'Gross/Operating/Net margin line chart with period labels'],
+        ['ScenariosPage.tsx', '~200', 'Scenario list with create / duplicate / delete actions'],
+        ['ScenarioSelector.tsx', '~200', 'Quick scenario switcher component (shown on statement/schedule tabs)'],
+        ['ScenarioComparisonModal.tsx', '~420', 'Full side-by-side scenario comparison modal with all key metrics'],
     ],
-    [22, 10, 68],
+    [28, 10, 62],
+));
+
+children.push(heading2('11.6 Settings & Data Entry'));
+children.push(makeTable(
+    ['Component', 'Lines', 'Purpose'],
+    [
+        ['CompanySettings.tsx', '~115', 'Company name, ticker, industry, currency, country, fiscal year editor'],
+        ['EgyptianSettings.tsx', '~310', 'VAT toggle, tax rates, fiscal year preset, asset-class depreciation mix'],
+        ['HistoricalImportPage.tsx', '~430', 'CSV file import with automatic column mapping and preview'],
+        ['HistoricalDataInput.tsx', '~350', 'Per-year historical data input form with balance validation'],
+    ],
+    [28, 10, 62],
+));
+
+children.push(heading2('11.7 Charts & System'));
+children.push(makeTable(
+    ['Component', 'Lines', 'Purpose'],
+    [
+        ['RevenueChart.tsx', '~85', 'Revenue bar chart built with Recharts, shows historical + projected'],
+        ['MarginChart.tsx', '~55', 'Gross/Operating/Net margin line chart with period labels'],
+        ['ErrorBanner.tsx', '75', 'Auto-dismissing (10s) error alert banner with Retry button, shown when calculateModel() throws'],
+        ['ConflictModal.tsx', '76', 'Multi-tab conflict detection modal — Keep Mine / Load Latest / Dismiss options when localStorage is modified by another tab'],
+    ],
+    [28, 10, 62],
 ));
 
 // ── 12. TABS ────────────────────────────────────────────
 children.push(heading1('12. Navigation & Tab System'));
-children.push(para("The app uses a 15-tab system controlled by the Zustand store's activeTab field:"));
+children.push(para("The app uses a 19-tab system controlled by the Zustand store's activeTab field:"));
 children.push(...codeBlock([
-    'dashboard → income → balance → cashflow → model →',
+    'dashboard → income → balance → cashflow → ratios → model →',
     'working-capital → depreciation → debt-schedule →',
+    'dcf → valuation → cbe-metrics →',
     'scenarios → sensitivity → montecarlo →',
     'import → historicaldata → validation → company-settings',
 ]));
 children.push(para('Each tab is rendered as a separate component in page.tsx based on the activeTab value. The Sidebar component provides navigation buttons with icons for each section.'));
+children.push(para('Keyboard shortcuts: Ctrl+S → Calculate All Scenarios, Ctrl+Z → Undo, Ctrl+Shift+Z → Redo.'));
+children.push(para('ScenarioSelector dropdown appears on: dashboard, income, balance, cashflow, working-capital, depreciation, debt-schedule tabs.'));
 
 // ── 13. DATA FLOW ───────────────────────────────────────
 children.push(heading1('13. Data Flow Architecture'));
@@ -792,10 +896,13 @@ children.push(bullet('Excel Export — 9-tab workbook with 100% live formulas (n
 children.push(bullet('PDF Export — Multi-page professional report'));
 children.push(bullet('CSV/JSON Export — Raw data for external tools'));
 
-children.push(heading3('Analysis Layer'));
+children.push(heading3('Analysis & Valuation Layer'));
 children.push(bullet('Sensitivity Analysis — One-way and two-way parameter sweeps'));
 children.push(bullet('Monte Carlo Simulation — 10,000 iterations with configurable distributions'));
 children.push(bullet('Scenario Comparison — Side-by-side metric comparison across all scenarios'));
+children.push(bullet('DCF Valuation — WACC (CAPM) → discounted FCFs → terminal value → implied share price'));
+children.push(bullet('Trading Multiples — P/E, EV/EBITDA, P/B, FCF Yield, Dividend Yield vs EGX 30 benchmarks'));
+children.push(bullet('CBE Regulatory Metrics — Debt/EBITDA, Interest Coverage, DSCR, Current Ratio, Net Debt/Equity'));
 
 // ── 14. DESIGN DECISIONS ────────────────────────────────
 children.push(pageBreak());

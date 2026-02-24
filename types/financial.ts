@@ -49,6 +49,24 @@ export interface IncomeStatement {
   employeeProfitSharing: number;   // 10% of NI (Egyptian mandatory)
   netIncomeAfterEPD: number;       // NI minus EPD
 
+  // Tax Loss Carryforward (Tax Law Art. 29)
+  taxLossCarryforward: number;     // cumulative unused losses brought forward
+  taxLossUtilized: number;         // losses offset against this year's EBT
+  taxLossRemaining: number;        // available for future years
+  taxableIncome: number;           // EBT after loss offset
+
+  // Profit Appropriation Waterfall
+  legalReserveAddition: number;    // 5% of NI after EPS, stops at 50% of capital
+  distributableProfit: number;     // NI after EPS - legal reserve
+  grossDividends: number;          // distributable × payout ratio
+  dividendWHT: number;             // gross dividends × 10%
+  netDividends: number;            // gross - WHT
+  additionToRE: number;            // distributable - gross dividends
+
+  // Memo Items
+  nopat: number;                   // EBIT × (1 − effective tax rate)
+  fcff: number;                    // NOPAT + D&A − CapEx − ΔNWC
+
   // Per Share Metrics
   sharesOutstanding: number;
   eps: number;
@@ -102,10 +120,14 @@ export interface BalanceSheet {
   // EQUITY
   commonStock: number;
   additionalPaidInCapital: number;
+  legalReserve: number;            // cumulative legal reserve (Companies Law Art. 40)
   retainedEarnings: number;
   treasuryStock: number;
   otherComprehensiveIncome: number;
   totalEquity: number;
+
+  // NON-CURRENT LIABILITIES (additional)
+  endOfServiceProvision: number;   // EOS benefit provision (Labor Law + EAS 38)
 
   totalLiabilitiesEquity: number;
 
@@ -200,6 +222,25 @@ export interface FinancialRatios {
   pe?: number;
   priceToBook?: number;
   evToEbitda?: number;
+
+  // DuPont Analysis
+  dupontNetMargin?: number;
+  dupontAssetTurnover?: number;
+  dupontEquityMultiplier?: number;
+  dupontROE_3F?: number;
+  dupontTaxBurden?: number;
+  dupontInterestBurden?: number;
+  dupontOperatingMargin?: number;
+  dupontROE_5F?: number;
+
+  // Altman Z'-Score
+  altmanZScore?: number;
+  altmanZone?: 'safe' | 'grey' | 'distress';
+
+  // Break-Even
+  breakEvenRevenue?: number;
+  marginOfSafety?: number;
+  operatingLeverage?: number;
 }
 
 export interface IntegrationChecks {
@@ -249,11 +290,11 @@ export interface ModelResults {
 
 // ── DCF Valuation ──
 export interface DCFValuation {
-  fcfProjections: number[];           // FCF for each projection year
-  discountedFCFs: number[];           // PV of each FCF
-  terminalValue: number;              // TV = FCF_n × (1+g) / (WACC - g)
+  fcfProjections: number[];           // FCFF for each projection year
+  discountedFCFs: number[];           // PV of each FCFF
+  terminalValue: number;              // TV = FCFF_n × (1+g) / (WACC - g)
   pvTerminalValue: number;            // PV of terminal value
-  enterpriseValue: number;            // Sum of discounted FCFs + PV(TV)
+  enterpriseValue: number;            // Sum of discounted FCFFs + PV(TV)
   netDebt: number;                    // Total debt − cash
   equityValue: number;                // EV − Net Debt
   impliedSharePrice: number;          // Equity Value / shares outstanding
@@ -262,6 +303,8 @@ export interface DCFValuation {
   costOfDebt: number;                 // After-tax: rate × (1 − tax)
   debtWeight: number;                 // D / (D+E)
   equityWeight: number;               // E / (D+E)
+  dcfWarnings: string[];              // Sanity check warnings
+  tvAsPercentOfEV: number;            // TV% of EV
 }
 
 // ── Trading Multiples ──

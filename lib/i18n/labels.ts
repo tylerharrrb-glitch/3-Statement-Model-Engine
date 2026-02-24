@@ -89,6 +89,44 @@ export const FINANCIAL_LABELS: Record<string, LabelPair> = {
     vatRate: { en: 'VAT Rate', ar: 'معدل ضريبة القيمة المضافة' },
     corporateTaxRate: { en: 'Corporate Tax Rate', ar: 'معدل الضريبة على الشركات' },
     dividendWithholding: { en: 'Dividend Withholding Rate', ar: 'معدل الاستقطاع على التوزيعات' },
+
+    // ── Profit Appropriation ──
+    employeeProfitSharing: { en: 'Employee Profit Share (10%)', ar: 'نصيب العاملين في الأرباح (10%)' },
+    netIncomeAfterEPD: { en: 'Net Income After EPD', ar: 'صافي الربح بعد نصيب العاملين' },
+    legalReserveAddition: { en: 'Legal Reserve (5%)', ar: 'الاحتياطي القانوني (5%)' },
+    distributableProfit: { en: 'Distributable Profit', ar: 'الأرباح القابلة للتوزيع' },
+    grossDividends: { en: 'Gross Dividends', ar: 'إجمالي التوزيعات' },
+    dividendWHT: { en: 'Dividend WHT (10%)', ar: 'ضريبة الاستقطاع على التوزيعات (10%)' },
+    netDividends: { en: 'Net Dividends', ar: 'صافي التوزيعات' },
+    additionToRE: { en: 'Addition to Retained Earnings', ar: 'إضافة للأرباح المحتجزة' },
+
+    // ── Tax Loss Carryforward ──
+    taxLossCarryforward: { en: 'Tax Loss Carryforward', ar: 'خسائر مرحلة' },
+    taxLossUtilized: { en: 'Tax Loss Utilized', ar: 'خسائر مستخدمة' },
+    taxLossRemaining: { en: 'Tax Loss Remaining', ar: 'خسائر متبقية' },
+    taxableIncome: { en: 'Taxable Income', ar: 'الدخل الخاضع للضريبة' },
+
+    // ── Memo Items ──
+    nopat: { en: 'NOPAT', ar: 'صافي الربح التشغيلي بعد الضريبة' },
+    fcff: { en: 'FCFF', ar: 'التدفق النقدي الحر للمنشأة' },
+
+    // ── Balance Sheet New Items ──
+    legalReserve: { en: 'Legal Reserve', ar: 'الاحتياطي القانوني' },
+    endOfServiceProvision: { en: 'End of Service Provision', ar: 'مخصص نهاية الخدمة' },
+
+    // ── DuPont Analysis ──
+    dupontROE_3F: { en: 'DuPont ROE (3-Factor)', ar: 'العائد على حقوق الملكية - تحليل دو بونت (3 عوامل)' },
+    dupontROE_5F: { en: 'DuPont ROE (5-Factor)', ar: 'العائد على حقوق الملكية - تحليل دو بونت (5 عوامل)' },
+    dupontTaxBurden: { en: 'Tax Burden', ar: 'العبء الضريبي' },
+    dupontInterestBurden: { en: 'Interest Burden', ar: 'عبء الفوائد' },
+
+    // ── Altman Z'-Score ──
+    altmanZScore: { en: "Altman Z'-Score", ar: "مؤشر ألتمان Z'" },
+
+    // ── Break-Even ──
+    breakEvenRevenue: { en: 'Break-Even Revenue', ar: 'إيرادات نقطة التعادل' },
+    marginOfSafety: { en: 'Margin of Safety', ar: 'هامش الأمان' },
+    operatingLeverage: { en: 'Operating Leverage', ar: 'الرافعة التشغيلية' },
 };
 
 /**
