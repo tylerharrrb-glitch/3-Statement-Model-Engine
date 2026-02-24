@@ -50,77 +50,80 @@ const R = {
     ebt: 17,
     tax: 18,
     netIncome: 19,
-    // BS section (row 21+)
-    cash: 21,
-    accountsReceivable: 22,
-    inventory: 23,
-    prepaid: 24,
-    otherCA: 25,
-    totalCA: 26,
-    // spacer 27
-    grossPPE: 28,
-    accumDep: 29,
-    netPPE: 30,
-    intangibles: 31,
-    goodwill: 32,
-    otherLTA: 33,
-    totalNCA: 34,
-    totalAssets: 35,
-    // spacer 36
-    accountsPayable: 37,
-    accruedExp: 38,
-    shortTermDebt: 39,
-    currentPortionLTD: 40,
-    deferredRevenue: 41,
-    otherCL: 42,
-    totalCL: 43,
-    // spacer 44
-    longTermDebt: 45,
-    deferredTaxLiab: 46,
-    otherLTL: 47,
-    totalNCL: 48,
-    totalLiabilities: 49,
-    // spacer 50
-    commonStock: 51,
-    apic: 52,
-    retainedEarnings: 53,
-    treasuryStock: 54,
-    oci: 55,
-    totalEquity: 56,
-    // spacer 57
-    totalLE: 58,
-    balanceCheck: 59,
-    // CF section (row 61+)
-    cf_netIncome: 61,
-    cf_depreciation: 62,
-    cf_amortization: 63,
-    cf_sbc: 64,
-    cf_deferredTax: 65,
-    cf_changeAR: 66,
-    cf_changeInv: 67,
-    cf_changePrepaid: 68,
-    cf_changeAP: 69,
-    cf_changeAccrued: 70,
-    cf_changeDeferredRev: 71,
-    cf_totalWC: 72,
-    cf_cfo: 73,
-    // spacer 74
-    cf_capex: 75,
-    cf_acquisitions: 76,
-    cf_assetSales: 77,
-    cf_cfi: 78,
-    // spacer 79
-    cf_debtIssuance: 80,
-    cf_debtRepayment: 81,
-    cf_dividends: 82,
-    cf_equityIssuance: 83,
-    cf_shareRepurchases: 84,
-    cf_cff: 85,
-    // spacer 86
-    cf_netChange: 87,
-    cf_beginCash: 88,
-    cf_endCash: 89,
-    cf_fcf: 90,
+    employeeProfitSharing: 20,
+    netIncomeAfterEPD: 21,
+    // BS section (row 23+)
+    cash: 23,
+    accountsReceivable: 24,
+    inventory: 25,
+    prepaid: 26,
+    otherCA: 27,
+    totalCA: 28,
+    // spacer 29
+    grossPPE: 30,
+    accumDep: 31,
+    netPPE: 32,
+    intangibles: 33,
+    goodwill: 34,
+    otherLTA: 35,
+    totalNCA: 36,
+    totalAssets: 37,
+    // spacer 38
+    accountsPayable: 39,
+    accruedExp: 40,
+    shortTermDebt: 41,
+    currentPortionLTD: 42,
+    deferredRevenue: 43,
+    otherCL: 44,
+    totalCL: 45,
+    // spacer 46
+    longTermDebt: 47,
+    deferredTaxLiab: 48,
+    otherLTL: 49,
+    totalNCL: 50,
+    totalLiabilities: 51,
+    // spacer 52
+    commonStock: 53,
+    apic: 54,
+    retainedEarnings: 55,
+    treasuryStock: 56,
+    oci: 57,
+    totalEquity: 58,
+    // spacer 59
+    totalLE: 60,
+    balanceCheck: 61,
+    // CF section (row 63+)
+    cf_netIncome: 63,
+    cf_depreciation: 64,
+    cf_amortization: 65,
+    cf_sbc: 66,
+    cf_deferredTax: 67,
+    cf_changeAR: 68,
+    cf_changeInv: 69,
+    cf_changePrepaid: 70,
+    cf_changeAP: 71,
+    cf_changeAccrued: 72,
+    cf_changeDeferredRev: 73,
+    cf_totalWC: 74,
+    cf_cfo: 75,
+    // spacer 76
+    cf_capex: 77,
+    cf_acquisitions: 78,
+    cf_assetSales: 79,
+    cf_cfi: 80,
+    // spacer 81
+    cf_debtIssuance: 82,
+    cf_debtRepayment: 83,
+    cf_dividends: 84,
+    cf_epdPaid: 85,
+    cf_equityIssuance: 86,
+    cf_shareRepurchases: 87,
+    cf_cff: 88,
+    // spacer 89
+    cf_netChange: 90,
+    cf_beginCash: 91,
+    cf_endCash: 92,
+    cf_fcf: 93,
 } as const;
 
 /* ── scenario key → Scenarios tab row lookup ─────────── */
@@ -226,7 +229,9 @@ function buildOneCalcSheet(cfg: CalcSheetConfig): CalcSheetRowMap {
     setL(R.ebt, 'EBT');
     setL(R.tax, 'Tax Expense');
     setL(R.netIncome, 'Net Income');
-    ws.getCell(20, 1).value = '── Balance Sheet ──';
+    setL(R.employeeProfitSharing, 'Employee Profit Sharing');
+    setL(R.netIncomeAfterEPD, 'Net Income After EPD');
+    ws.getCell(22, 1).value = '── Balance Sheet ──';
     setL(R.cash, 'Cash & Equivalents');
     setL(R.accountsReceivable, 'Accounts Receivable');
     setL(R.inventory, 'Inventory');
@@ -261,7 +266,7 @@ function buildOneCalcSheet(cfg: CalcSheetConfig): CalcSheetRowMap {
     setL(R.totalEquity, 'Total Equity');
     setL(R.totalLE, 'Total Liabilities + Equity');
     setL(R.balanceCheck, 'Balance Check (TA - TLE)');
-    ws.getCell(60, 1).value = '── Cash Flow ──';
+    ws.getCell(62, 1).value = '── Cash Flow ──';
     setL(R.cf_netIncome, 'Net Income');
     setL(R.cf_depreciation, '+ Depreciation');
     setL(R.cf_amortization, '+ Amortization');
@@ -282,6 +287,7 @@ function buildOneCalcSheet(cfg: CalcSheetConfig): CalcSheetRowMap {
     setL(R.cf_debtIssuance, 'Debt Issuance');
     setL(R.cf_debtRepayment, 'Debt Repayment');
     setL(R.cf_dividends, 'Dividends Paid');
+    setL(R.cf_epdPaid, 'Employee Profit Sharing Paid');
     setL(R.cf_equityIssuance, 'Equity Issuance');
     setL(R.cf_shareRepurchases, 'Share Repurchases');
     setL(R.cf_cff, 'Cash from Financing');
@@ -333,6 +339,13 @@ function buildOneCalcSheet(cfg: CalcSheetConfig): CalcSheetRowMap {
                 isData?.ebt ?? 0);
             setF(R.tax, yr, isRef(isRows, 'taxExpense', yr), isData?.taxExpense ?? 0);
             setF(R.netIncome, yr, `${c}${R.ebt}-${c}${R.tax}`, isData?.netIncome ?? 0);
+            // EPD — compute from NI for historical consistency
+            setF(R.employeeProfitSharing, yr,
+                `MAX(0,${c}${R.netIncome}*${scenRef(scenarioRows, blockName, 'employeeProfitSharingRate', yr)})`,
+                isData?.employeeProfitSharing ?? 0);
+            setF(R.netIncomeAfterEPD, yr,
+                `${c}${R.netIncome}-${c}${R.employeeProfitSharing}`,
+                isData?.netIncomeAfterEPD ?? 0);
 
             // BS — reference existing BS tab
             setF(R.cash, yr, bsRef(bsRows, 'cash', yr), bsData?.cash ?? 0);
@@ -404,10 +417,11 @@ function buildOneCalcSheet(cfg: CalcSheetConfig): CalcSheetRowMap {
                 setF(R.cf_debtIssuance, yr, `${sRef('longTermDebtIssuance', yr)}`, cfData.debtIssuance);
                 setF(R.cf_debtRepayment, yr, `-ABS(${sRef('longTermDebtRepayment', yr)})`, cfData.debtRepayment);
                 setF(R.cf_dividends, yr, `${sRef('dividendsPaidComputed', yr)}`, cfData.dividendsPaid);
+                setF(R.cf_epdPaid, yr, `-${c}${R.employeeProfitSharing}`, cfData.employeeProfitSharingPaid ?? 0);
                 setF(R.cf_equityIssuance, yr, `${sRef('equityIssuanceComputed', yr)}`, cfData.equityIssuance);
                 setF(R.cf_shareRepurchases, yr, `${sRef('shareRepurchasesComputed', yr)}`, cfData.shareRepurchases);
                 setF(R.cf_cff, yr,
-                    `${c}${R.cf_debtIssuance}+${c}${R.cf_debtRepayment}+${c}${R.cf_dividends}+${c}${R.cf_equityIssuance}+${c}${R.cf_shareRepurchases}`,
+                    `${c}${R.cf_debtIssuance}+${c}${R.cf_debtRepayment}+${c}${R.cf_dividends}+${c}${R.cf_epdPaid}+${c}${R.cf_equityIssuance}+${c}${R.cf_shareRepurchases}`,
                     cfData.cashFromFinancing);
                 setF(R.cf_netChange, yr,
                     `${c}${R.cf_cfo}+${c}${R.cf_cfi}+${c}${R.cf_cff}`,
@@ -453,19 +467,18 @@ function buildOneCalcSheet(cfg: CalcSheetConfig): CalcSheetRowMap {
                 isData?.totalOpex ?? 0);
             setF(R.ebit, yr, `${c}${R.grossProfit}-${c}${R.totalOpex}`, isData?.ebit ?? 0);
 
-            // Interest Income — self-contained avg-balance formula:
-            // (prevCash + currCash)/2 × interestIncomeRate
-            // This avoids the old circular reference (Scenarios computed → Calc → Scenarios)
-            // and is resolved by workbook iterative calculation (cash depends on NI which depends on interest income)
+            // Interest Income — beginning-balance formula:
+            // prevCash × interestIncomeRate
+            // This eliminates the circular reference (cash depends on NI which depends on interest income)
             setF(R.interestIncome, yr,
-                `(${pc}${R.cash}+${c}${R.cash})/2*${sr('interestIncomeRate')}`,
+                `${pc}${R.cash}*${sr('interestIncomeRate')}`,
                 isData?.interestIncome ?? 0);
 
-            // Interest Expense — self-contained avg-balance formula:
-            // (prevTotalDebt + currTotalDebt)/2 × interestRate
+            // Interest Expense — beginning-balance formula:
+            // prevTotalDebt × interestRate
             // where TotalDebt = ShortTermDebt + CurrentPortionLTD + LongTermDebt
             setF(R.interestExpense, yr,
-                `(${pc}${R.shortTermDebt}+${pc}${R.currentPortionLTD}+${pc}${R.longTermDebt}+${c}${R.shortTermDebt}+${c}${R.currentPortionLTD}+${c}${R.longTermDebt})/2*${sr('interestRate')}`,
+                `(${pc}${R.shortTermDebt}+${pc}${R.currentPortionLTD}+${pc}${R.longTermDebt})*${sr('interestRate')}`,
                 isData?.interestExpense ?? 0);
 
             setF(R.otherIncomeExpense, yr, sr('otherIncomeExpense'), isData?.otherIncomeExpense ?? 0);
@@ -480,6 +493,15 @@ function buildOneCalcSheet(cfg: CalcSheetConfig): CalcSheetRowMap {
 
             // Net Income — computed locally: EBT - Tax
             setF(R.netIncome, yr, `${c}${R.ebt}-${c}${R.tax}`, isData?.netIncome ?? 0);
+
+            // Employee Profit Sharing = MAX(0, NI × EPD rate)
+            setF(R.employeeProfitSharing, yr,
+                `MAX(0,${c}${R.netIncome}*${sr('employeeProfitSharingRate')})`,
+                isData?.employeeProfitSharing ?? 0);
+            // Net Income After EPD = NI - EPD
+            setF(R.netIncomeAfterEPD, yr,
+                `${c}${R.netIncome}-${c}${R.employeeProfitSharing}`,
+                isData?.netIncomeAfterEPD ?? 0);
 
             // ── BS formulas ──
             // Cash — equals Ending Cash from CF section in same sheet (row 89)
@@ -570,9 +592,9 @@ function buildOneCalcSheet(cfg: CalcSheetConfig): CalcSheetRowMap {
             setF(R.apic, yr,
                 `${pc}${R.apic}+${c}${R.sbc}`,
                 bsData?.additionalPaidInCapital ?? 0);
-            // Retained Earnings — independent formula: prev + NI - dividends paid
+            // Retained Earnings — independent formula: prev + NI After EPD - dividends paid - EPD paid
             setF(R.retainedEarnings, yr,
-                `${pc}${R.retainedEarnings}+${c}${R.netIncome}+${c}${R.cf_dividends}`,
+                `${pc}${R.retainedEarnings}+${c}${R.netIncomeAfterEPD}+${c}${R.cf_dividends}`,
                 bsData?.retainedEarnings ?? 0);
             // Treasury Stock — independent formula: prev - repurchases
             setF(R.treasuryStock, yr,
@@ -623,14 +645,18 @@ function buildOneCalcSheet(cfg: CalcSheetConfig): CalcSheetRowMap {
             // CFF
             setF(R.cf_debtIssuance, yr, sr('longTermDebtIssuance'), cfData?.debtIssuance ?? 0);
             setF(R.cf_debtRepayment, yr, `-ABS(${sr('longTermDebtRepayment')})`, cfData?.debtRepayment ?? 0);
-            // Dividends = -MAX(0, NI * payout)
+            // Dividends = -MAX(0, NI After EPD * payout)
             setF(R.cf_dividends, yr,
-                `-MAX(0,${c}${R.netIncome}*${sr('dividendPayoutRatio')})`,
+                `-MAX(0,${c}${R.netIncomeAfterEPD}*${sr('dividendPayoutRatio')})`,
                 cfData?.dividendsPaid ?? 0);
+            // Employee Profit Sharing Paid = -EPD (cash outflow)
+            setF(R.cf_epdPaid, yr,
+                `-${c}${R.employeeProfitSharing}`,
+                cfData?.employeeProfitSharingPaid ?? 0);
             setF(R.cf_equityIssuance, yr, sr('equityIssuance'), cfData?.equityIssuance ?? 0);
             setF(R.cf_shareRepurchases, yr, `-ABS(${sr('shareRepurchaseAmount')})`, cfData?.shareRepurchases ?? 0);
             setF(R.cf_cff, yr,
-                `${c}${R.cf_debtIssuance}+${c}${R.cf_debtRepayment}+${c}${R.cf_dividends}+${c}${R.cf_equityIssuance}+${c}${R.cf_shareRepurchases}`,
+                `${c}${R.cf_debtIssuance}+${c}${R.cf_debtRepayment}+${c}${R.cf_dividends}+${c}${R.cf_epdPaid}+${c}${R.cf_equityIssuance}+${c}${R.cf_shareRepurchases}`,
                 cfData?.cashFromFinancing ?? 0);
 
             // Summary

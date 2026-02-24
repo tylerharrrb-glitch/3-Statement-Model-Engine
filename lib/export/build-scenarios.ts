@@ -56,6 +56,7 @@ const ROW_SPECS: RowSpec[] = [
     { key: 'otherIncomeExpense', label: 'Other Income / Expense', fmt: NUM_FMT },
     { key: 'sharesOutstanding', label: 'Shares Outstanding', fmt: '#,##0' },
     { key: 'stockBasedCompAmount', label: 'Stock-Based Comp Amount', fmt: NUM_FMT },
+    { key: 'employeeProfitSharingRate', label: 'EPD Rate (Employee Profit Sharing)', fmt: PCT_FMT },
 
     // ── Balance Sheet / WC Drivers ──
     { key: 'dso', label: 'DSO (Days)', fmt: DAY_FMT, section: '── Balance Sheet / WC Drivers ──' },
@@ -186,6 +187,7 @@ function buildAllArrays(
         if (cfIdx >= 0 && cfIdx < r.cashFlowStatements.length) return r.cashFlowStatements[cfIdx].stockBasedComp;
         return 0;
     });
+    out['employeeProfitSharingRate'] = Array(nYears).fill(a.employeeProfitSharingRate ?? 0.10);
 
     // Working capital days: back-calculate from BS/IS for all periods
     out['dso'] = allBS.map((bs, i) => sd(bs.accountsReceivable, allIS[i]?.revenue ?? 1) * 365);

@@ -100,6 +100,8 @@ export default function IncomeStatementPage() {
         { label: 'Tax Rate', key: 'taxRate', format: 'percent' },
         { label: '', key: 'revenue', format: 'currency', separator: true },
         { label: 'Net Income', key: 'netIncome', format: 'currency', bold: true },
+        { label: 'Employee Profit Sharing', key: 'employeeProfitSharing', format: 'currency' },
+        { label: 'Net Income After EPD', key: 'netIncomeAfterEPD', format: 'currency', bold: true },
         { label: 'Net Margin', key: 'netMargin', format: 'percent' },
         { label: 'EPS', key: 'eps', format: 'eps' },
     ];

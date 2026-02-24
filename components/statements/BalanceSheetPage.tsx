@@ -23,7 +23,8 @@ export default function BalanceSheetPage() {
         },
         {
             title: 'NON-CURRENT ASSETS', rows: [
-                { label: 'Net PP&E', key: 'netPPE' }, { label: 'Intangibles', key: 'intangibles' },
+                { label: 'Gross PP&E', key: 'grossPPE' }, { label: 'Accumulated Depreciation', key: 'accumulatedDepreciation' },
+                { label: 'Net PP&E', key: 'netPPE', bold: true }, { label: 'Intangibles', key: 'intangibles' },
                 { label: 'Goodwill', key: 'goodwill' }, { label: 'Other LT Assets', key: 'otherLongTermAssets' },
                 { label: 'Total Non-Current Assets', key: 'totalNonCurrentAssets', bold: true },
             ]

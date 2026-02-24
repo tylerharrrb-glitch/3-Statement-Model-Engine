@@ -739,6 +739,19 @@ export async function exportToExcel(
         bold: true,
     });
 
+    // Employee Profit Sharing (Art. 47, Law 159/1981)
+    addISRow('Employee Profit Sharing', 'employeeProfitSharing', {
+        formula: (c, yr) => `MAX(0,${c}${isRows['netIncome']}*${aRef('employeeProfitSharingRate', yr)})`,
+        value: yr => results.incomeStatements[yr]?.employeeProfitSharing ?? 0,
+    });
+
+    // Net Income After EPD
+    addISRow('Net Income After EPD', 'netIncomeAfterEPD', {
+        formula: (c) => `${c}${isRows['netIncome']}-${c}${isRows['employeeProfitSharing']}`,
+        value: yr => results.incomeStatements[yr]?.netIncomeAfterEPD ?? 0,
+        bold: true,
+    });
+
     // Net Margin
     addISRow('Net Margin', 'netMargin', {
         formula: (c) => `IF(${c}${isRows['revenue']}=0,0,${c}${isRows['netIncome']}/${c}${isRows['revenue']})`,
@@ -746,9 +759,9 @@ export async function exportToExcel(
         pct: true,
     });
 
-    // EPS = Net Income / Shares Outstanding
+    // EPS = Net Income After EPD / Shares Outstanding
     addISRow('EPS', 'eps', {
-        formula: (c, yr) => `IF(${aRef('sharesOutstanding', yr)}=0,0,${c}${isRows['netIncome']}/${aRef('sharesOutstanding', yr)})`,
+        formula: (c, yr) => `IF(${aRef('sharesOutstanding', yr)}=0,0,${c}${isRows['netIncomeAfterEPD']}/${aRef('sharesOutstanding', yr)})`,
         value: yr => results.incomeStatements[yr]?.eps ?? 0,
         numFmt: EPS_FMT,
     });
@@ -1010,14 +1023,14 @@ export async function exportToExcel(
         },
         value: yr => results.balanceSheets[yr]?.additionalPaidInCapital ?? 0,
     });
-    // Retained Earnings — live rollforward: prev + NI - dividends
+    // Retained Earnings — live rollforward: prev + NI After EPD - dividends
     addBSRow('Retained Earnings', 'retainedEarnings', {
         formula: (c, yr) => {
             if (yr < numHistorical) {
                 return `${aRef('reComputed', yr)}`;
             }
             const prevC = colLetter(yr + 1);
-            return `${prevC}${bsRows['retainedEarnings']}+'Income Statement'!${c}${isRows['netIncome']}-MAX(0,'Income Statement'!${c}${isRows['netIncome']}*${aRef('dividendPayoutRatio', yr)})`;
+            return `${prevC}${bsRows['retainedEarnings']}+'Income Statement'!${c}${isRows['netIncomeAfterEPD']}-MAX(0,'Income Statement'!${c}${isRows['netIncomeAfterEPD']}*${aRef('dividendPayoutRatio', yr)})`;
         },
         value: yr => results.balanceSheets[yr]?.retainedEarnings ?? 0,
     });
@@ -1232,7 +1245,7 @@ export async function exportToExcel(
                                     break;
                                 }
                                 case 'out_eps':
-                                    formula = `'${cs}'!${c}${base.netIncome}/Scenarios!${c}${scenarioRows[`${block.blockName}_sharesOutstanding`] ?? 1}`;
+                                    formula = `'${cs}'!${c}${base.netIncomeAfterEPD}/Scenarios!${c}${scenarioRows[`${block.blockName}_sharesOutstanding`] ?? 1}`;
                                     break;
                                 case 'out_totalDebt': {
                                     const stDebt2 = base.shortTermDebt ?? 0;
@@ -1443,17 +1456,23 @@ export async function exportToExcel(
         value: j => results.cashFlowStatements[j]?.debtRepayment ?? 0,
     });
 
-    // Dividends: historical = engine back-solved (from RE changes), projected = NI * PayoutRatio
+    // Dividends: historical = engine back-solved (from RE changes), projected = NI After EPD * PayoutRatio
     addCFRow('Dividends Paid', 'dividendsPaid', {
         formula: (_cfCol, isCol, isYr) => {
             if (isYr < numHistorical) {
                 // Historical: use engine-computed value from Assumptions tab
                 return `${aRef('dividendsPaidComputed', isYr)}`;
             }
-            // Projected: -MAX(0, NetIncome * PayoutRatio)
-            return `-MAX(0,'Income Statement'!${isCol}${isRows['netIncome']}*${aRef('dividendPayoutRatio', isYr)})`;
+            // Projected: -MAX(0, NetIncomeAfterEPD * PayoutRatio)
+            return `-MAX(0,'Income Statement'!${isCol}${isRows['netIncomeAfterEPD']}*${aRef('dividendPayoutRatio', isYr)})`;
         },
         value: j => results.cashFlowStatements[j]?.dividendsPaid ?? 0,
+    });
+
+    // Employee Profit Sharing Paid — cash outflow equal to EPD from IS
+    addCFRow('Employee Profit Sharing Paid', 'employeeProfitSharingPaid', {
+        formula: (_cfCol, isCol) => `-'Income Statement'!${isCol}${isRows['employeeProfitSharing']}`,
+        value: j => results.cashFlowStatements[j]?.employeeProfitSharingPaid ?? 0,
     });
 
     // Equity Issuance: historical = engine back-solved (from APIC/CS changes), projected = assumption
@@ -1479,7 +1498,7 @@ export async function exportToExcel(
     });
 
     addCFRow('Cash from Financing', 'cashFromFinancing', {
-        formula: (cfCol) => `${cfCol}${cfRows['debtIssuance']}+${cfCol}${cfRows['debtRepayment']}+${cfCol}${cfRows['dividendsPaid']}+${cfCol}${cfRows['equityIssuance']}+${cfCol}${cfRows['shareRepurchases']}`,
+        formula: (cfCol) => `${cfCol}${cfRows['debtIssuance']}+${cfCol}${cfRows['debtRepayment']}+${cfCol}${cfRows['dividendsPaid']}+${cfCol}${cfRows['employeeProfitSharingPaid']}+${cfCol}${cfRows['equityIssuance']}+${cfCol}${cfRows['shareRepurchases']}`,
         value: j => results.cashFlowStatements[j]?.cashFromFinancing ?? 0,
         bold: true,
     });

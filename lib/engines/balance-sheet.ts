@@ -180,23 +180,25 @@ export function calculateDepreciation(
     return avgGrossPPE * depreciationRate;
 }
 
-// Calculate interest expense from average debt balances
+// Calculate interest expense from beginning-of-period debt balance
+// Using beginning-balance method eliminates circular dependency
 export function calculateInterestExpense(
     beginningTotalDebt: number,
-    endingTotalDebt: number,
+    _endingTotalDebt: number,
     interestRate: number,
 ): number {
-    const avgDebt = (beginningTotalDebt + endingTotalDebt) / 2;
-    return avgDebt * interestRate;
+    return beginningTotalDebt * interestRate;
 }
 
-// Calculate interest income from average cash balances
+// Calculate interest income from beginning-of-period cash balance
+// Using beginning-balance method eliminates circular dependency
+// (interest income no longer depends on ending cash)
 export function calculateInterestIncome(
     beginningCash: number,
-    endingCash: number,
+    _endingCash: number,
     interestIncomeRate: number,
 ): number {
-    return ((beginningCash + endingCash) / 2) * interestIncomeRate;
+    return beginningCash * interestIncomeRate;
 }
 
 // Build historical balance sheets from raw data

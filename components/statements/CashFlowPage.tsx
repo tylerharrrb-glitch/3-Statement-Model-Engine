@@ -25,6 +25,7 @@ export default function CashFlowPage() {
                 { label: 'Δ Accounts Receivable', key: 'changeInAR' }, { label: 'Δ Inventory', key: 'changeInInventory' },
                 { label: 'Δ Prepaid Expenses', key: 'changeInPrepaid' }, { label: 'Δ Accounts Payable', key: 'changeInAP' },
                 { label: 'Δ Accrued Expenses', key: 'changeInAccruedExp' }, { label: 'Δ Deferred Revenue', key: 'changeInDeferredRev' },
+                { label: 'Total WC Change', key: 'totalWorkingCapitalChange', bold: true },
                 { label: 'Cash from Operations', key: 'cashFromOperations', bold: true },
             ]
         },
@@ -38,7 +39,9 @@ export default function CashFlowPage() {
         {
             title: 'FINANCING ACTIVITIES', rows: [
                 { label: 'Debt Issuance', key: 'debtIssuance' }, { label: 'Debt Repayment', key: 'debtRepayment' },
-                { label: 'Dividends Paid', key: 'dividendsPaid' }, { label: 'Equity Issuance', key: 'equityIssuance' },
+                { label: 'Dividends Paid', key: 'dividendsPaid' },
+                { label: 'EPD Paid', key: 'employeeProfitSharingPaid' },
+                { label: 'Equity Issuance', key: 'equityIssuance' },
                 { label: 'Share Repurchases', key: 'shareRepurchases' },
                 { label: 'Cash from Financing', key: 'cashFromFinancing', bold: true },
             ]
