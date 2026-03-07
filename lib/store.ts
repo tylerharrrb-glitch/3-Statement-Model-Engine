@@ -254,10 +254,10 @@ export const useModelStore = create<ModelStore>()(
                 // should be consistent — they don't vary by scenario.
                 const baseScenario = state.scenarios.find(s => s.type === 'base');
                 const GLOBAL_KEYS = [
-                    'taxRate', 'vatRate', 'enableVAT', 'dividendWithholdingRate', 'dividendWithholdingTaxRate',
-                    'useEgyptianRates', 'countryPreset', 'fiscalYearPreset', 'fiscalYearEnd',
+                    'taxRate', 'taxRegime', 'vatRate', 'enableVAT', 'dividendWithholdingRate', 'dividendWithholdingTaxRate',
+                    'isEGXListed', 'useEgyptianRates', 'countryPreset', 'fiscalYearPreset', 'fiscalYearEnd',
                     'projectionYears', 'historicalYears',
-                    'cbeRate', 'legacyDebtRate', 'employeeProfitSharingRate',
+                    'cbeRate', 'riskFreeRate', 'legacyDebtRate', 'employeeProfitSharingRate',
                     'enableEmployeeProfitShare', 'enableTaxLossCarryforward', 'taxLossCarryforwardYears',
                     'enableLegalReserve', 'legalReservePercent', 'paidUpCapital', 'legalReserveCap',
                     'depreciationMethod', 'enableEndOfServiceBenefit',
@@ -473,7 +473,7 @@ export const useModelStore = create<ModelStore>()(
                     for (const s of persisted.scenarios) {
                         const a = s.assumptions;
                         if (!a) continue;
-                        // Migrate scalar interestRate → interestRateOnDebt[]
+                        // v2: Migrate scalar interestRate → interestRateOnDebt[]
                         if (typeof a.interestRate === 'number' && !a.interestRateOnDebt) {
                             a.interestRateOnDebt = Array(5).fill(a.interestRate);
                             delete a.interestRate;
@@ -482,15 +482,66 @@ export const useModelStore = create<ModelStore>()(
                             a.interestRateOnCash = Array(5).fill(a.interestIncomeRate);
                             delete a.interestIncomeRate;
                         }
-                        // Default new fields
+                        // v3: Default new fields
                         if (a.cbeRate === undefined) a.cbeRate = 0.2725;
                         if (a.legacyDebtRate === undefined) a.legacyDebtRate = 0.045;
                         if (a.employeeProfitSharingRate === undefined) a.employeeProfitSharingRate = 0.10;
+                        if (a.isEGXListed === undefined) a.isEGXListed = false;
+                        if (a.taxRegime === undefined) a.taxRegime = 'standard';
+                        if (a.totalAnnualPayroll === undefined) a.totalAnnualPayroll = 0;
+                        if (a.riskFreeRate === undefined) a.riskFreeRate = 0.20;
+                        if (a.equityRiskPremium === undefined || a.equityRiskPremium < 0.08) a.equityRiskPremium = 0.105;
+                        if (a.terminalGrowthRate === undefined || a.terminalGrowthRate < 0.06) a.terminalGrowthRate = 0.07;
+
+                        // ── v4: Force-sync taxRate to match taxRegime ──
+                        // Fix: stored sessions may have 0.40 or 0.4055 from old defaults
+                        const TAX_RATES: Record<string, number> = {
+                            standard: 0.225, oil: 0.4055, strategic: 0.40,
+                        };
+                        const regime = a.taxRegime || 'standard';
+                        const correctRate = TAX_RATES[regime] ?? 0.225;
+                        if (Array.isArray(a.taxRate)) {
+                            // Force all projection years to the correct rate for the regime
+                            a.taxRate = a.taxRate.map(() => correctRate);
+                        }
+                        // If regime is 'standard' but rate was 0.40 or 0.4055, reset regime to standard
+                        if (a.taxRegime === 'standard' || !a.taxRegime) {
+                            if (Array.isArray(a.taxRate)) {
+                                a.taxRate = a.taxRate.map(() => 0.225);
+                            }
+                            a.taxRegime = 'standard';
+                        }
+
+                        // ── v4: Force-reset interest rates if at old US defaults ──
+                        if (Array.isArray(a.interestRateOnDebt)) {
+                            const allLow = a.interestRateOnDebt.every((r: number) => r <= 0.06);
+                            if (allLow) a.interestRateOnDebt = a.interestRateOnDebt.map(() => 0.22);
+                        }
+                        if (Array.isArray(a.interestRateOnCash)) {
+                            const allLow = a.interestRateOnCash.every((r: number) => r <= 0.05);
+                            if (allLow) a.interestRateOnCash = a.interestRateOnCash.map(() => 0.18);
+                        }
+                        // ── v4: Update startYear from 2025 → 2026 ──
+                        if (a.startYear === 2025) a.startYear = 2026;
                     }
                 }
+
+                // ── v4: Update historical year periods from 2023/2024 → 2024/2025 ──
+                if (persisted?.historicalData && Array.isArray(persisted.historicalData)) {
+                    for (const h of persisted.historicalData) {
+                        if (h.year === 2023) { h.year = 2024; h.period = '2024'; }
+                        else if (h.year === 2024) { h.year = 2025; h.period = '2025'; }
+                    }
+                }
+                if (persisted?.historicalInputs?.periods) {
+                    persisted.historicalInputs.periods = persisted.historicalInputs.periods.map(
+                        (p: string) => p === '2023' ? '2024' : p === '2024' ? '2025' : p
+                    );
+                }
+
                 return persisted;
             },
-            version: 2, // Bump version to trigger migration
+            version: 4, // v4: sync taxRate, update years, fix interest rates
         },
     ),
 );

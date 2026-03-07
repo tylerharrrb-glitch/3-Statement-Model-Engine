@@ -108,6 +108,31 @@ export default function EgyptianSettings() {
                 <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
                     Tax Rates {isEgypt && <span style={{ color: 'var(--accent-emerald)' }}>· Egyptian Defaults Applied</span>}
                 </div>
+
+                {/* Tax Regime */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+                    <label style={{ fontSize: 13, minWidth: 120 }}>Tax Regime</label>
+                    <select
+                        className="fin-select"
+                        value={a.taxRegime || 'standard'}
+                        onChange={(e) => {
+                            const regime = e.target.value;
+                            const rateMap: Record<string, number> = {
+                                standard: 0.225, oil: 0.4055, strategic: 0.40, sme: 0.015,
+                            };
+                            updateAssumption('taxRegime', regime === 'standard' ? 0 : regime === 'oil' ? 1 : regime === 'strategic' ? 2 : 3);
+                            const rate = rateMap[regime] ?? 0.225;
+                            updateAssumption('taxRate', a.taxRate.map(() => rate));
+                        }}
+                        style={{ flex: 1 }}
+                    >
+                        <option value="standard">Standard (22.5%) — Income Tax Law 91/2005</option>
+                        <option value="oil">Oil Exploration (40.55%)</option>
+                        <option value="strategic">Strategic Entities (40%)</option>
+                        <option value="sme">SME Turnover Tax (Law 6/2025)</option>
+                    </select>
+                </div>
+
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
                     <label style={{ fontSize: 13, minWidth: 120 }}>Corporate Tax (%)</label>
                     <input
@@ -122,8 +147,28 @@ export default function EgyptianSettings() {
                         }}
                         style={{ width: 80, textAlign: 'right' }}
                     />
+                    <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>Source: Income Tax Law No. 91/2005</span>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+
+                {/* EGX Listing Status */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8, padding: '8px 0', borderTop: '1px solid var(--border-color)' }}>
+                    <label style={{ fontSize: 13, minWidth: 120 }}>Listed on EGX?</label>
+                    <input
+                        type="checkbox"
+                        checked={a.isEGXListed || false}
+                        onChange={(e) => {
+                            const listed = e.target.checked;
+                            updateAssumption('isEGXListed', listed ? 1 : 0);
+                            updateAssumption('dividendWithholdingTaxRate', listed ? 0.05 : 0.10);
+                        }}
+                        style={{ width: 18, height: 18 }}
+                    />
+                    <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+                        {a.isEGXListed ? 'WHT: 5% (Law 30/2023)' : 'WHT: 10% (unlisted)'}
+                    </span>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
                     <label style={{ fontSize: 13, minWidth: 120 }}>Div. Withholding (%)</label>
                     <input
                         className="fin-input"
@@ -133,6 +178,21 @@ export default function EgyptianSettings() {
                         onChange={(e) => updateAssumption('dividendWithholdingTaxRate', parseFloat(e.target.value) / 100 || 0)}
                         style={{ width: 80, textAlign: 'right' }}
                     />
+                    <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>Source: Tax Law Art. 56 bis (Law 30/2023)</span>
+                </div>
+
+                {/* Risk-Free Rate for DCF */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 0', borderTop: '1px solid var(--border-color)' }}>
+                    <label style={{ fontSize: 13, minWidth: 120 }}>Risk-Free Rate (%)</label>
+                    <input
+                        className="fin-input"
+                        type="number"
+                        step="0.5"
+                        value={((a.riskFreeRate ?? 0.20) * 100).toFixed(1)}
+                        onChange={(e) => updateAssumption('riskFreeRate', parseFloat(e.target.value) / 100 || 0.20)}
+                        style={{ width: 80, textAlign: 'right' }}
+                    />
+                    <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>CBE deposit: 19% | T-Bill: ~25.7%</span>
                 </div>
             </div>
 

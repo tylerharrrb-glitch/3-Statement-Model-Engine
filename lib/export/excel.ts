@@ -750,40 +750,90 @@ export async function exportToExcel(
         bold: true,
     });
 
-    // Employee Profit Sharing (Art. 47, Law 159/1981)
-    addISRow('Employee Profit Sharing', 'employeeProfitSharing', {
-        formula: (c, yr) => `MAX(0,${c}${isRows['netIncome']}*${aRef('employeeProfitSharingRate', yr)})`,
-        value: yr => results.incomeStatements[yr]?.employeeProfitSharing ?? 0,
-    });
+    // ── Profit Appropriation (Law 159/1981 — correct EAS order) ──
+    // Step 1: Legal Reserve = MIN(5% of NI, MAX(0, paidUpCap×50% − priorCumLR))
+    // Historical columns: hardcode 0 (no LR addition in actual records)
+    // Projected columns: cap-aware formula per Companies Law 159/1981
+    // Uses SUM-based self-reference within the IS tab to track cumulative LR
+    isRows['legalReserveAddition'] = isRow;
+    isSheet.getCell(isRow, 1).value = 'Legal Reserve (5%)';
+    for (let i = 0; i < nYears; i++) {
+        const c = colLetter(i + 2);
+        const cell = isSheet.getCell(isRow, i + 2);
+        const raw = results.incomeStatements[i]?.legalReserveAddition ?? 0;
+        if (i < numHistorical) {
+            // Historical: hardcode 0 — no LR was added in actual records
+            cell.value = { formula: '0', result: 0 };
+        } else {
+            // Projected: NI × 5% capped by (paidUpCapital × 50% − prior cumulative LR)
+            const niRef = `${c}${isRow}`;  // can't use isRows['netIncome'] here since we've incremented — use stored
+            const niRow = isRows['netIncome'];
+            const capRef = `${aRef('paidUpCapital', i)}*0.5`;
+            const lrPct = aRef('legalReservePercent', i);
+            if (i === numHistorical) {
+                // First projected year: no prior LR additions, so cap room = full cap
+                cell.value = { formula: `IF(${c}${niRow}<=0,0,MIN(${c}${niRow}*${lrPct},MAX(0,${capRef})))`, result: Number(raw) || 0 };
+            } else {
+                // Subsequent projected years: prior cumulative LR = SUM of IS LR from first projected col to prior col
+                const firstProjCol = colLetter(numHistorical + 2); // first projected column letter
+                const prevC = colLetter(i + 1); // prior column letter
+                const priorCumLR = `SUM(${firstProjCol}${isRow}:${prevC}${isRow})`;
+                cell.value = { formula: `IF(${c}${niRow}<=0,0,MIN(${c}${niRow}*${lrPct},MAX(0,${capRef}-${priorCumLR})))`, result: Number(raw) || 0 };
+            }
+        }
+    }
+    styleRow(isSheet.getRow(isRow), { numFmt: NUM_FMT });
+    isRow++;
 
-    // Net Income After EPD
-    addISRow('Net Income After EPD', 'netIncomeAfterEPD', {
-        formula: (c) => `${c}${isRows['netIncome']}-${c}${isRows['employeeProfitSharing']}`,
-        value: yr => results.incomeStatements[yr]?.netIncomeAfterEPD ?? 0,
-        bold: true,
-    });
-
-    // Legal Reserve Addition = MIN(NI After EPD * legalReservePercent, MAX(0, paidUpCapital*0.5 - priorLegalReserve))
-    // Simplified in Excel: NI After EPD * 5% (the cap is engine-computed)
-    addISRow('Legal Reserve (5%)', 'legalReserveAddition', {
-        formula: (c, yr) => `${c}${isRows['netIncomeAfterEPD']}*${aRef('legalReservePercent', yr)}`,
-        value: yr => results.incomeStatements[yr]?.legalReserveAddition ?? 0,
-    });
-
-    // Distributable Profit = NI After EPD - Legal Reserve
+    // Step 2: Distributable Profit = NI - Legal Reserve
     addISRow('Distributable Profit', 'distributableProfit', {
-        formula: (c) => `${c}${isRows['netIncomeAfterEPD']}-${c}${isRows['legalReserveAddition']}`,
+        formula: (c) => `${c}${isRows['netIncome']}-${c}${isRows['legalReserveAddition']}`,
         value: yr => results.incomeStatements[yr]?.distributableProfit ?? 0,
         bold: true,
     });
 
-    // Gross Dividends = MIN(Distributable Profit, NI * Payout Ratio)
-    addISRow('Gross Dividends', 'grossDividends', {
-        formula: (c, yr) => `MIN(${c}${isRows['distributableProfit']},MAX(0,${c}${isRows['netIncome']}*${aRef('dividendPayoutRatio', yr)}))`,
-        value: yr => results.incomeStatements[yr]?.grossDividends ?? 0,
+    // Step 3: EPD = 10% of Distributable Profit (SECOND deduction)
+    // Historical columns: hardcode 0 (no EPD was actually paid per company actuals)
+    isRows['employeeProfitSharing'] = isRow;
+    isSheet.getCell(isRow, 1).value = 'Employee Profit Sharing';
+    for (let i = 0; i < nYears; i++) {
+        const c = colLetter(i + 2);
+        const cell = isSheet.getCell(isRow, i + 2);
+        const raw = results.incomeStatements[i]?.employeeProfitSharing ?? 0;
+        if (i < numHistorical) {
+            cell.value = { formula: '0', result: 0 };
+        } else {
+            cell.value = { formula: `MAX(0,${c}${isRows['distributableProfit']}*${aRef('employeeProfitSharingRate', i)})`, result: Number(raw) || 0 };
+        }
+    }
+    styleRow(isSheet.getRow(isRow), { numFmt: NUM_FMT });
+    isRow++;
+
+    // Step 4: NI After EPD = Distributable Profit - EPD
+    addISRow('Net Income After EPD', 'netIncomeAfterEPD', {
+        formula: (c) => `${c}${isRows['distributableProfit']}-${c}${isRows['employeeProfitSharing']}`,
+        value: yr => results.incomeStatements[yr]?.netIncomeAfterEPD ?? 0,
+        bold: true,
     });
 
-    // Dividend WHT = Gross Dividends * WHT Rate
+    // Step 5: Gross Dividends = NI After EPD × Payout Ratio
+    // Historical columns: hardcode 0 (dividends declared are 0 for historical years)
+    isRows['grossDividends'] = isRow;
+    isSheet.getCell(isRow, 1).value = 'Gross Dividends';
+    for (let i = 0; i < nYears; i++) {
+        const c = colLetter(i + 2);
+        const cell = isSheet.getCell(isRow, i + 2);
+        const raw = results.incomeStatements[i]?.grossDividends ?? 0;
+        if (i < numHistorical) {
+            cell.value = { formula: '0', result: 0 };
+        } else {
+            cell.value = { formula: `MAX(0,${c}${isRows['netIncomeAfterEPD']}*${aRef('dividendPayoutRatio', i)})`, result: Number(raw) || 0 };
+        }
+    }
+    styleRow(isSheet.getRow(isRow), { numFmt: NUM_FMT });
+    isRow++;
+
+    // Dividend WHT = Gross Dividends × WHT Rate
     addISRow('Dividend WHT (10%)', 'dividendWHT', {
         formula: (c, yr) => `${c}${isRows['grossDividends']}*${aRef('dividendWHTRate', yr)}`,
         value: yr => results.incomeStatements[yr]?.dividendWHT ?? 0,
@@ -795,9 +845,9 @@ export async function exportToExcel(
         value: yr => results.incomeStatements[yr]?.netDividends ?? 0,
     });
 
-    // Addition to Retained Earnings = Distributable Profit - Gross Dividends
+    // Step 6: Addition to RE = NI After EPD - Gross Dividends
     addISRow('Addition to Retained Earnings', 'additionToRE', {
-        formula: (c) => `${c}${isRows['distributableProfit']}-${c}${isRows['grossDividends']}`,
+        formula: (c) => `${c}${isRows['netIncomeAfterEPD']}-${c}${isRows['grossDividends']}`,
         value: yr => results.incomeStatements[yr]?.additionToRE ?? 0,
         bold: true,
     });

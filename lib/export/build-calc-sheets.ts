@@ -50,80 +50,85 @@ const R = {
     ebt: 17,
     tax: 18,
     netIncome: 19,
-    employeeProfitSharing: 20,
-    netIncomeAfterEPD: 21,
-    // BS section (row 23+)
-    cash: 23,
-    accountsReceivable: 24,
-    inventory: 25,
-    prepaid: 26,
-    otherCA: 27,
-    totalCA: 28,
-    // spacer 29
-    grossPPE: 30,
-    accumDep: 31,
-    netPPE: 32,
-    intangibles: 33,
-    goodwill: 34,
-    otherLTA: 35,
-    totalNCA: 36,
-    totalAssets: 37,
-    // spacer 38
-    accountsPayable: 39,
-    accruedExp: 40,
-    shortTermDebt: 41,
-    currentPortionLTD: 42,
-    deferredRevenue: 43,
-    otherCL: 44,
-    totalCL: 45,
-    // spacer 46
-    longTermDebt: 47,
-    deferredTaxLiab: 48,
-    otherLTL: 49,
-    totalNCL: 50,
-    totalLiabilities: 51,
-    // spacer 52
-    commonStock: 53,
-    apic: 54,
-    retainedEarnings: 55,
-    treasuryStock: 56,
-    oci: 57,
-    totalEquity: 58,
-    // spacer 59
-    totalLE: 60,
-    balanceCheck: 61,
-    // CF section (row 63+)
-    cf_netIncome: 63,
-    cf_depreciation: 64,
-    cf_amortization: 65,
-    cf_sbc: 66,
-    cf_deferredTax: 67,
-    cf_changeAR: 68,
-    cf_changeInv: 69,
-    cf_changePrepaid: 70,
-    cf_changeAP: 71,
-    cf_changeAccrued: 72,
-    cf_changeDeferredRev: 73,
-    cf_totalWC: 74,
-    cf_cfo: 75,
-    // spacer 76
-    cf_capex: 77,
-    cf_acquisitions: 78,
-    cf_assetSales: 79,
-    cf_cfi: 80,
-    // spacer 81
-    cf_debtIssuance: 82,
-    cf_debtRepayment: 83,
-    cf_dividends: 84,
-    cf_epdPaid: 85,
-    cf_equityIssuance: 86,
-    cf_shareRepurchases: 87,
-    cf_cff: 88,
-    // spacer 89
-    cf_netChange: 90,
-    cf_beginCash: 91,
-    cf_endCash: 92,
-    cf_fcf: 93,
+    // Legal Reserve (Law 159/1981) — inserted between NI and EPD
+    legalReserveAddition: 20,     // = MIN(NI × 5%, cap - cumulative)
+    cumulativeLegalReserve: 21,   // = prior + addition
+    distributableProfit: 22,      // = NI - LR Addition
+    employeeProfitSharing: 23,    // = MAX(0, Distributable × 10%)
+    netIncomeAfterEPD: 24,        // = Distributable - EPD
+    // BS section (row 26+)
+    cash: 26,
+    accountsReceivable: 27,
+    inventory: 28,
+    prepaid: 29,
+    otherCA: 30,
+    totalCA: 31,
+    // spacer 32
+    grossPPE: 33,
+    accumDep: 34,
+    netPPE: 35,
+    intangibles: 36,
+    goodwill: 37,
+    otherLTA: 38,
+    totalNCA: 39,
+    totalAssets: 40,
+    // spacer 41
+    accountsPayable: 42,
+    accruedExp: 43,
+    shortTermDebt: 44,
+    currentPortionLTD: 45,
+    deferredRevenue: 46,
+    otherCL: 47,
+    totalCL: 48,
+    // spacer 49
+    longTermDebt: 50,
+    deferredTaxLiab: 51,
+    otherLTL: 52,
+    totalNCL: 53,
+    totalLiabilities: 54,
+    // spacer 55
+    commonStock: 56,
+    apic: 57,
+    legalReserveEquity: 58,      // NEW: cumulative Legal Reserve in equity
+    retainedEarnings: 59,
+    treasuryStock: 60,
+    oci: 61,
+    totalEquity: 62,
+    // spacer 63
+    totalLE: 64,
+    balanceCheck: 65,
+    // CF section (row 67+)
+    cf_netIncome: 67,
+    cf_depreciation: 68,
+    cf_amortization: 69,
+    cf_sbc: 70,
+    cf_deferredTax: 71,
+    cf_changeAR: 72,
+    cf_changeInv: 73,
+    cf_changePrepaid: 74,
+    cf_changeAP: 75,
+    cf_changeAccrued: 76,
+    cf_changeDeferredRev: 77,
+    cf_totalWC: 78,
+    cf_cfo: 79,
+    // spacer 80
+    cf_capex: 81,
+    cf_acquisitions: 82,
+    cf_assetSales: 83,
+    cf_cfi: 84,
+    // spacer 85
+    cf_debtIssuance: 86,
+    cf_debtRepayment: 87,
+    cf_dividends: 88,
+    cf_epdPaid: 89,
+    cf_equityIssuance: 90,
+    cf_shareRepurchases: 91,
+    cf_cff: 92,
+    // spacer 93
+    cf_netChange: 94,
+    cf_beginCash: 95,
+    cf_endCash: 96,
+    cf_fcf: 97,
 } as const;
 
 /* ── scenario key → Scenarios tab row lookup ─────────── */
@@ -229,9 +234,12 @@ function buildOneCalcSheet(cfg: CalcSheetConfig): CalcSheetRowMap {
     setL(R.ebt, 'EBT');
     setL(R.tax, 'Tax Expense');
     setL(R.netIncome, 'Net Income');
-    setL(R.employeeProfitSharing, 'Employee Profit Sharing');
+    setL(R.legalReserveAddition, 'Legal Reserve Addition (5% NI, Law 159/1981)');
+    setL(R.cumulativeLegalReserve, 'Cumulative Legal Reserve');
+    setL(R.distributableProfit, 'Distributable Profit');
+    setL(R.employeeProfitSharing, 'Employee Profit Sharing (EPD)');
     setL(R.netIncomeAfterEPD, 'Net Income After EPD');
-    ws.getCell(22, 1).value = '── Balance Sheet ──';
+    ws.getCell(25, 1).value = '── Balance Sheet ──';
     setL(R.cash, 'Cash & Equivalents');
     setL(R.accountsReceivable, 'Accounts Receivable');
     setL(R.inventory, 'Inventory');
@@ -260,13 +268,14 @@ function buildOneCalcSheet(cfg: CalcSheetConfig): CalcSheetRowMap {
     setL(R.totalLiabilities, 'Total Liabilities');
     setL(R.commonStock, 'Common Stock');
     setL(R.apic, 'APIC');
+    setL(R.legalReserveEquity, 'Legal Reserve (Equity)');
     setL(R.retainedEarnings, 'Retained Earnings');
     setL(R.treasuryStock, 'Treasury Stock');
     setL(R.oci, 'Other Comprehensive Income');
     setL(R.totalEquity, 'Total Equity');
     setL(R.totalLE, 'Total Liabilities + Equity');
     setL(R.balanceCheck, 'Balance Check (TA - TLE)');
-    ws.getCell(62, 1).value = '── Cash Flow ──';
+    ws.getCell(66, 1).value = '── Cash Flow ──';
     setL(R.cf_netIncome, 'Net Income');
     setL(R.cf_depreciation, '+ Depreciation');
     setL(R.cf_amortization, '+ Amortization');
@@ -339,12 +348,17 @@ function buildOneCalcSheet(cfg: CalcSheetConfig): CalcSheetRowMap {
                 isData?.ebt ?? 0);
             setF(R.tax, yr, isRef(isRows, 'taxExpense', yr), isData?.taxExpense ?? 0);
             setF(R.netIncome, yr, `${c}${R.ebt}-${c}${R.tax}`, isData?.netIncome ?? 0);
-            // EPD — compute from NI for historical consistency
+            // Legal Reserve — Law 159/1981: 5% of NI, cap at 50% of issued capital
+            setF(R.legalReserveAddition, yr, '0', isData?.legalReserveAddition ?? 0);
+            setF(R.cumulativeLegalReserve, yr, '0', 0);
+            setF(R.distributableProfit, yr, `${c}${R.netIncome}-${c}${R.legalReserveAddition}`,
+                (isData?.netIncome ?? 0) - (isData?.legalReserveAddition ?? 0));
+            // EPD — compute from Distributable Profit for historical consistency
             setF(R.employeeProfitSharing, yr,
-                `MAX(0,${c}${R.netIncome}*${scenRef(scenarioRows, blockName, 'employeeProfitSharingRate', yr)})`,
+                `MAX(0,${c}${R.distributableProfit}*${scenRef(scenarioRows, blockName, 'employeeProfitSharingRate', yr)})`,
                 isData?.employeeProfitSharing ?? 0);
             setF(R.netIncomeAfterEPD, yr,
-                `${c}${R.netIncome}-${c}${R.employeeProfitSharing}`,
+                `${c}${R.distributableProfit}-${c}${R.employeeProfitSharing}`,
                 isData?.netIncomeAfterEPD ?? 0);
 
             // BS — reference existing BS tab
@@ -378,6 +392,7 @@ function buildOneCalcSheet(cfg: CalcSheetConfig): CalcSheetRowMap {
             setF(R.totalLiabilities, yr, `${c}${R.totalCL}+${c}${R.totalNCL}`, bsData?.totalLiabilities ?? 0);
             setF(R.commonStock, yr, bsRef(bsRows, 'commonStock', yr), bsData?.commonStock ?? 0);
             setF(R.apic, yr, bsRef(bsRows, 'additionalPaidInCapital', yr), bsData?.additionalPaidInCapital ?? 0);
+            setF(R.legalReserveEquity, yr, `${c}${R.cumulativeLegalReserve}`, 0);
             setF(R.retainedEarnings, yr, bsRef(bsRows, 'retainedEarnings', yr), bsData?.retainedEarnings ?? 0);
             setF(R.treasuryStock, yr, bsRef(bsRows, 'treasuryStock', yr), bsData?.treasuryStock ?? 0);
             setF(R.oci, yr, bsRef(bsRows, 'otherComprehensiveIncome', yr), bsData?.otherComprehensiveIncome ?? 0);
@@ -494,13 +509,33 @@ function buildOneCalcSheet(cfg: CalcSheetConfig): CalcSheetRowMap {
             // Net Income — computed locally: EBT - Tax
             setF(R.netIncome, yr, `${c}${R.ebt}-${c}${R.tax}`, isData?.netIncome ?? 0);
 
-            // Employee Profit Sharing = MAX(0, NI × EPD rate)
+            // ── Legal Reserve (Law 159/1981) ──
+            // LR Addition = IF(cumLR >= issuedCap*0.50, 0, MIN(NI*0.05, issuedCap*0.50 - prevCumLR))
+            // For simplicity, use MIN(NI*0.05, paidUpCap*0.50 - prevCumulativeLR)
+            // where paidUpCap comes from Scenarios if available, else hardcode issued capital
+            const prevCumLR = yr === numHistorical
+                ? '0'  // first projected year: assume 0 prior cumulative LR
+                : `${pc}${R.cumulativeLegalReserve}`;
+            setF(R.legalReserveAddition, yr,
+                `IF(${c}${R.netIncome}<=0,0,MIN(${c}${R.netIncome}*0.05,MAX(0,${sr('paidUpCapital')}*0.5-${prevCumLR})))`,
+                isData?.legalReserveAddition ?? 0);
+            setF(R.cumulativeLegalReserve, yr,
+                yr === numHistorical
+                    ? `${c}${R.legalReserveAddition}`  // first projected year
+                    : `${pc}${R.cumulativeLegalReserve}+${c}${R.legalReserveAddition}`,
+                0);
+            // Distributable Profit = NI - Legal Reserve Addition
+            setF(R.distributableProfit, yr,
+                `${c}${R.netIncome}-${c}${R.legalReserveAddition}`,
+                (isData?.netIncome ?? 0) - (isData?.legalReserveAddition ?? 0));
+
+            // EPD = MAX(0, Distributable Profit × EPD rate) — Law 159/1981
             setF(R.employeeProfitSharing, yr,
-                `MAX(0,${c}${R.netIncome}*${sr('employeeProfitSharingRate')})`,
+                `MAX(0,${c}${R.distributableProfit}*${sr('employeeProfitSharingRate')})`,
                 isData?.employeeProfitSharing ?? 0);
-            // Net Income After EPD = NI - EPD
+            // NI After EPD = Distributable Profit - EPD
             setF(R.netIncomeAfterEPD, yr,
-                `${c}${R.netIncome}-${c}${R.employeeProfitSharing}`,
+                `${c}${R.distributableProfit}-${c}${R.employeeProfitSharing}`,
                 isData?.netIncomeAfterEPD ?? 0);
 
             // ── BS formulas ──
@@ -588,11 +623,15 @@ function buildOneCalcSheet(cfg: CalcSheetConfig): CalcSheetRowMap {
 
             // Common Stock
             setF(R.commonStock, yr, sr('commonStock'), bsData?.commonStock ?? 0);
-            // APIC — independent formula: prev + SBC
+            // APIC — equity issuance only (SBC does NOT go to APIC)
             setF(R.apic, yr,
-                `${pc}${R.apic}+${c}${R.sbc}`,
+                `${pc}${R.apic}+${sr('equityIssuance')}`,
                 bsData?.additionalPaidInCapital ?? 0);
-            // Retained Earnings — independent formula: prev + NI After EPD - dividends paid - EPD paid
+            // Legal Reserve (Equity) — cumulative from IS
+            setF(R.legalReserveEquity, yr,
+                `${c}${R.cumulativeLegalReserve}`,
+                0);
+            // Retained Earnings — NI After EPD - Dividends (LR already subtracted)
             setF(R.retainedEarnings, yr,
                 `${pc}${R.retainedEarnings}+${c}${R.netIncomeAfterEPD}+${c}${R.cf_dividends}`,
                 bsData?.retainedEarnings ?? 0);

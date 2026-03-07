@@ -44,8 +44,10 @@ export interface AssumptionSet {
 
     // Tax & Employee Distribution
     taxRate: number[];
+    taxRegime: 'standard' | 'oil' | 'strategic' | 'sme'; // default: 'standard'
     employeeProfitSharingRate: number;  // EPD rate (Art. 47, Law 159/1981) — default 0.10
     enableEmployeeProfitShare: boolean; // default: true
+    totalAnnualPayroll: number;         // EPD cap: EPD cannot exceed total annual payroll
 
     // Tax Loss Carryforward (Tax Law Art. 29)
     enableTaxLossCarryforward: boolean; // default: true
@@ -54,12 +56,13 @@ export interface AssumptionSet {
     // Legal Reserve (Companies Law Art. 40)
     enableLegalReserve: boolean;        // default: true
     legalReservePercent: number;        // default: 0.05
-    paidUpCapital: number;              // for 50% cap calculation
+    paidUpCapital: number;              // for 50% cap calculation (ISSUED capital)
     legalReserveCap: number;            // default: 0.50
     initialLegalReserve: number;        // starting balance from prior years
 
-    // Dividend Withholding Tax (Tax Law Art. 56 bis)
-    dividendWithholdingTaxRate: number; // default: 0.10
+    // Dividend Withholding Tax (Tax Law Art. 56 bis, amended by Law 30/2023)
+    dividendWithholdingTaxRate: number; // 0.10 unlisted, 0.05 EGX-listed
+    isEGXListed: boolean;               // default: false — determines WHT rate
 
     // Depreciation Method
     depreciationMethod: 'straight-line' | 'declining-balance' | 'egyptian-tax';
@@ -97,8 +100,9 @@ export interface AssumptionSet {
     sharePrice?: number;                // Optional — enables P/E, EV/EBITDA, FCF yield
 
     // DCF Valuation
-    terminalGrowthRate: number;         // Gordon Growth g (nominal GDP), default 0.05
-    equityRiskPremium: number;          // Egypt ERP ~6-8%, default 0.07
+    riskFreeRate: number;               // Decoupled from CBE rate — default 0.20 for Egypt
+    terminalGrowthRate: number;         // Gordon Growth g (CBE target inflation ~7%), default 0.07
+    equityRiskPremium: number;          // Damodaran Egypt ERP ~10.5%, default 0.105
     beta: number;                       // Company beta, default 1.0
 
     // Inflation
@@ -212,8 +216,10 @@ export function getDefaultAssumptions(): AssumptionSet {
         stockBasedCompAmount: fill(10_000),
 
         taxRate: fill(0.225),
+        taxRegime: 'standard',
         employeeProfitSharingRate: 0.10,
         enableEmployeeProfitShare: true,
+        totalAnnualPayroll: 0,           // 0 = no cap enforced
 
         // Tax Loss Carryforward
         enableTaxLossCarryforward: true,
@@ -226,8 +232,9 @@ export function getDefaultAssumptions(): AssumptionSet {
         legalReserveCap: 0.50,
         initialLegalReserve: 0,
 
-        // Dividend WHT
-        dividendWithholdingTaxRate: 0.10,
+        // Dividend WHT (Law 30/2023)
+        dividendWithholdingTaxRate: 0.10,  // 10% unlisted, 5% EGX-listed
+        isEGXListed: false,
 
         // Depreciation
         depreciationMethod: 'egyptian-tax',
@@ -269,9 +276,10 @@ export function getDefaultAssumptions(): AssumptionSet {
         fiscalYearEnd: 6,
         fiscalYearPreset: 'egyptian-govt',
 
-        // DCF Valuation defaults
-        terminalGrowthRate: 0.05,
-        equityRiskPremium: 0.07,
+        // DCF Valuation defaults (Egyptian market)
+        riskFreeRate: 0.20,              // CBE T-Bill / risk-free rate proxy
+        terminalGrowthRate: 0.07,        // CBE target inflation ~7%
+        equityRiskPremium: 0.105,        // Damodaran Egypt ERP (Jan 2025)
         beta: 1.0,
 
         // Inflation defaults (Egyptian CPI path)
@@ -282,7 +290,7 @@ export function getDefaultAssumptions(): AssumptionSet {
 
         projectionYears: years,
         historicalYears: 2,
-        startYear: 2025,
+        startYear: 2026,
     };
 }
 
@@ -335,7 +343,7 @@ export function getDefaultHistoricalInputs(): HistoricalInputs {
     });
 
     return {
-        periods: ['2023', '2024'],
+        periods: ['2024', '2025'],
         revenue: [850_000, 950_000],
         cogs: [510_000, 570_000],
         sgaExpense: [127_500, 142_500],

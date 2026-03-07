@@ -57,6 +57,7 @@ const ROW_SPECS: RowSpec[] = [
     { key: 'sharesOutstanding', label: 'Shares Outstanding', fmt: '#,##0' },
     { key: 'stockBasedCompAmount', label: 'Stock-Based Comp Amount', fmt: NUM_FMT },
     { key: 'employeeProfitSharingRate', label: 'EPD Rate (Employee Profit Sharing)', fmt: PCT_FMT },
+    { key: 'paidUpCapital', label: 'Issued (Paid-Up) Capital', fmt: NUM_FMT },
 
     // ── Balance Sheet / WC Drivers ──
     { key: 'dso', label: 'DSO (Days)', fmt: DAY_FMT, section: '── Balance Sheet / WC Drivers ──' },
@@ -188,6 +189,7 @@ function buildAllArrays(
         return 0;
     });
     out['employeeProfitSharingRate'] = Array(nYears).fill(a.employeeProfitSharingRate ?? 0.10);
+    out['paidUpCapital'] = Array(nYears).fill(a.paidUpCapital ?? 10_000);
 
     // Working capital days: back-calculate from BS/IS for all periods
     out['dso'] = allBS.map((bs, i) => sd(bs.accountsReceivable, allIS[i]?.revenue ?? 1) * 365);
@@ -297,6 +299,10 @@ function buildAllArrays(
     out['shareRepurchasesComputed'] = [0, ...r.cashFlowStatements.map(cf => cf.shareRepurchases)];
     out['acquisitionsComputed'] = [0, ...r.cashFlowStatements.map(cf => cf.acquisitions)];
     out['assetSalesComputed'] = [0, ...r.cashFlowStatements.map(cf => cf.assetSales)];
+
+    // Legal Reserve computed values
+    out['legalReserveAddition'] = r.incomeStatements.map(is => is.legalReserveAddition ?? 0);
+    out['distributableProfit'] = r.incomeStatements.map(is => is.distributableProfit ?? 0);
 
     // ── Dashboard Output Metrics ──
     // IS-derived output values

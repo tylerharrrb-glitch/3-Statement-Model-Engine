@@ -94,19 +94,21 @@ function calculateTaxWithCarryforward(
 }
 
 function calculateLegalReserveAddition(
-    netIncomeAfterEPS: number,
+    netIncome: number,
     priorLegalReserve: number,
     paidUpCapital: number,
     reservePercent: number = 0.05,
     reserveCap: number = 0.50,
     enabled: boolean = true,
 ): { addition: number; newBalance: number } {
+    // Legal Reserve = 5% of Net Income (Law 159/1981 Art. 40)
+    // Cap: cumulative reserve must not exceed 50% of ISSUED (paid-up) capital
     if (!enabled) return { addition: 0, newBalance: priorLegalReserve };
     const maxReserve = paidUpCapital * reserveCap;
-    if (priorLegalReserve >= maxReserve || netIncomeAfterEPS <= 0) {
+    if (priorLegalReserve >= maxReserve || netIncome <= 0) {
         return { addition: 0, newBalance: priorLegalReserve };
     }
-    const proposed = netIncomeAfterEPS * reservePercent;
+    const proposed = netIncome * reservePercent;
     const room = maxReserve - priorLegalReserve;
     const addition = Math.min(proposed, room);
     return { addition, newBalance: priorLegalReserve + addition };
@@ -168,15 +170,11 @@ export function calculateIncomeStatement(inputs: IncomeStatementInputs): IncomeS
     const netIncome = ebt - taxExpense;
     const netMargin = revenue !== 0 ? netIncome / revenue : 0;
 
-    // Employee Profit Sharing (C2 — Art. 41, Labor Law 12/2003)
-    const employeeProfitSharing = (
-        (assumptions.enableEmployeeProfitShare ?? true) && netIncome > 0
-    ) ? netIncome * (assumptions.employeeProfitSharingRate ?? 0.10) : 0;
-    const netIncomeAfterEPD = netIncome - employeeProfitSharing;
-
-    // Legal Reserve (C3 — Companies Law Art. 40)
+    // ── Profit Appropriation (EAS Correct Sequence — Law 159/1981) ──
+    // Step 1: Net Income (already computed above)
+    // Step 2: Legal Reserve = 5% × Net Income (FIRST deduction)
     const legalReserve = calculateLegalReserveAddition(
-        netIncomeAfterEPD,
+        netIncome,
         priorLegalReserve,
         assumptions.paidUpCapital ?? 10_000,
         assumptions.legalReservePercent ?? 0.05,
@@ -184,16 +182,31 @@ export function calculateIncomeStatement(inputs: IncomeStatementInputs): IncomeS
         assumptions.enableLegalReserve ?? true,
     );
 
-    // Distributable Profit
-    const distributableProfit = netIncomeAfterEPD - legalReserve.addition;
+    // Step 3: Distributable Profit = NI − Legal Reserve
+    const distributableProfit = netIncome - legalReserve.addition;
 
-    // Dividends with WHT (C8)
+    // Step 4: EPD = 10% × MAX(0, Distributable Profit) (SECOND deduction)
+    // Capped at total annual payroll (if provided)
+    const rawEPD = (
+        (assumptions.enableEmployeeProfitShare ?? true) && distributableProfit > 0
+    ) ? distributableProfit * (assumptions.employeeProfitSharingRate ?? 0.10) : 0;
+    const epdPayrollCap = assumptions.totalAnnualPayroll;
+    const employeeProfitSharing = epdPayrollCap != null && epdPayrollCap > 0
+        ? Math.min(rawEPD, epdPayrollCap)
+        : rawEPD;
+
+    // Step 5: NI After EPD = Distributable Profit − EPD
+    const netIncomeAfterEPD = distributableProfit - employeeProfitSharing;
+
+    // Step 6–9: Dividends with WHT (Law 30/2023: 5% EGX-listed, 10% unlisted)
     const dividendPayoutRatio = assumptions.dividendPayoutRatio[yr] ?? 0;
-    const grossDividends = distributableProfit > 0 ? distributableProfit * dividendPayoutRatio : 0;
-    const dividendWHTRate = assumptions.dividendWithholdingTaxRate ?? 0.10;
+    const grossDividends = netIncomeAfterEPD > 0 ? netIncomeAfterEPD * dividendPayoutRatio : 0;
+    const dividendWHTRate = assumptions.isEGXListed
+        ? 0.05  // EGX-listed: 5% WHT
+        : (assumptions.dividendWithholdingTaxRate ?? 0.10);  // Unlisted: 10% WHT
     const dividendWHT = grossDividends * dividendWHTRate;
     const netDividends = grossDividends - dividendWHT;
-    const additionToRE = distributableProfit - grossDividends;
+    const additionToRE = netIncomeAfterEPD - grossDividends;
 
     // NOPAT (C7 memo)
     const effectiveTaxRate = ebt > 0 ? taxExpense / ebt : taxRate;
@@ -203,9 +216,9 @@ export function calculateIncomeStatement(inputs: IncomeStatementInputs): IncomeS
     const changeInNWC = currentNWC - previousNWC;
     const fcff = nopat + depreciation + amortization - capex - changeInNWC;
 
-    // Per Share — EPS uses distributable profit
+    // Per Share — EPS uses NI After EPD (distributable to shareholders)
     const sharesOutstanding = assumptions.sharesOutstanding[yr] ?? 100_000;
-    const eps = sharesOutstanding !== 0 ? distributableProfit / sharesOutstanding : 0;
+    const eps = sharesOutstanding !== 0 ? netIncomeAfterEPD / sharesOutstanding : 0;
 
     // VAT memo (Egyptian market)
     let revenueInclVAT: number | undefined;

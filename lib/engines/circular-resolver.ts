@@ -388,36 +388,38 @@ export function validateIntegration(
         difference: incomeStatement.employeeProfitSharing - expectedEPD,
     });
 
-    // 18. NI After EPD = NI - EPD
-    const expectedNIAfterEPD = incomeStatement.netIncome - incomeStatement.employeeProfitSharing;
+    // 18. NI After EPD = Distributable Profit - EPD (Law 159/1981: LR first, then EPD)
+    const expectedNIAfterEPD = incomeStatement.distributableProfit - incomeStatement.employeeProfitSharing;
     const niAfterEPDCheck = Math.abs(incomeStatement.netIncomeAfterEPD - expectedNIAfterEPD) < 0.01;
     details.push({
-        name: 'NI After EPD = NI - EPD',
+        name: 'NI After EPD = Distributable Profit - EPD',
         passed: niAfterEPDCheck,
         expected: expectedNIAfterEPD,
         actual: incomeStatement.netIncomeAfterEPD,
         difference: incomeStatement.netIncomeAfterEPD - expectedNIAfterEPD,
     });
 
-    // 19. Distributable Profit = NI After EPD - Legal Reserve
-    const expectedDistributable = incomeStatement.netIncomeAfterEPD - incomeStatement.legalReserveAddition;
+    // 19. Distributable Profit = NI - Legal Reserve (Law 159/1981: LR comes before EPD)
+    const expectedDistributable = incomeStatement.netIncome - incomeStatement.legalReserveAddition;
     const distributabelCheck = Math.abs(incomeStatement.distributableProfit - expectedDistributable) < 0.01;
     details.push({
-        name: 'Distributable Profit Calculation',
+        name: 'Distributable Profit = Net Income - Legal Reserve',
         passed: distributabelCheck,
         expected: expectedDistributable,
         actual: incomeStatement.distributableProfit,
         difference: incomeStatement.distributableProfit - expectedDistributable,
     });
 
-    // 20. Gross Dividends ≤ Distributable Profit
-    const dividendsWithinBounds = incomeStatement.grossDividends <= incomeStatement.distributableProfit + 0.01;
+    // 20. Gross Dividends ≤ MAX(0, Distributable Profit)
+    // In loss years, distributable can be negative — dividends must be 0
+    const distributableFloor = Math.max(0, incomeStatement.distributableProfit);
+    const dividendsWithinBounds = incomeStatement.grossDividends <= distributableFloor + 0.01;
     details.push({
         name: 'Gross Dividends ≤ Distributable Profit',
         passed: dividendsWithinBounds,
-        expected: incomeStatement.distributableProfit,
+        expected: distributableFloor,
         actual: incomeStatement.grossDividends,
-        difference: incomeStatement.distributableProfit - incomeStatement.grossDividends,
+        difference: distributableFloor - incomeStatement.grossDividends,
     });
 
     // 21. Net Dividends = Gross - WHT
@@ -431,11 +433,12 @@ export function validateIntegration(
         difference: incomeStatement.netDividends - expectedNetDiv,
     });
 
-    // 22. Addition to RE = Distributable - Gross Dividends
-    const expectedAddToRE = incomeStatement.distributableProfit - incomeStatement.grossDividends;
+    // 22. Addition to RE = NI After EPD - Gross Dividends
+    // (LR goes to separate equity account, RE gets what's left after EPD and dividends)
+    const expectedAddToRE = incomeStatement.netIncomeAfterEPD - incomeStatement.grossDividends;
     const addToRECheck = Math.abs(incomeStatement.additionToRE - expectedAddToRE) < 0.01;
     details.push({
-        name: 'Addition to RE = Distributable - Gross Div',
+        name: 'Addition to RE = NI After EPD - Gross Dividends',
         passed: addToRECheck,
         expected: expectedAddToRE,
         actual: incomeStatement.additionToRE,
@@ -443,7 +446,10 @@ export function validateIntegration(
     });
 
     // 23. NOPAT = EBIT × (1 - effective tax rate)
-    const effectiveTaxRate = incomeStatement.ebt > 0 ? incomeStatement.taxExpense / incomeStatement.ebt : 0.225;
+    // When EBT ≤ 0, use statutory taxRate from IS (not hardcoded 0.225)
+    const effectiveTaxRate = incomeStatement.ebt > 0
+        ? incomeStatement.taxExpense / incomeStatement.ebt
+        : incomeStatement.taxRate;
     const expectedNOPAT = incomeStatement.ebit * (1 - effectiveTaxRate);
     const nopatCheck = Math.abs(incomeStatement.nopat - expectedNOPAT) < 0.01;
     details.push({
@@ -475,15 +481,18 @@ export function validateIntegration(
         difference: incomeStatement.taxLossCarryforward - incomeStatement.taxLossUtilized,
     });
 
-    // 26. Taxable Income = EBT - Loss Utilized (≥ 0)
+    // 26. Taxable Income = MAX(0, EBT - Loss Utilized)
+    // When EBT is negative, taxableIncome must be 0 (loss carryforward, Law 91/2005)
     const expectedTaxableIncome = Math.max(0, incomeStatement.ebt - incomeStatement.taxLossUtilized);
-    const taxableIncomeCheck = Math.abs(incomeStatement.taxableIncome - expectedTaxableIncome) < 0.01;
+    const taxableIncomeCheck = Math.abs(
+        Math.max(0, incomeStatement.taxableIncome) - expectedTaxableIncome
+    ) < 0.01;
     details.push({
         name: 'Taxable Income After Loss Offset',
         passed: taxableIncomeCheck,
         expected: expectedTaxableIncome,
-        actual: incomeStatement.taxableIncome,
-        difference: incomeStatement.taxableIncome - expectedTaxableIncome,
+        actual: Math.max(0, incomeStatement.taxableIncome),
+        difference: Math.max(0, incomeStatement.taxableIncome) - expectedTaxableIncome,
     });
 
     // 27. CF Dividends Paid = IS Gross Dividends (sign adjusted)

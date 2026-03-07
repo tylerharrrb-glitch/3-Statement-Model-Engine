@@ -36,13 +36,13 @@ export default function CBEMetricsPage() {
     const metrics: CBEMetric[] = [
         { label: 'Current Ratio', compute: yr => sd(bs[yr]?.totalCurrentAssets ?? 0, bs[yr]?.totalCurrentLiabilities ?? 0), threshold: 1.2, direction: 'above', unit: 'x', description: 'Minimum 1.2x per CBE regulatory requirements' },
         { label: 'Debt-to-Equity', compute: yr => sd(totalDebt(yr), bs[yr]?.totalEquity ?? 0), threshold: 2.0, direction: 'below', unit: 'x', description: 'Maximum 2.0x per CBE lending covenants' },
-        { label: 'Interest Coverage', compute: yr => sd(is[yr]?.ebit ?? 0, is[yr]?.interestExpense ?? 0), threshold: 2.0, direction: 'above', unit: 'x', description: 'Minimum 2.0x EBIT / Interest Expense' },
+        { label: 'Interest Coverage', compute: yr => sd(is[yr]?.ebit ?? 0, is[yr]?.interestExpense ?? 0), threshold: 3.0, direction: 'above', unit: 'x', description: 'Minimum 3.0x EBIT / Interest Expense (CBE standard)' },
         {
             label: 'Net Debt / EBITDA', compute: yr => {
                 const nd = totalDebt(yr) - (bs[yr]?.cash ?? 0);
                 const eb = ebitda(yr);
                 return eb !== 0 ? nd / eb : 0;
-            }, threshold: 3.0, direction: 'below', unit: 'x', description: 'Maximum 3.0x net leverage'
+            }, threshold: 3.5, direction: 'below', unit: 'x', description: 'Maximum 3.5x net leverage (CBE credit risk standard)'
         },
         {
             label: 'DSCR', compute: yr => {

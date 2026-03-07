@@ -21,7 +21,8 @@ export function calculateWACC(
     const warnings: string[] = [];
 
     // Cost of Equity (CAPM): ke = rf + β × ERP
-    const riskFreeRate = assumptions.cbeRate;      // CBE rate as proxy
+    // riskFreeRate decoupled from CBE rate — default 20% for Egyptian market
+    const riskFreeRate = assumptions.riskFreeRate ?? assumptions.cbeRate;
     const costOfEquity = riskFreeRate + assumptions.beta * assumptions.equityRiskPremium;
 
     // Cost of Debt (after-tax): kd = rate × (1 - tax)

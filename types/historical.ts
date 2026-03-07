@@ -154,8 +154,8 @@ export function convertToHistoricalInputs(data: HistoricalDataInput[]): Historic
 export function getDefaultHistoricalData(): HistoricalDataInput[] {
   return [
     buildHistoricalYear({
-      year: 2023,
-      period: '2023',
+      year: 2024,
+      period: '2024',
       revenue: 850_000,
       cogs: 510_000,
       sgaExpense: 127_500,
@@ -193,8 +193,8 @@ export function getDefaultHistoricalData(): HistoricalDataInput[] {
       otherComprehensiveIncome: 0,
     }),
     buildHistoricalYear({
-      year: 2024,
-      period: '2024',
+      year: 2025,
+      period: '2025',
       revenue: 950_000,
       cogs: 570_000,
       sgaExpense: 142_500,

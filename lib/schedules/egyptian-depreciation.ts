@@ -19,10 +19,10 @@ export interface EgyptianAssetClass {
  */
 export const EGYPTIAN_TAX_DEPRECIATION_RATES: Record<string, EgyptianAssetClass> = {
     buildings: { name: 'Buildings & Structures', nameArabic: 'مباني', rate: 0.05, method: 'declining-balance' },
-    machinery: { name: 'Machinery & Equipment', nameArabic: 'آلات ومعدات', rate: 0.10, method: 'declining-balance' },
+    machinery: { name: 'Machinery & Equipment', nameArabic: 'آلات ومعدات', rate: 0.25, method: 'declining-balance' },
     vehicles: { name: 'Vehicles & Transport', nameArabic: 'سيارات ووسائل نقل', rate: 0.25, method: 'declining-balance' },
     computers: { name: 'Computers & IT', nameArabic: 'أجهزة حاسب آلي', rate: 0.50, method: 'declining-balance' },
-    furniture: { name: 'Furniture & Fixtures', nameArabic: 'أثاث وتجهيزات', rate: 0.125, method: 'declining-balance' },
+    furniture: { name: 'Furniture & Fixtures', nameArabic: 'أثاث وتجهيزات', rate: 0.20, method: 'declining-balance' },
 };
 
 export interface DepreciationBreakdown {
@@ -74,7 +74,7 @@ export function calculateEgyptianBlendedRate(breakdown: DepreciationBreakdown): 
         breakdown.computers,
         breakdown.furniture,
     ];
-    const rates = [0.05, 0.10, 0.25, 0.50, 0.125];
+    const rates = [0.05, 0.25, 0.25, 0.50, 0.20];
     const totalWeight = weights.reduce((s, w) => s + w, 0);
     if (totalWeight === 0) return 0.10; // fallback
     return weights.reduce((sum, w, i) => sum + w * rates[i], 0) / totalWeight;
