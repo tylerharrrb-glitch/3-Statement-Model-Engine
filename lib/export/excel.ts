@@ -144,7 +144,6 @@ export async function exportToExcel(
     const nYears = results.incomeStatements.length;
     // Period labels come from results (could be "2024E", "2025E", etc.)
     const periods = results.incomeStatements.map(s => s.period);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const numHistorical = results.incomeStatements.filter(s => s.periodType === 'historical').length;
 
     // ── GUARANTEE ALL 3 SCENARIOS (Single Source of Truth) ──
@@ -2327,7 +2326,6 @@ export async function exportToExcel(
 
     applyHistoricalStyling(debtSheet, numHistorical, nYears);
 
-    // eslint-disable-next-line prefer-const
     const allSheets = [aSheet, isSheet, bsSheet, cfSheet, ratioSheet, wcSheet, depSheet, debtSheet];
 
     // ════════════════════════════════════════════════════════
