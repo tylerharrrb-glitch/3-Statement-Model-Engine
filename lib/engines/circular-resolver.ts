@@ -74,6 +74,7 @@ export function resolveCircularReferences(
             currentNWC: previousNWC, // will be updated after BS calc
             previousNWC,
             capex,
+            previousRetainedEarnings: previousBalanceSheet.retainedEarnings,
         };
         const isResult = calculateIncomeStatement(isInputs);
         const incomeStatement = isResult.incomeStatement;

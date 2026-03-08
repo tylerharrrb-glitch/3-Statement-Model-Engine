@@ -196,6 +196,53 @@ export default function EgyptianSettings() {
                 </div>
             </div>
 
+            {/* Opening Balances (FIX #2 & #3) */}
+            <div style={{ marginBottom: 16, padding: 12, background: 'var(--bg-tertiary)', borderRadius: 8 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+                    Opening Balance Adjustments
+                </div>
+                <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 10 }}>
+                    Use these fields to reconcile prior-period balances that precede the model start date.
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+                    <label style={{ fontSize: 13, minWidth: 180 }}>Prior Cumulative Legal Reserve</label>
+                    <input
+                        className="fin-input"
+                        type="number"
+                        step="1000"
+                        value={a.initialLegalReserve ?? 0}
+                        onChange={(e) => updateAssumption('initialLegalReserve', parseFloat(e.target.value) || 0)}
+                        style={{ width: 100, textAlign: 'right' }}
+                    />
+                    <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+                        Max: {((a.paidUpCapital ?? 10000) * (a.legalReserveCap ?? 0.50)).toLocaleString()} (50% of Issued Capital)
+                    </span>
+                </div>
+                <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 12, paddingLeft: 192 }}>
+                    Accumulated LR from periods before model start. Determines remaining room under the cap.
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8, paddingTop: 8, borderTop: '1px solid var(--border-color)' }}>
+                    <label style={{ fontSize: 13, minWidth: 180 }}>Prior Period Dividends Paid</label>
+                    <input
+                        className="fin-input"
+                        type="number"
+                        step="1000"
+                        value={a.priorPeriodDividendsPaidFromRE ?? 0}
+                        onChange={(e) => updateAssumption('priorPeriodDividendsPaidFromRE', parseFloat(e.target.value) || 0)}
+                        style={{ width: 100, textAlign: 'right' }}
+                    />
+                    <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+                        EGP (reduces opening RE)
+                    </span>
+                </div>
+                <div style={{ fontSize: 11, color: 'var(--text-muted)', paddingLeft: 192 }}>
+                    Dividends declared before model start, settled in the first historical period.
+                    Reconciles the gap between computed and actual opening Retained Earnings.
+                </div>
+            </div>
+
             {/* Egyptian Depreciation Rates Reference */}
             {isEgypt && (
                 <div style={{ marginBottom: 16, padding: 12, background: 'var(--bg-tertiary)', borderRadius: 8 }}>

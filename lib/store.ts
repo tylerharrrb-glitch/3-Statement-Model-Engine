@@ -260,6 +260,7 @@ export const useModelStore = create<ModelStore>()(
                     'cbeRate', 'riskFreeRate', 'legacyDebtRate', 'employeeProfitSharingRate',
                     'enableEmployeeProfitShare', 'enableTaxLossCarryforward', 'taxLossCarryforwardYears',
                     'enableLegalReserve', 'legalReservePercent', 'paidUpCapital', 'legalReserveCap',
+                    'initialLegalReserve', 'priorPeriodDividendsPaidFromRE',
                     'depreciationMethod', 'enableEndOfServiceBenefit',
                     'interestRateOnDebt', 'interestRateOnCash',
                 ] as const;
@@ -492,6 +493,7 @@ export const useModelStore = create<ModelStore>()(
                         if (a.riskFreeRate === undefined) a.riskFreeRate = 0.20;
                         if (a.equityRiskPremium === undefined || a.equityRiskPremium < 0.08) a.equityRiskPremium = 0.105;
                         if (a.terminalGrowthRate === undefined || a.terminalGrowthRate < 0.06) a.terminalGrowthRate = 0.07;
+                        if (a.priorPeriodDividendsPaidFromRE === undefined) a.priorPeriodDividendsPaidFromRE = 0;
 
                         // ── v4: Force-sync taxRate to match taxRegime ──
                         // Fix: stored sessions may have 0.40 or 0.4055 from old defaults

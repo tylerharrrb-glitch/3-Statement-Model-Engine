@@ -319,6 +319,7 @@ children.push(...codeBlock([
     '│   ├── scenario-manager.ts     # Scenario CRUD + comparison',
     '│   ├── scenarios.ts            # Pre-defined scenario definitions',
     '│   ├── i18n/labels.ts          # Bilingual labels (English / Arabic)',
+    '│   ├── templates/egyptian-industries.ts  # 5 sector-specific assumption templates',
     '│   ├── schedules/egyptian-depreciation.ts',
     '│   └── utils.ts                # Multi-currency formatting utilities',
     '└── components/                 # 27 React UI components',
@@ -334,25 +335,35 @@ children.push(...codeBlock([
 children.push(pageBreak());
 children.push(heading1('3. Type System (types/)'));
 
-children.push(heading2('3.1 AssumptionSet (assumptions.ts) — 60+ fields'));
-children.push(para('The main projection configuration with ~60 fields organized by category:'));
+children.push(heading2('3.1 AssumptionSet (assumptions.ts) — 90+ fields'));
+children.push(para('The main projection configuration organized by category. Fields marked with [] are per-projection-year arrays:'));
 children.push(makeTable(
     ['Category', 'Key Fields'],
     [
         ['Revenue', 'revenueBase, revenueGrowthRate[]'],
         ['Margins', 'cogsPercent[], sgaPercent[], rdPercent[], otherOpexPercent[]'],
-        ['Working Capital', 'dso[], dio[], dpo[], prepaidPercent[], accruedExpPercent[], deferredRevPercent[], otherCAPercent[], otherCLPercent[]'],
-        ['Non-Current Assets', 'capexPercent[], depreciationRate[], amortizationAmount[], intangiblesAmount[], goodwillAmount[], otherLTAPercent[]'],
-        ['Debt', 'interestRate[], shortTermDebt[], longTermDebtIssuance[], longTermDebtRepayment[], currentPortionLTD[], deferredTaxLiabilityPercent[]'],
-        ['Equity', 'commonStock[], APIC[], sharesOutstanding[], stockBasedCompAmount[], dividendPayoutRatio[], equityIssuance[], shareRepurchaseAmount[]'],
-        ['Tax / VAT', 'taxRate[], enableVAT, vatRate, interestIncomeRate[]'],
-        ['DCF / Valuation', 'cbeRate (CBE overnight rate, default 27.25%), beta (default 1.0), equityRiskPremium (default 7%), terminalGrowthRate (default 5%), sharePrice (optional, enables multiples)'],
-        ['Egyptian', 'buildings, machinery, vehicles, computers, furniture (PP&E asset-class mix fractions)'],
-        ['Model Config', 'projectionYears, historicalYears, startYear, fiscalYearEnd, fiscalYearPreset'],
+        ['Working Capital', 'dso[], dio[], dpo[], prepaidPercent[], accruedExpPercent[], deferredRevPercent[]'],
+        ['CapEx & Depr.', 'capexPercent[], depreciationRate[], amortizationAmount[], depreciationMethod (straight-line|declining-balance|egyptian-tax)'],
+        ['Debt & Financing', 'cbeRate (27.25%), interestRateOnDebt[] ([22%,22%,20%,18%,18%]), interestRateOnCash[], legacyDebtRate (4.5%), shortTermDebtAmount[], longTermDebtIssuance[], longTermDebtRepayment[], currentPortionLTD[]'],
+        ['Equity', 'sharesOutstanding[], dividendPayoutRatio[], shareRepurchaseAmount[], stockBasedCompAmount[], commonStock[], apic[], oci[], equityIssuance[]'],
+        ['Tax & Regime', 'taxRate[] (default 22.5%), taxRegime (standard|oil|strategic|sme), enableVAT, vatRate (14%)'],
+        ['Employee Profit Sharing', 'employeeProfitSharingRate (10%), enableEmployeeProfitShare, totalAnnualPayroll (EPD cap)'],
+        ['Tax Loss Carryforward', 'enableTaxLossCarryforward, taxLossCarryforwardYears (5) — Tax Law Art. 29'],
+        ['Legal Reserve', 'enableLegalReserve, legalReservePercent (5%), paidUpCapital, legalReserveCap (50%), initialLegalReserve — Companies Law Art. 40'],
+        ['Dividend WHT', 'dividendWithholdingTaxRate (10% unlisted / 5% EGX-listed), isEGXListed — Law 30/2023'],
+        ['End of Service', 'enableEndOfServiceBenefit, averageMonthlyBasicSalary, numberOfEmployees[] — Labor Law + EAS 38'],
+        ['DCF / Valuation', 'riskFreeRate (20%), beta (1.0), equityRiskPremium (10.5%), terminalGrowthRate (7%), sharePrice (optional)'],
+        ['Inflation', 'inflationRate[] ([25%,18%,14%,10%,8%]), linkRevenueToInflation'],
+        ['Sector Preset', 'sectorPreset (technology|manufacturing|retail|government-contractor|export-oriented|real-estate|custom)'],
+        ['Asset Mix', 'assetMix.buildings (30%), .machinery (35%), .vehicles (15%), .computers (10%), .furniture (10%)'],
+        ['Egyptian Preset', 'countryPreset, useEgyptianRates, dividendWithholdingRate, fiscalYearEnd, fiscalYearPreset'],
+        ['Other BS Items', 'goodwill[], otherLongTermAssets[], otherCurrentAssets[], otherCurrentLiabilities[], deferredTaxLiabilities[], otherLongTermLiabilities[]'],
+        ['Investing', 'acquisitions[], assetSales[], investmentPurchases[], investmentSales[]'],
+        ['Model Config', 'projectionYears (5), historicalYears (2), startYear (2026), fiscalYearEnd (6=June)'],
     ],
-    [25, 75],
+    [21, 79],
 ));
-children.push(para('Also provides getDefaultAssumptions() with 5 projection-year demo data and getDefaultHistoricalInputs() with balanced 2-year demo historical data.'));
+children.push(para('getDefaultAssumptions() → Egyptian-market defaults with CBE-linked rates. getDefaultHistoricalInputs() → 2-period (2024/2025) balanced demo data with RE calculated as plug.'));
 
 children.push(heading2('3.2 Financial Statement Interfaces (financial.ts)'));
 children.push(makeTable(
@@ -643,8 +654,8 @@ children.push(bullet('CRUD operations: createScenario(), duplicateScenario(), up
 children.push(bullet('compareScenarios() — Returns side-by-side comparison for all calculated scenarios: revenue, EBITDA, NI, EPS, FCF, total debt, cash, ROE'));
 
 // ── 7. STATE ────────────────────────────────────────────
-children.push(heading1('7. State Management (store.ts)'));
-children.push(para('Zustand store with localStorage persistence via zustand/middleware/persist. 396 lines of code with 15+ actions:'));
+children.push(heading1('7. State Management (store.ts) — 548 lines'));
+children.push(para('Zustand store (v4) with localStorage persistence via zustand/middleware/persist. 20+ actions with GLOBAL_KEYS sync:'));
 children.push(makeTable(
     ['State Field', 'Description'],
     [
@@ -654,10 +665,15 @@ children.push(makeTable(
         ['historicalData[]', 'Per-year historical data objects (UI format)'],
         ['scenarios[]', 'All scenarios with their assumption sets and results'],
         ['activeScenarioId', 'Currently selected scenario UUID'],
-        ['activeTab', 'Current navigation tab (15 possible values)'],
+        ['activeTab', 'Current navigation tab (19 possible values)'],
         ['isDarkMode', 'Dark mode toggle state'],
-        ['undoStack[] / redoStack[]', 'Assumption change history for undo/redo'],
+        ['undoStack[] / redoStack[]', 'Assumption change history for undo/redo (50-entry cap)'],
         ['errors[] / warnings[]', 'Current validation messages'],
+        ['calculationError', 'Error message from last failed calculation'],
+        ['cellOverrides', 'Manual cell value overrides keyed by scenarioId_rowKey_period'],
+        ['dataVersion', 'Incremented on each recalculation for change detection'],
+        ['conflictDetected', 'Multi-tab localStorage conflict flag'],
+        ['sidebarOpen', 'Sidebar collapsed/expanded state'],
     ],
     [35, 65],
 ));
@@ -666,20 +682,38 @@ children.push(makeTable(
     ['Action', 'Description'],
     [
         ['setCompanyInfo()', 'Update company metadata (name, ticker, currency, country, fiscal year, valuation date)'],
-        ['setHistoricalData(data)', 'Set per-year data + automatically convert to engine format'],
-        ['updateAssumption(path, value)', 'Update any assumption; handles nested paths like revenueGrowthRate[0]'],
-        ['addScenario() / deleteScenario()', 'Create or remove scenarios'],
+        ['setHistoricalData(data)', 'Set per-year data → auto-convert to engine format → recalculate all scenarios'],
+        ['updateAssumption(path, value)', 'Update any assumption; handles array indexing like revenueGrowthRate[0]'],
+        ['addScenario() / deleteScenario()', 'Create or remove scenarios (min 1 scenario enforced)'],
         ['duplicateScenario(id, name)', 'Clone an existing scenario with a new name'],
-        ['calculateModel()', 'Runs runFullModel() for the active scenario and stores results'],
-        ['calculateAllScenarios()', 'Runs model for every scenario sequentially'],
-        ['undo() / redo()', 'Assumption-level undo/redo with unlimited stack depth'],
+        ['calculateModel()', 'Runs runFullModel() for active scenario; captures warnings (>95% margin, <-50% NI)'],
+        ['calculateAllScenarios()', 'Syncs GLOBAL_KEYS from Base Case → all scenarios, then runs model for each independently (failures don\'t block others)'],
+        ['undo() / redo()', 'Assumption-level undo/redo → auto-recalculates after restore'],
         ['resetToDefaults()', 'Full state reset to demo company data'],
-        ['setCountryPreset(preset)', 'Applies US / Egyptian / Custom tax, VAT, and depreciation defaults'],
-        ['toggleDarkMode()', 'Toggle dark/light mode'],
-        ['setActiveTab(tab)', 'Navigate to a different section'],
+        ['setCountryPreset(preset)', 'Applies US / Egyptian / Custom tax, VAT, CBE rates, depreciation, fiscal year to ALL scenarios'],
+        ['setCellOverride()', 'Manual cell value override for specific scenario/row/period'],
+        ['dismissConflict()', 'Dismiss multi-tab conflict notification'],
+        ['toggleDarkMode() / setSidebarOpen()', 'UI toggle actions'],
     ],
     [35, 65],
 ));
+
+children.push(heading2('7.1 GLOBAL_KEYS Sync'));
+children.push(para('calculateAllScenarios() syncs these keys from Base Case to all other scenarios before computing:'));
+children.push(...codeBlock([
+    'taxRate, taxRegime, vatRate, enableVAT, dividendWithholdingRate,',
+    'dividendWithholdingTaxRate, isEGXListed, useEgyptianRates, countryPreset,',
+    'fiscalYearPreset, fiscalYearEnd, projectionYears, historicalYears,',
+    'cbeRate, riskFreeRate, legacyDebtRate, employeeProfitSharingRate,',
+    'enableEmployeeProfitShare, enableTaxLossCarryforward, taxLossCarryforwardYears,',
+    'enableLegalReserve, legalReservePercent, paidUpCapital, legalReserveCap,',
+    'depreciationMethod, enableEndOfServiceBenefit,',
+    'interestRateOnDebt, interestRateOnCash',
+]));
+
+children.push(heading2('7.2 Persistence & Migration (v4)'));
+children.push(para('Persisted fields (via partialize): companyName, ticker, industry, currency, country, fiscalYearEnd, valuationDate, historicalData, historicalInputs, scenarios, activeScenarioId, isDarkMode.'));
+children.push(para('v4 migration handles: scalar→array interest rate conversion, CBE rate defaults, tax regime sync (forces correct rate per regime), interest rate floor resets (US→Egypt), startYear 2025→2026, historical years 2023/2024→2024/2025.'));
 
 // ── 8. EXPORT ───────────────────────────────────────────
 children.push(pageBreak());
@@ -755,6 +789,21 @@ children.push(makeTable(
 children.push(para('calculateEgyptianBlendedRate(breakdown) computes a weighted-average depreciation rate from the asset-class mix.'));
 children.push(para('Egyptian defaults: Corporate tax 22.5%, VAT 14%, Dividend withholding 10%.'));
 children.push(para('Fiscal year presets: Calendar (January-December), Egyptian Government (July-June), Custom.'));
+
+children.push(heading2('9.3 Egyptian Industry Templates (templates/egyptian-industries.ts)'));
+children.push(para('5 pre-configured sector templates with bilingual names and typical assumption profiles:'));
+children.push(makeTable(
+    ['Sector', 'Arabic', 'Growth', 'GM', 'SG&A', 'DSO', 'DIO', 'DPO', 'CapEx%'],
+    [
+        ['Real Estate & Construction', '\u0627\u0644\u0639\u0642\u0627\u0631\u0627\u062a \u0648\u0627\u0644\u0628\u0646\u0627\u0621', '15%', '35%', '8%', '90', '60', '75', '3%'],
+        ['FMCG / Consumer Goods', '\u0633\u0644\u0639 \u0627\u0633\u062a\u0647\u0644\u0627\u0643\u064a\u0629', '12%', '30%', '12%', '30', '45', '40', '5%'],
+        ['Telecom & Technology', '\u0627\u062a\u0635\u0627\u0644\u0627\u062a \u0648\u062a\u0643\u0646\u0648\u0644\u0648\u062c\u064a\u0627', '10%', '55%', '15%', '35', '5', '50', '15%'],
+        ['Petrochemicals & Energy', '\u0628\u062a\u0631\u0648\u0643\u064a\u0645\u0627\u0648\u064a\u0627\u062a \u0648\u0637\u0627\u0642\u0629', '8%', '25%', '6%', '45', '30', '45', '8%'],
+        ['Tourism & Hospitality', '\u0633\u064a\u0627\u062d\u0629 \u0648\u0636\u064a\u0627\u0641\u0629', '18%', '45%', '20%', '15', '10', '25', '6%'],
+    ],
+    [18, 14, 7, 6, 7, 7, 7, 7, 7],
+));
+children.push(para('Each template also includes a sector-specific asset-class mix (buildings/machinery/vehicles/computers/furniture) for Egyptian depreciation calculations. Use getTemplate(id) to retrieve.'));
 
 // ── 10. UTILS ───────────────────────────────────────────
 children.push(heading1('10. Utility Functions (utils.ts)'));

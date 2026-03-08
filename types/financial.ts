@@ -233,9 +233,13 @@ export interface FinancialRatios {
   dupontOperatingMargin?: number;
   dupontROE_5F?: number;
 
-  // Altman Z'-Score
+  // Altman Z'-Score (Private Companies)
   altmanZScore?: number;
   altmanZone?: 'safe' | 'grey' | 'distress';
+
+  // Altman EM Z-Score (Emerging Markets — Altman et al. 2005)
+  altmanZScoreEM?: number;
+  altmanZoneEM?: 'safe' | 'grey' | 'distress';
 
   // Break-Even
   breakEvenRevenue?: number;

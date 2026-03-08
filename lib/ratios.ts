@@ -64,6 +64,13 @@ export function calculateFinancialRatios(
     const altmanZone: 'safe' | 'grey' | 'distress' =
         altmanZScore > 2.90 ? 'safe' : altmanZScore > 1.23 ? 'grey' : 'distress';
 
+    // ── Altman EM Z-Score for Emerging Markets (Altman et al. 2005) ──
+    // Z_EM = 6.56×X1 + 3.26×X2 + 6.72×X3 + 1.05×X4
+    // (no X5 — revenue/assets omitted for EM model)
+    const altmanZScoreEM = 6.56 * x1 + 3.26 * x2 + 6.72 * x3 + 1.05 * x4;
+    const altmanZoneEM: 'safe' | 'grey' | 'distress' =
+        altmanZScoreEM > 2.60 ? 'safe' : altmanZScoreEM > 1.10 ? 'grey' : 'distress';
+
     // ── Break-Even Analysis (I4) ────────────────────────
     // Assume: Variable Costs = COGS, Fixed Costs = SGA + D&A + Other OpEx
     const variableCostRatio = is.revenue !== 0 ? is.cogs / is.revenue : 0;
@@ -122,6 +129,10 @@ export function calculateFinancialRatios(
         // Altman Z'-Score (I3)
         altmanZScore,
         altmanZone,
+
+        // Altman EM Z-Score (I3b — Emerging Markets)
+        altmanZScoreEM,
+        altmanZoneEM,
 
         // Break-Even (I4)
         breakEvenRevenue,

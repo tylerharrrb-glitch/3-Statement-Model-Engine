@@ -27,6 +27,8 @@ export interface IncomeStatementInputs {
     currentNWC: number;
     previousNWC: number;
     capex: number;
+    // Retained earnings from prior period (for dividend blocking per Companies Law Art. 53)
+    previousRetainedEarnings: number;
 }
 
 export interface IncomeStatementResult {
@@ -119,7 +121,7 @@ export function calculateIncomeStatement(inputs: IncomeStatementInputs): IncomeS
         assumptions, yearIndex, previousRevenue, depreciationFromSchedule,
         interestExpenseFromDebt, interestIncomeFromCash,
         taxLossVintages, priorLegalReserve,
-        currentNWC, previousNWC, capex,
+        currentNWC, previousNWC, capex, previousRetainedEarnings,
     } = inputs;
     const yr = yearIndex;
     const currentYear = assumptions.startYear + yr;
@@ -199,8 +201,10 @@ export function calculateIncomeStatement(inputs: IncomeStatementInputs): IncomeS
     const netIncomeAfterEPD = distributableProfit - employeeProfitSharing;
 
     // Step 6–9: Dividends with WHT (Law 30/2023: 5% EGX-listed, 10% unlisted)
+    // IMP #10: Block dividends if cumulative RE is negative (Companies Law Art. 53)
+    const canPayDividends = netIncomeAfterEPD > 0 && (previousRetainedEarnings ?? 0) >= 0;
     const dividendPayoutRatio = assumptions.dividendPayoutRatio[yr] ?? 0;
-    const grossDividends = netIncomeAfterEPD > 0 ? netIncomeAfterEPD * dividendPayoutRatio : 0;
+    const grossDividends = canPayDividends ? netIncomeAfterEPD * dividendPayoutRatio : 0;
     const dividendWHTRate = assumptions.isEGXListed
         ? 0.05  // EGX-listed: 5% WHT
         : (assumptions.dividendWithholdingTaxRate ?? 0.10);  // Unlisted: 10% WHT

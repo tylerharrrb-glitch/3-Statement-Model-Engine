@@ -61,13 +61,13 @@ export default function RatiosPage() {
                 { label: 'Net Debt / EBITDA', compute: yr => sd(totalDebt(yr) - (bs[yr]?.cash ?? 0), ebitda(yr)), fmt: 'x', threshold: { good: 3.0, direction: 'below' } },
                 { label: 'Interest Coverage', compute: yr => sd(is[yr]?.ebit ?? 0, is[yr]?.interestExpense ?? 0), fmt: 'x', threshold: { good: 2.0, direction: 'above' } },
                 {
-                    label: 'DSCR', compute: yr => {
+                    label: 'DSCR (EBITDA)', compute: yr => {
                         const ci = cfIdx(yr);
                         if (ci < 0 || ci >= cf.length) return null;
-                        const dna = (is[yr]?.depreciation ?? 0) + (is[yr]?.amortization ?? 0);
+                        const eb = ebitda(yr);
                         const debtService = Math.abs(cf[ci]?.debtRepayment ?? 0) + (is[yr]?.interestExpense ?? 0);
-                        return debtService !== 0 ? ((is[yr]?.netIncome ?? 0) + dna) / debtService : null;
-                    }, fmt: 'x', threshold: { good: 1.25, direction: 'above' }
+                        return debtService !== 0 ? eb / debtService : null;
+                    }, fmt: 'x', threshold: { good: 1.50, direction: 'above' }
                 },
             ],
         },
@@ -107,7 +107,8 @@ export default function RatiosPage() {
             title: "Altman Z'-Score",
             icon: '🛡️',
             ratios: [
-                { label: "Z'-Score", compute: yr => results.ratios[yr]?.altmanZScore ?? null, fmt: 'number', threshold: { good: 2.90, direction: 'above' } },
+                { label: "Z'-Score (Private)", compute: yr => results.ratios[yr]?.altmanZScore ?? null, fmt: 'number', threshold: { good: 2.90, direction: 'above' } },
+                { label: "Z-Score (EM)", compute: yr => results.ratios[yr]?.altmanZScoreEM ?? null, fmt: 'number', threshold: { good: 2.60, direction: 'above' } },
             ],
         },
         {

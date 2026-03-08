@@ -58,7 +58,13 @@ export interface AssumptionSet {
     legalReservePercent: number;        // default: 0.05
     paidUpCapital: number;              // for 50% cap calculation (ISSUED capital)
     legalReserveCap: number;            // default: 0.50
-    initialLegalReserve: number;        // starting balance from prior years
+    initialLegalReserve: number;        // Prior cumulative legal reserve from periods before model start.
+    // Determines how much additional reserve can still be added.
+    // MAX = paidUpCapital × legalReserveCap (Law 159/1981 Art.40)
+
+    // RE Opening Balance Reconciliation (FIX #3: transparency for prior-period dividends)
+    priorPeriodDividendsPaidFromRE: number;  // Dividends declared before model start, settled in first
+    // historical period. Reconciles the RE opening balance gap.
 
     // Dividend Withholding Tax (Tax Law Art. 56 bis, amended by Law 30/2023)
     dividendWithholdingTaxRate: number; // 0.10 unlisted, 0.05 EGX-listed
@@ -231,6 +237,7 @@ export function getDefaultAssumptions(): AssumptionSet {
         paidUpCapital: 10_000,
         legalReserveCap: 0.50,
         initialLegalReserve: 0,
+        priorPeriodDividendsPaidFromRE: 0,
 
         // Dividend WHT (Law 30/2023)
         dividendWithholdingTaxRate: 0.10,  // 10% unlisted, 5% EGX-listed

@@ -64,8 +64,10 @@ export function calculateCashFlow(inputs: CashFlowInputs): CashFlowStatement {
     // Employee Profit Sharing paid as cash outflow
     const employeeProfitSharingPaid = -(incomeStatement.employeeProfitSharing);
 
-    // Dividend withholding tax — memo: portion of gross dividends remitted to ETA
-    // NOT a separate cash outflow — already included in dividendsPaid (= grossDividends)
+    // Dividend withholding tax — memo line showing ETA's portion of grossDividends
+    // NOT a separate cash outflow: dividendsPaid = grossDividends already includes
+    // both the net amount to shareholders AND the WHT remitted to ETA.
+    // Total cash out = grossDividends = netDividends + dividendWHT
     const dividendWHT = -(incomeStatement.dividendWHT);
 
     const cashFromFinancing = debtIssuance + debtRepayment + equityIssuance +
