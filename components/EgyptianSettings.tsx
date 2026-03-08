@@ -139,15 +139,22 @@ export default function EgyptianSettings() {
                         className="fin-input"
                         type="number"
                         step="0.1"
+                        min="10"
                         value={((a.taxRate[0] || 0) * 100).toFixed(1)}
                         onChange={(e) => {
-                            const val = parseFloat(e.target.value) / 100 || 0;
+                            let val = parseFloat(e.target.value) / 100 || 0;
+                            // Prevent clearly erroneous rates (< 10%)
+                            if (val > 0 && val < 0.10) val = 0.225;
                             const newRates = a.taxRate.map(() => val);
                             updateAssumption('taxRate', newRates);
                         }}
-                        style={{ width: 80, textAlign: 'right' }}
+                        style={{ width: 80, textAlign: 'right', borderColor: (a.taxRate[0] || 0) < 0.20 ? '#ef4444' : undefined }}
                     />
-                    <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>Source: Income Tax Law No. 91/2005</span>
+                    <span style={{ fontSize: 11, color: (a.taxRate[0] || 0) < 0.20 ? '#ef4444' : 'var(--text-muted)' }}>
+                        {(a.taxRate[0] || 0) < 0.20
+                            ? '⚠ Below 20% — Egyptian CIT is 22.5% (ETL 91/2005)'
+                            : 'Source: Income Tax Law No. 91/2005'}
+                    </span>
                 </div>
 
                 {/* EGX Listing Status */}

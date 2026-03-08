@@ -541,9 +541,26 @@ export const useModelStore = create<ModelStore>()(
                     );
                 }
 
+                // ── v5: Fix erroneous tax rates (1.5% stored as 0.015) ──
+                // Users may have typed "1.5" in the tax rate input thinking it's
+                // a percentage, but the field stores decimals. Any rate < 0.10
+                // is clearly wrong for Egypt (min CIT is 22.5%). Reset to 22.5%.
+                if (persisted?.scenarios && Array.isArray(persisted.scenarios)) {
+                    for (const s of persisted.scenarios) {
+                        const a = s?.assumptions;
+                        if (!a) continue;
+                        if (Array.isArray(a.taxRate)) {
+                            const hasErroneousRate = a.taxRate.some((r: number) => r > 0 && r < 0.10);
+                            if (hasErroneousRate) {
+                                a.taxRate = a.taxRate.map((r: number) => (r > 0 && r < 0.10) ? 0.225 : r);
+                            }
+                        }
+                    }
+                }
+
                 return persisted;
             },
-            version: 4, // v4: sync taxRate, update years, fix interest rates
+            version: 5, // v5: fix erroneous tax rates (1.5% → 22.5%)
         },
     ),
 );

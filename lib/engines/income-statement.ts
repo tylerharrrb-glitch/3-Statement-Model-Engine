@@ -158,7 +158,13 @@ export function calculateIncomeStatement(inputs: IncomeStatementInputs): IncomeS
 
     // Pre-Tax
     const ebt = ebit + interestIncome - interestExpense + otherIncomeExpense;
-    const taxRate = assumptions.taxRate[yr] ?? 0.225;
+    // Runtime safeguard: if taxRate is suspiciously low (< 10%), it's likely
+    // a data entry error (e.g., user typed 1.5 meaning 1.5% → stored as 0.015).
+    // Egyptian CIT minimum is 22.5%. Clamp to 0.225 for safety.
+    let taxRate = assumptions.taxRate[yr] ?? 0.225;
+    if (taxRate > 0 && taxRate < 0.10) {
+        taxRate = 0.225; // Force Egyptian standard rate
+    }
 
     // Tax with carryforward (C1)
     const taxResult = calculateTaxWithCarryforward(
