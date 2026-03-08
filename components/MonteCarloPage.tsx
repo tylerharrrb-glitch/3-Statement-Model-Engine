@@ -126,7 +126,7 @@ export default function MonteCarloPage() {
                                     tickFormatter={v => formatCurrency(v, currency, true)}
                                 />
                                 <YAxis tick={{ fill: '#8b8fa3', fontSize: 10 }} />
-                                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                                { }
                                 <Tooltip
                                     contentStyle={{ background: '#16161e', border: '1px solid #2a2a3e', borderRadius: 8, fontSize: 12 }}
                                     labelFormatter={v => formatCurrency(Number(v), currency)}

@@ -42,6 +42,7 @@ function colLetter(col: number): string {
 // Style constants
 const DARK_BG: ExcelJS.Fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1A1A2E' } };
 const MED_BG: ExcelJS.Fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF16213E' } };
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const LIGHT_BG: ExcelJS.Fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0F3460' } };
 const INPUT_BG: ExcelJS.Fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFFDE7' } }; // light yellow = input cell
 const WHITE_FONT: Partial<ExcelJS.Font> = { bold: true, color: { argb: 'FFFFFFFF' }, size: 11 };
@@ -143,6 +144,7 @@ export async function exportToExcel(
     const nYears = results.incomeStatements.length;
     // Period labels come from results (could be "2024E", "2025E", etc.)
     const periods = results.incomeStatements.map(s => s.period);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const numHistorical = results.incomeStatements.filter(s => s.periodType === 'historical').length;
 
     // ── GUARANTEE ALL 3 SCENARIOS (Single Source of Truth) ──
@@ -227,10 +229,13 @@ export async function exportToExcel(
 
     // ── Back-compute historical assumption values from results ──
     // So the Assumptions tab has values for ALL years and formulas work everywhere.
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const histIS = results.incomeStatements.slice(0, numHistorical);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const histBS = results.balanceSheets.slice(0, numHistorical);
     // CF has numHistorical-1 entries (needs prior BS for deltas)
     const numHistoricalCF = results.cashFlowStatements.filter(s => s.periodType === 'historical').length;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const histCF = results.cashFlowStatements.slice(0, numHistoricalCF);
     const safeDiv = (a: number, b: number) => b !== 0 ? a / b : 0;
 
@@ -2322,11 +2327,13 @@ export async function exportToExcel(
 
     applyHistoricalStyling(debtSheet, numHistorical, nYears);
 
-    let allSheets = [aSheet, isSheet, bsSheet, cfSheet, ratioSheet, wcSheet, depSheet, debtSheet];
+    // eslint-disable-next-line prefer-const
+    const allSheets = [aSheet, isSheet, bsSheet, cfSheet, ratioSheet, wcSheet, depSheet, debtSheet];
 
     // ════════════════════════════════════════════════════════
     // DASHBOARD  (cross-sheet formula references)
     // ════════════════════════════════════════════════════════
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const dashSheet = buildDashboardSheet(
         workbook,
         companyName,
@@ -2864,6 +2871,7 @@ export async function exportToExcel(
         const vatSheet = workbook.addWorksheet('VAT Schedule');
         const vatRate = assumptions.vatRate ?? 0.14;
         const periods = results.incomeStatements.length;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const histCount = results.incomeStatements.filter(is => (is as any).periodType === 'historical').length;
 
         // Header

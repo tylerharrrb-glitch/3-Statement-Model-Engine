@@ -4,9 +4,9 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { ModelState, Scenario, UndoEntry } from '@/types/scenario';
+import { ModelState, UndoEntry } from '@/types/scenario';
 import { AssumptionSet, getDefaultAssumptions, getDefaultHistoricalInputs, HistoricalInputs } from '@/types/assumptions';
-import { ModelResults } from '@/types/financial';
+import type { ModelResults } from '@/types/financial';
 import { EGYPTIAN_TAX_DEFAULTS } from '@/lib/schedules/egyptian-depreciation';
 import { createDefaultScenarios, createScenario } from '@/lib/scenario-manager';
 import { runFullModel } from '@/lib/engines/integrator';
