@@ -18,14 +18,22 @@ export function runFullModel(
     assumptions: AssumptionSet,
     historicalInputs: HistoricalInputs,
 ): ModelResults {
+    // ── SANITIZE HISTORICAL PERIOD LABELS ─────────────────
+    // Ensure labels count BACK from projectionStartYear:
+    // With startYear=2026 and 2 periods → ["2024", "2025"]
+    const numHistorical = historicalInputs.periods.length;
+    const correctedPeriods = historicalInputs.periods.map((_: string, index: number) => {
+        return `${assumptions.startYear - numHistorical + index}`;
+    });
+
     // ── BUILD HISTORICAL STATEMENTS ─────────────────────
     const historicalIS = buildHistoricalIncomeStatements(
-        historicalInputs.periods,
+        correctedPeriods,
         historicalInputs,
     );
 
     const historicalBS = buildHistoricalBalanceSheets(
-        historicalInputs.periods,
+        correctedPeriods,
         historicalInputs,
     );
 

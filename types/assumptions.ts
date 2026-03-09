@@ -208,8 +208,8 @@ export function getDefaultAssumptions(): AssumptionSet {
         amortizationAmount: fill(5_000),
 
         cbeRate: 0.2725,
-        interestRateOnDebt: [0.22, 0.22, 0.20, 0.18, 0.18],
-        interestRateOnCash: [0.22, 0.20, 0.18, 0.16, 0.15],
+        interestRateOnDebt: fill(0.22),
+        interestRateOnCash: fill(0.18),
         legacyDebtRate: 0.045,
         shortTermDebtAmount: fill(50_000),
         longTermDebtIssuance: fill(0),
@@ -244,7 +244,7 @@ export function getDefaultAssumptions(): AssumptionSet {
         isEGXListed: false,
 
         // Depreciation
-        depreciationMethod: 'egyptian-tax',
+        depreciationMethod: 'straight-line',
         assetMix: {
             buildings: 0.30,
             machinery: 0.35,
