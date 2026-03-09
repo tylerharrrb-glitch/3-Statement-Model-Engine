@@ -135,6 +135,7 @@ const ROW_SPECS: RowSpec[] = [
     { key: 'out_currentRatio', label: 'Current Ratio', fmt: '0.00"x"' },
     { key: 'out_debtToEquity', label: 'Debt / Equity', fmt: '0.00"x"' },
     { key: 'out_roe', label: 'ROE %', fmt: PCT_FMT },
+    { key: 'out_roic', label: 'ROIC %', fmt: PCT_FMT },
     { key: 'out_roa', label: 'ROA %', fmt: PCT_FMT },
 ];
 
@@ -222,11 +223,17 @@ function buildAllArrays(
     });
     out['amortizationAmount'] = allIS.map(is => is.amortization);
 
-    // Per-year interest rate arrays (from assumptions, NOT scalar fill)
-    out['interestRate'] = a.interestRateOnDebt.slice(0, nYears);
-    while (out['interestRate'].length < nYears) out['interestRate'].push(out['interestRate'][out['interestRate'].length - 1] ?? 0.22);
-    out['interestIncomeRate'] = a.interestRateOnCash.slice(0, nYears);
-    while (out['interestIncomeRate'].length < nYears) out['interestIncomeRate'].push(out['interestIncomeRate'][out['interestIncomeRate'].length - 1] ?? 0.15);
+    // Per-year interest rate arrays — pad to nYears (historical uses first value, projected uses indexed)
+    out['interestRate'] = Array.from({ length: nYears }, (_, i) =>
+        i < numHistorical
+            ? (a.interestRateOnDebt[0] ?? 0.22)
+            : (a.interestRateOnDebt[i - numHistorical] ?? a.interestRateOnDebt[a.interestRateOnDebt.length - 1] ?? 0.22)
+    );
+    out['interestIncomeRate'] = Array.from({ length: nYears }, (_, i) =>
+        i < numHistorical
+            ? (a.interestRateOnCash[0] ?? 0.18)
+            : (a.interestRateOnCash[i - numHistorical] ?? a.interestRateOnCash[a.interestRateOnCash.length - 1] ?? 0.18)
+    );
     out['shortTermDebtAmount'] = allBS.map(bs => bs.shortTermDebt);
     // LTD Issuance/Repayment — back-compute from BS LTD changes
     out['longTermDebtIssuance'] = allBS.map((bs, i) => {
@@ -332,6 +339,7 @@ function buildAllArrays(
     out['out_currentRatio'] = r.ratios.map(rat => rat.currentRatio ?? 0);
     out['out_debtToEquity'] = r.ratios.map(rat => rat.debtToEquity ?? 0);
     out['out_roe'] = r.ratios.map(rat => rat.roe ?? 0);
+    out['out_roic'] = r.ratios.map(rat => rat.roic ?? 0);
     out['out_roa'] = r.ratios.map(rat => rat.roa ?? 0);
 
     return out;

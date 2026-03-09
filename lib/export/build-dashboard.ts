@@ -199,6 +199,7 @@ export function buildDashboardSheet(
                 { label: 'Current Ratio', scenarioKey: 'out_currentRatio', fmt: '0.00"x"', bold: false },
                 { label: 'Debt / Equity', scenarioKey: 'out_debtToEquity', fmt: '0.00"x"', bold: false },
                 { label: 'ROE %', scenarioKey: 'out_roe', fmt: '0.0%', bold: false },
+                { label: 'ROIC %', scenarioKey: 'out_roic', fmt: '0.0%', bold: false },
                 { label: 'ROA %', scenarioKey: 'out_roa', fmt: '0.0%', bold: false },
             ],
         },
@@ -285,7 +286,7 @@ export function buildDashboardSheet(
                                 const rat = results.ratios[i];
                                 const ratMap: Record<string, number> = {
                                     out_currentRatio: rat.currentRatio ?? 0, out_debtToEquity: rat.debtToEquity ?? 0,
-                                    out_roe: rat.roe ?? 0, out_roa: rat.roa ?? 0,
+                                    out_roe: rat.roe ?? 0, out_roic: rat.roic ?? 0, out_roa: rat.roa ?? 0,
                                 };
                                 if (m.scenarioKey in ratMap) cachedResult = ratMap[m.scenarioKey];
                             }
@@ -347,6 +348,7 @@ export function buildDashboardSheet(
         { label: 'Cash Balance', formula: scenarioIF(termColIS, 'out_cash'), result: lastBS?.cash ?? 0, fmt: '$#,##0' },
         { label: 'Total Equity', formula: scenarioIF(termColIS, 'out_totalEquity'), result: lastBS?.totalEquity ?? 0, fmt: '$#,##0' },
         { label: 'ROE', formula: scenarioIF(termColIS, 'out_roe'), result: lastRatio?.roe ?? 0, fmt: '0.0%' },
+        { label: 'ROIC', formula: scenarioIF(termColIS, 'out_roic'), result: lastRatio?.roic ?? 0, fmt: '0.0%' },
         { label: 'Gross Margin', formula: scenarioIF(termColIS, 'out_grossMargin'), result: lastRatio?.grossMargin ?? 0, fmt: '0.0%' },
     ];
 

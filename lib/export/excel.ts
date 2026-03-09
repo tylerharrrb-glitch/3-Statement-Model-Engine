@@ -287,8 +287,17 @@ export async function exportToExcel(
     const allDepRate = allIS.map((is, i) => safeDiv(is.depreciation, allBS[i]?.grossPPE ?? 1));
     const allAmort = allIS.map(is => is.amortization);
 
-    const allInterestRate = assumptions.interestRateOnDebt;
-    const allInterestIncRate = assumptions.interestRateOnCash;
+    // Pad interest rate arrays to nYears (they may only have projectionYears entries)
+    const allInterestRate = Array.from({ length: nYears }, (_, i) =>
+        i < numHistorical
+            ? (assumptions.interestRateOnDebt[0] ?? 0.22)
+            : (assumptions.interestRateOnDebt[i - numHistorical] ?? assumptions.interestRateOnDebt[assumptions.interestRateOnDebt.length - 1] ?? 0.22)
+    );
+    const allInterestIncRate = Array.from({ length: nYears }, (_, i) =>
+        i < numHistorical
+            ? (assumptions.interestRateOnCash[0] ?? 0.18)
+            : (assumptions.interestRateOnCash[i - numHistorical] ?? assumptions.interestRateOnCash[assumptions.interestRateOnCash.length - 1] ?? 0.18)
+    );
     const allSTDebt = allBS.map(bs => bs.shortTermDebt);
     // LTD Issuance/Repayment — back-compute from BS LTD changes
     const allLTDIssuance = allBS.map((bs, i) => {
@@ -302,9 +311,14 @@ export async function exportToExcel(
         return change < 0 ? Math.abs(change) : 0;
     });
     const allCPLTD = allBS.map(bs => bs.currentPortionLTD);
-    // Dividend payout ratio: back-compute from engine CF dividends / IS net income
+    // Dividend payout ratio: historical = back-computed, projected = assumption value
     const allDivPayout = allIS.map((is, i) => {
-        // CF index for IS year i is i-1 (CF offset = 1)
+        if (i >= numHistorical) {
+            // Projected: use the assumption value directly (e.g. 0.30)
+            const projIdx = i - numHistorical;
+            return assumptions.dividendPayoutRatio?.[projIdx] ?? assumptions.dividendPayoutRatio?.[0] ?? 0.30;
+        }
+        // Historical: back-compute from engine CF dividends / IS net income
         const cfIdx = i - 1;
         if (cfIdx >= 0 && cfIdx < results.cashFlowStatements.length) {
             const ni = is.netIncome;
@@ -755,32 +769,49 @@ export async function exportToExcel(
     });
 
     // ── Profit Appropriation (Law 159/1981 — correct EAS order) ──
-    // Step 1: Legal Reserve = MIN(5% of NI, MAX(0, paidUpCap×50% − priorCumLR))
-    // Historical columns: hardcode 0 (no LR addition in actual records)
-    // Projected columns: cap-aware formula per Companies Law 159/1981
-    // Uses SUM-based self-reference within the IS tab to track cumulative LR
+    // Egyptian law mandates: EPD first, then Legal Reserve, then Distributable
+
+    // Step 1: EPD = NI × 10% (FIRST deduction — Egyptian Labor Law Art.41)
+    isRows['employeeProfitSharing'] = isRow;
+    isSheet.getCell(isRow, 1).value = 'Employee Profit Sharing (EPD)';
+    for (let i = 0; i < nYears; i++) {
+        const c = colLetter(i + 2);
+        const cell = isSheet.getCell(isRow, i + 2);
+        const raw = results.incomeStatements[i]?.employeeProfitSharing ?? 0;
+        if (i < numHistorical) {
+            cell.value = { formula: '0', result: 0 };
+        } else {
+            cell.value = { formula: `MAX(0,${c}${isRows['netIncome']}*${aRef('employeeProfitSharingRate', i)})`, result: Number(raw) || 0 };
+        }
+    }
+    styleRow(isSheet.getRow(isRow), { numFmt: NUM_FMT });
+    isRow++;
+
+    // Step 2: NI After EPD = NI − EPD
+    addISRow('Net Income After EPD', 'netIncomeAfterEPD', {
+        formula: (c) => `${c}${isRows['netIncome']}-${c}${isRows['employeeProfitSharing']}`,
+        value: yr => results.incomeStatements[yr]?.netIncomeAfterEPD ?? 0,
+        bold: true,
+    });
+
+    // Step 3: Legal Reserve = MIN(5% of NI, MAX(0, paidUpCap×50% − priorCumLR))
     isRows['legalReserveAddition'] = isRow;
-    isSheet.getCell(isRow, 1).value = 'Legal Reserve (5%)';
+    isSheet.getCell(isRow, 1).value = 'Legal Reserve Addition (5% NI)';
     for (let i = 0; i < nYears; i++) {
         const c = colLetter(i + 2);
         const cell = isSheet.getCell(isRow, i + 2);
         const raw = results.incomeStatements[i]?.legalReserveAddition ?? 0;
         if (i < numHistorical) {
-            // Historical: hardcode 0 — no LR was added in actual records
             cell.value = { formula: '0', result: 0 };
         } else {
-            // Projected: NI × 5% capped by (paidUpCapital × 50% − prior cumulative LR)
-            const niRef = `${c}${isRow}`;  // can't use isRows['netIncome'] here since we've incremented — use stored
             const niRow = isRows['netIncome'];
             const capRef = `${aRef('paidUpCapital', i)}*0.5`;
             const lrPct = aRef('legalReservePercent', i);
             if (i === numHistorical) {
-                // First projected year: no prior LR additions, so cap room = full cap
                 cell.value = { formula: `IF(${c}${niRow}<=0,0,MIN(${c}${niRow}*${lrPct},MAX(0,${capRef})))`, result: Number(raw) || 0 };
             } else {
-                // Subsequent projected years: prior cumulative LR = SUM of IS LR from first projected col to prior col
-                const firstProjCol = colLetter(numHistorical + 2); // first projected column letter
-                const prevC = colLetter(i + 1); // prior column letter
+                const firstProjCol = colLetter(numHistorical + 2);
+                const prevC = colLetter(i + 1);
                 const priorCumLR = `SUM(${firstProjCol}${isRow}:${prevC}${isRow})`;
                 cell.value = { formula: `IF(${c}${niRow}<=0,0,MIN(${c}${niRow}*${lrPct},MAX(0,${capRef}-${priorCumLR})))`, result: Number(raw) || 0 };
             }
@@ -789,34 +820,21 @@ export async function exportToExcel(
     styleRow(isSheet.getRow(isRow), { numFmt: NUM_FMT });
     isRow++;
 
-    // Step 2: Distributable Profit = NI - Legal Reserve
-    addISRow('Distributable Profit', 'distributableProfit', {
-        formula: (c) => `${c}${isRows['netIncome']}-${c}${isRows['legalReserveAddition']}`,
-        value: yr => results.incomeStatements[yr]?.distributableProfit ?? 0,
-        bold: true,
+    // Step 4: Cumulative Legal Reserve
+    addISRow('Cumulative Legal Reserve', 'cumulativeLegalReserve', {
+        formula: (c, yr) => {
+            if (yr < numHistorical) return '0';
+            if (yr === numHistorical) return `${c}${isRows['legalReserveAddition']}`;
+            const pc = colLetter(yr + 1);
+            return `${pc}${isRows['cumulativeLegalReserve']}+${c}${isRows['legalReserveAddition']}`;
+        },
+        value: yr => results.balanceSheets[yr]?.legalReserve ?? 0,
     });
 
-    // Step 3: EPD = 10% of Distributable Profit (SECOND deduction)
-    // Historical columns: hardcode 0 (no EPD was actually paid per company actuals)
-    isRows['employeeProfitSharing'] = isRow;
-    isSheet.getCell(isRow, 1).value = 'Employee Profit Sharing';
-    for (let i = 0; i < nYears; i++) {
-        const c = colLetter(i + 2);
-        const cell = isSheet.getCell(isRow, i + 2);
-        const raw = results.incomeStatements[i]?.employeeProfitSharing ?? 0;
-        if (i < numHistorical) {
-            cell.value = { formula: '0', result: 0 };
-        } else {
-            cell.value = { formula: `MAX(0,${c}${isRows['distributableProfit']}*${aRef('employeeProfitSharingRate', i)})`, result: Number(raw) || 0 };
-        }
-    }
-    styleRow(isSheet.getRow(isRow), { numFmt: NUM_FMT });
-    isRow++;
-
-    // Step 4: NI After EPD = Distributable Profit - EPD
-    addISRow('Net Income After EPD', 'netIncomeAfterEPD', {
-        formula: (c) => `${c}${isRows['distributableProfit']}-${c}${isRows['employeeProfitSharing']}`,
-        value: yr => results.incomeStatements[yr]?.netIncomeAfterEPD ?? 0,
+    // Step 5: Distributable Profit = NI − EPD − Legal Reserve Addition
+    addISRow('Distributable Profit', 'distributableProfit', {
+        formula: (c) => `${c}${isRows['netIncome']}-${c}${isRows['employeeProfitSharing']}-${c}${isRows['legalReserveAddition']}`,
+        value: yr => results.incomeStatements[yr]?.distributableProfit ?? 0,
         bold: true,
     });
 
@@ -1783,6 +1801,10 @@ export async function exportToExcel(
         `IF('Income Statement'!${c}${isRows['revenue']}=0,0,'Income Statement'!${c}${isRows['grossProfit']}/'Income Statement'!${c}${isRows['revenue']})`,
         'grossMargin');
 
+    addRatioRow('EBITDA Margin', (c) =>
+        `IF('Income Statement'!${c}${isRows['revenue']}=0,0,'Income Statement'!${c}${isRows['ebitda']}/'Income Statement'!${c}${isRows['revenue']})`,
+        'ebitdaMargin');
+
     addRatioRow('Operating Margin', (c) =>
         `IF('Income Statement'!${c}${isRows['revenue']}=0,0,'Income Statement'!${c}${isRows['ebit']}/'Income Statement'!${c}${isRows['revenue']})`,
         'operatingMargin');
@@ -1799,6 +1821,10 @@ export async function exportToExcel(
         `IF('Balance Sheet'!${c}${bsRows['totalEquity']}=0,0,'Income Statement'!${c}${isRows['netIncome']}/'Balance Sheet'!${c}${bsRows['totalEquity']})`,
         'roe');
 
+    addRatioRow('ROIC', (c) =>
+        `IF('Balance Sheet'!${c}${bsRows['totalEquity']}+'Balance Sheet'!${c}${bsRows['totalLiabilities']}=0,0,('Income Statement'!${c}${isRows['ebit']}*(1-${aRef('taxRate', 0)}))/('Balance Sheet'!${c}${bsRows['totalEquity']}+'Balance Sheet'!${c}${bsRows['shortTermDebt']}+'Balance Sheet'!${c}${bsRows['longTermDebt']}+'Balance Sheet'!${c}${bsRows['currentPortionLTD']}))`,
+        'roic');
+
     // Liquidity
     ratioSheet.getCell(rRow, 1).value = '── Liquidity ──';
     styleRow(ratioSheet.getRow(rRow), { subheader: true });
@@ -1807,6 +1833,10 @@ export async function exportToExcel(
     addRatioRow('Current Ratio', (c) =>
         `IF('Balance Sheet'!${c}${bsRows['totalCurrentLiabilities']}=0,0,'Balance Sheet'!${c}${bsRows['totalCurrentAssets']}/'Balance Sheet'!${c}${bsRows['totalCurrentLiabilities']})`,
         'currentRatio', '#,##0.00x');
+
+    addRatioRow('Interest Coverage (×)', (c) =>
+        `IF('Income Statement'!${c}${isRows['interestExpense']}=0,0,'Income Statement'!${c}${isRows['ebit']}/'Income Statement'!${c}${isRows['interestExpense']})`,
+        'interestCoverage', '#,##0.00x');
 
     addRatioRow('Debt to Equity', (c) =>
         `IF('Balance Sheet'!${c}${bsRows['totalEquity']}=0,0,'Balance Sheet'!${c}${bsRows['totalLiabilities']}/'Balance Sheet'!${c}${bsRows['totalEquity']})`,
