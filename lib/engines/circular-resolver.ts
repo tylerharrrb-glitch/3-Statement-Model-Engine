@@ -54,8 +54,9 @@ export function resolveCircularReferences(
 
     while (!converged && iteration < maxIterations) {
         // Step 1: Calculate NWC from prior BS for FCFF calc
-        const previousNWC = (previousBalanceSheet.accountsReceivable + previousBalanceSheet.inventory) -
-            (previousBalanceSheet.accountsPayable);
+        // NWC includes all CF working capital items: AR, Inv, Prepaid − AP, Accrued, DeferredRev
+        const previousNWC = (previousBalanceSheet.accountsReceivable + previousBalanceSheet.inventory + previousBalanceSheet.prepaidExpenses) -
+            (previousBalanceSheet.accountsPayable + previousBalanceSheet.accruedExpenses + previousBalanceSheet.deferredRevenue);
 
         // CapEx for the period
         const capex = previousIncomeStatement.revenue * (1 + (assumptions.revenueGrowthRate[yearIndex] ?? 0)) *
@@ -92,8 +93,8 @@ export function resolveCircularReferences(
         const balanceSheet = calculateBalanceSheet(bsInputs);
 
         // Step 4: Update IS with actual NWC for FCFF
-        const currentNWC = (balanceSheet.accountsReceivable + balanceSheet.inventory) -
-            (balanceSheet.accountsPayable);
+        const currentNWC = (balanceSheet.accountsReceivable + balanceSheet.inventory + balanceSheet.prepaidExpenses) -
+            (balanceSheet.accountsPayable + balanceSheet.accruedExpenses + balanceSheet.deferredRevenue);
         const isInputsUpdated: IncomeStatementInputs = {
             ...isInputs,
             currentNWC,
@@ -367,7 +368,7 @@ export function validateIntegration(
     const expectedApicDelta = cashFlow.equityIssuance + cashFlow.stockBasedComp;
     const apicConsistency = Math.abs(apicDelta - expectedApicDelta) < 0.01;
     details.push({
-        name: 'APIC Change = Equity Issuance',
+        name: 'APIC Change = SBC + Equity Issuance',
         passed: apicConsistency,
         expected: expectedApicDelta,
         actual: apicDelta,
@@ -389,22 +390,22 @@ export function validateIntegration(
         difference: incomeStatement.employeeProfitSharing - expectedEPD,
     });
 
-    // 18. NI After EPD = Distributable Profit - EPD (Law 159/1981: LR first, then EPD)
-    const expectedNIAfterEPD = incomeStatement.distributableProfit - incomeStatement.employeeProfitSharing;
+    // 18. NI After EPD = NI - EPD (Labor Law Art.41: EPD computed on NI directly)
+    const expectedNIAfterEPD = incomeStatement.netIncome - incomeStatement.employeeProfitSharing;
     const niAfterEPDCheck = Math.abs(incomeStatement.netIncomeAfterEPD - expectedNIAfterEPD) < 0.01;
     details.push({
-        name: 'NI After EPD = Distributable Profit - EPD',
+        name: 'NI After EPD = Net Income - EPD',
         passed: niAfterEPDCheck,
         expected: expectedNIAfterEPD,
         actual: incomeStatement.netIncomeAfterEPD,
         difference: incomeStatement.netIncomeAfterEPD - expectedNIAfterEPD,
     });
 
-    // 19. Distributable Profit = NI - Legal Reserve (Law 159/1981: LR comes before EPD)
-    const expectedDistributable = incomeStatement.netIncome - incomeStatement.legalReserveAddition;
+    // 19. Distributable Profit = NI - EPD - Legal Reserve (both deducted independently from NI)
+    const expectedDistributable = incomeStatement.netIncome - incomeStatement.employeeProfitSharing - incomeStatement.legalReserveAddition;
     const distributabelCheck = Math.abs(incomeStatement.distributableProfit - expectedDistributable) < 0.01;
     details.push({
-        name: 'Distributable Profit = Net Income - Legal Reserve',
+        name: 'Distributable Profit = NI - EPD - Legal Reserve',
         passed: distributabelCheck,
         expected: expectedDistributable,
         actual: incomeStatement.distributableProfit,
@@ -434,9 +435,9 @@ export function validateIntegration(
         difference: incomeStatement.netDividends - expectedNetDiv,
     });
 
-    // 22. Addition to RE = NI After EPD - Gross Dividends
-    // (LR goes to separate equity account, RE gets what's left after EPD and dividends)
-    const expectedAddToRE = incomeStatement.netIncomeAfterEPD - incomeStatement.grossDividends;
+    // 22. Addition to RE = Distributable Profit - Gross Dividends
+    // (Distributable = NI - EPD - LR; after dividends, remainder goes to RE)
+    const expectedAddToRE = incomeStatement.distributableProfit - incomeStatement.grossDividends;
     const addToRECheck = Math.abs(incomeStatement.additionToRE - expectedAddToRE) < 0.01;
     details.push({
         name: 'Addition to RE = NI After EPD - Gross Dividends',

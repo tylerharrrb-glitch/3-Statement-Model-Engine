@@ -566,7 +566,7 @@ children.push(...codeBlock([
 ]));
 children.push(heading3('calculateDCF(assumptions, results)'));
 children.push(...codeBlock([
-    '1. Extract projected FCFs from cash flow statements',
+    '1. Extract projected FCFF from Income Statement memo field (is.fcff)',
     '2. Discount each FCF: PV(FCF_i) = FCF_i / (1 + WACC)^i',
     '3. Terminal Value (Gordon Growth): TV = FCF_n × (1+g) / (WACC − g)',
     '   where g = terminalGrowthRate (default 5%)',
@@ -621,7 +621,7 @@ children.push(makeTable(
 // ── 5. RATIOS ───────────────────────────────────────────
 children.push(pageBreak());
 children.push(heading1('5. Financial Ratios (ratios.ts)'));
-children.push(para('calculateFinancialRatios(is, bs, prevBS) computes 23 ratios using current-period IS and BS data with average balances where appropriate:'));
+children.push(para('calculateFinancialRatios(is, bs, prevBS) and enrichRatios() compute 35+ ratios:'));
 children.push(makeTable(
     ['Category', 'Ratios', 'Notes'],
     [
@@ -629,6 +629,11 @@ children.push(makeTable(
         ['Liquidity', 'Current Ratio, Quick Ratio, Cash Ratio', 'Standard formulas'],
         ['Leverage', 'Debt-to-Equity, Debt-to-Assets, Interest Coverage', 'Total Debt = ST + LT + Current LTD; Coverage = EBIT/IntExp'],
         ['Efficiency', 'Asset Turnover, Inventory Turnover, Receivables Turnover, DSO, DIO, DPO, CCC', 'CCC = DSO + DIO − DPO'],
+        ['DuPont (3-Factor)', 'Net Margin × Asset Turnover × Equity Multiplier = ROE', 'Classic DuPont decomposition'],
+        ['DuPont (5-Factor)', 'Tax Burden × Interest Burden × Operating Margin × Asset Turnover × Equity Multiplier', 'Extended DuPont with tax/interest isolation'],
+        ['Altman Z-Score', 'Z-prime model (private companies)', 'safe > 2.9, grey 1.23\u20132.9, distress < 1.23'],
+        ['Altman Z-Score EM', '6.56×X1 + 3.26×X2 + 6.72×X3 + 1.05×X4', 'Emerging Markets model (Altman 2005): safe > 2.60, grey 1.10–2.60, distress < 1.10'],
+        ['Break-Even', 'Break-Even Revenue = Fixed Costs / Contribution Margin Ratio', 'Margin of Safety = (Revenue − BER) / Revenue'],
     ],
     [20, 45, 35],
 ));

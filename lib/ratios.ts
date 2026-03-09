@@ -16,12 +16,12 @@ export function calculateFinancialRatios(
     const avgInventory = (bs.inventory + previousBS.inventory) / 2;
     const avgAR = (bs.accountsReceivable + previousBS.accountsReceivable) / 2;
 
-    // Invested Capital = Total Equity + Total Debt - Cash
+    // Invested Capital = Total Equity + Total Interest-Bearing Debt
+    // Per EAS and standard practice — Cash is NOT netted; it's an operating asset
     const totalDebt = bs.shortTermDebt + bs.longTermDebt + bs.currentPortionLTD;
-    const investedCapital = bs.totalEquity + totalDebt - bs.cash;
-    const avgInvestedCapital = (investedCapital +
-        (previousBS.totalEquity + previousBS.shortTermDebt + previousBS.longTermDebt +
-            previousBS.currentPortionLTD - previousBS.cash)) / 2;
+    const investedCapital = bs.totalEquity + totalDebt;
+    const prevTotalDebt = previousBS.shortTermDebt + previousBS.longTermDebt + previousBS.currentPortionLTD;
+    const avgInvestedCapital = (investedCapital + (previousBS.totalEquity + prevTotalDebt)) / 2;
 
     // NOPAT = EBIT * (1 - tax rate)
     const nopat = is.ebit * (1 - is.taxRate);
@@ -92,7 +92,7 @@ export function calculateFinancialRatios(
         netMargin: is.netMargin,
         roe,
         roa,
-        roic: avgInvestedCapital !== 0 ? nopat / avgInvestedCapital : 0,
+        roic: investedCapital !== 0 ? nopat / investedCapital : 0,
 
         // Liquidity
         currentRatio: bs.totalCurrentLiabilities !== 0

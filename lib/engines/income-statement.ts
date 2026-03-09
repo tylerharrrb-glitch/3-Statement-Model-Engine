@@ -178,9 +178,13 @@ export function calculateIncomeStatement(inputs: IncomeStatementInputs): IncomeS
     const netIncome = ebt - taxExpense;
     const netMargin = revenue !== 0 ? netIncome / revenue : 0;
 
-    // ── Profit Appropriation (EAS Correct Sequence — Law 159/1981) ──
+    // ── Profit Appropriation (Egyptian Law — Labor Law Art.41 + Companies Law Art.40-42) ──
+    // Both EPD and Legal Reserve are computed INDEPENDENTLY on Net Income.
+    // Neither is deducted before computing the other.
+
     // Step 1: Net Income (already computed above)
-    // Step 2: Legal Reserve = 5% × Net Income (FIRST deduction)
+
+    // Step 2: Legal Reserve = 5% × Net Income (Companies Law Art.40)
     const legalReserve = calculateLegalReserveAddition(
         netIncome,
         priorLegalReserve,
@@ -190,33 +194,33 @@ export function calculateIncomeStatement(inputs: IncomeStatementInputs): IncomeS
         assumptions.enableLegalReserve ?? true,
     );
 
-    // Step 3: Distributable Profit = NI − Legal Reserve
-    const distributableProfit = netIncome - legalReserve.addition;
-
-    // Step 4: EPD = 10% × MAX(0, Distributable Profit) (SECOND deduction)
+    // Step 3: EPD = 10% × Net Income (Labor Law Art.41 — computed on NI directly)
     // Capped at total annual payroll (if provided)
     const rawEPD = (
-        (assumptions.enableEmployeeProfitShare ?? true) && distributableProfit > 0
-    ) ? distributableProfit * (assumptions.employeeProfitSharingRate ?? 0.10) : 0;
+        (assumptions.enableEmployeeProfitShare ?? true) && netIncome > 0
+    ) ? netIncome * (assumptions.employeeProfitSharingRate ?? 0.10) : 0;
     const epdPayrollCap = assumptions.totalAnnualPayroll;
     const employeeProfitSharing = epdPayrollCap != null && epdPayrollCap > 0
         ? Math.min(rawEPD, epdPayrollCap)
         : rawEPD;
 
-    // Step 5: NI After EPD = Distributable Profit − EPD
-    const netIncomeAfterEPD = distributableProfit - employeeProfitSharing;
+    // Step 4: NI After EPD = NI − EPD
+    const netIncomeAfterEPD = netIncome - employeeProfitSharing;
+
+    // Step 5: Distributable Profit = NI − EPD − Legal Reserve
+    const distributableProfit = netIncome - employeeProfitSharing - legalReserve.addition;
 
     // Step 6–9: Dividends with WHT (Law 30/2023: 5% EGX-listed, 10% unlisted)
     // IMP #10: Block dividends if cumulative RE is negative (Companies Law Art. 53)
-    const canPayDividends = netIncomeAfterEPD > 0 && (previousRetainedEarnings ?? 0) >= 0;
+    const canPayDividends = distributableProfit > 0 && (previousRetainedEarnings ?? 0) >= 0;
     const dividendPayoutRatio = assumptions.dividendPayoutRatio[yr] ?? 0;
-    const grossDividends = canPayDividends ? netIncomeAfterEPD * dividendPayoutRatio : 0;
+    const grossDividends = canPayDividends ? distributableProfit * dividendPayoutRatio : 0;
     const dividendWHTRate = assumptions.isEGXListed
         ? 0.05  // EGX-listed: 5% WHT
         : (assumptions.dividendWithholdingTaxRate ?? 0.10);  // Unlisted: 10% WHT
     const dividendWHT = grossDividends * dividendWHTRate;
     const netDividends = grossDividends - dividendWHT;
-    const additionToRE = netIncomeAfterEPD - grossDividends;
+    const additionToRE = distributableProfit - grossDividends;
 
     // NOPAT (C7 memo)
     const effectiveTaxRate = ebt > 0 ? taxExpense / ebt : taxRate;

@@ -528,16 +528,16 @@ export const useModelStore = create<ModelStore>()(
                     }
                 }
 
-                // ── v4: Update historical year periods from 2023/2024 → 2024/2025 ──
+                // ── v4/v6: Ensure historical period labels always match year ──
+                // Fixes v4 double-migration bug where both entries got period '2025'
                 if (persisted?.historicalData && Array.isArray(persisted.historicalData)) {
                     for (const h of persisted.historicalData) {
-                        if (h.year === 2023) { h.year = 2024; h.period = '2024'; }
-                        else if (h.year === 2024) { h.year = 2025; h.period = '2025'; }
+                        h.period = String(h.year);
                     }
                 }
-                if (persisted?.historicalInputs?.periods) {
-                    persisted.historicalInputs.periods = persisted.historicalInputs.periods.map(
-                        (p: string) => p === '2023' ? '2024' : p === '2024' ? '2025' : p
+                if (persisted?.historicalInputs?.periods && persisted?.historicalData && Array.isArray(persisted.historicalData)) {
+                    persisted.historicalInputs.periods = persisted.historicalData.map(
+                        (h: { year: number }) => String(h.year)
                     );
                 }
 
@@ -560,7 +560,7 @@ export const useModelStore = create<ModelStore>()(
 
                 return persisted;
             },
-            version: 5, // v5: fix erroneous tax rates (1.5% → 22.5%)
+            version: 6, // v6: fix period labels + ROIC/FCFF formulas
         },
     ),
 );
