@@ -838,7 +838,7 @@ export async function exportToExcel(
         bold: true,
     });
 
-    // Step 5: Gross Dividends = NI After EPD × Payout Ratio
+    // Step 5: Gross Dividends = Distributable Profit × Payout Ratio
     // Historical columns: hardcode 0 (dividends declared are 0 for historical years)
     isRows['grossDividends'] = isRow;
     isSheet.getCell(isRow, 1).value = 'Gross Dividends';
@@ -849,7 +849,7 @@ export async function exportToExcel(
         if (i < numHistorical) {
             cell.value = { formula: '0', result: 0 };
         } else {
-            cell.value = { formula: `MAX(0,${c}${isRows['netIncomeAfterEPD']}*${aRef('dividendPayoutRatio', i)})`, result: Number(raw) || 0 };
+            cell.value = { formula: `MAX(0,${c}${isRows['distributableProfit']}*${aRef('dividendPayoutRatio', i)})`, result: Number(raw) || 0 };
         }
     }
     styleRow(isSheet.getRow(isRow), { numFmt: NUM_FMT });
@@ -867,9 +867,9 @@ export async function exportToExcel(
         value: yr => results.incomeStatements[yr]?.netDividends ?? 0,
     });
 
-    // Step 6: Addition to RE = NI After EPD - Gross Dividends
+    // Step 6: Addition to RE = Distributable Profit - Gross Dividends
     addISRow('Addition to Retained Earnings', 'additionToRE', {
-        formula: (c) => `${c}${isRows['netIncomeAfterEPD']}-${c}${isRows['grossDividends']}`,
+        formula: (c) => `${c}${isRows['distributableProfit']}-${c}${isRows['grossDividends']}`,
         value: yr => results.incomeStatements[yr]?.additionToRE ?? 0,
         bold: true,
     });
@@ -1329,6 +1329,7 @@ export async function exportToExcel(
                 'out_currentRatio': 0,
                 'out_debtToEquity': 0,
                 'out_roe': 0,
+                'out_roic': 0,
                 'out_roa': 0,
             };
 
@@ -1410,6 +1411,13 @@ export async function exportToExcel(
                                     const stDebt2 = base.shortTermDebt ?? 0;
                                     const ltd2 = base.longTermDebt ?? 0;
                                     formula = `'${cs}'!${c}${stDebt2}+'${cs}'!${c}${ltd2}`;
+                                    break;
+                                }
+                                case 'out_roic': {
+                                    const stDebtR = base.shortTermDebt ?? 0;
+                                    const ltdR = base.longTermDebt ?? 0;
+                                    const cpltdR = base.currentPortionLTD ?? 0;
+                                    formula = `IF('${cs}'!${c}${base.totalEquity}+'${cs}'!${c}${stDebtR}+'${cs}'!${c}${ltdR}+'${cs}'!${c}${cpltdR}=0,0,'${cs}'!${c}${base.nopat}/('${cs}'!${c}${base.totalEquity}+'${cs}'!${c}${stDebtR}+'${cs}'!${c}${ltdR}+'${cs}'!${c}${cpltdR}))`;
                                     break;
                                 }
                                 default:
@@ -1615,15 +1623,15 @@ export async function exportToExcel(
         value: j => results.cashFlowStatements[j]?.debtRepayment ?? 0,
     });
 
-    // Dividends: historical = engine back-solved (from RE changes), projected = NI After EPD * PayoutRatio
+    // Dividends: historical = engine back-solved (from RE changes), projected = Distributable Profit * PayoutRatio
     addCFRow('Dividends Paid', 'dividendsPaid', {
         formula: (_cfCol, isCol, isYr) => {
             if (isYr < numHistorical) {
                 // Historical: use engine-computed value from Assumptions tab
                 return `${aRef('dividendsPaidComputed', isYr)}`;
             }
-            // Projected: -MAX(0, NetIncomeAfterEPD * PayoutRatio)
-            return `-MAX(0,'Income Statement'!${isCol}${isRows['netIncomeAfterEPD']}*${aRef('dividendPayoutRatio', isYr)})`;
+            // Projected: -MAX(0, DistributableProfit * PayoutRatio)
+            return `-MAX(0,'Income Statement'!${isCol}${isRows['distributableProfit']}*${aRef('dividendPayoutRatio', isYr)})`;
         },
         value: j => results.cashFlowStatements[j]?.dividendsPaid ?? 0,
     });
@@ -1764,6 +1772,22 @@ export async function exportToExcel(
     // but those created a circular chain: Interest → NI → CF → Cash → Interest
     // that Excel could not resolve, causing $0 values throughout.
 
+    // (B) IS FCFF — replace hardcoded values with live formulas
+    // The IS tab always shows the active (base) scenario results,
+    // so FCFF references _Calc_Base directly.
+    {
+        const fcffRow = isRows['fcff'];
+        const baseSheet = calcSheets.base?.sheetName ?? '_Calc_Base';
+        const calcFcffRow = calcSheets.base?.rows?.fcff ?? 32;
+        for (let i = numHistorical; i < nYears; i++) {
+            const c = colLetter(i + 2);
+            const cell = isSheet.getCell(fcffRow, i + 2);
+            const result = results.incomeStatements[i]?.fcff ?? 0;
+            cell.value = { formula: `'${baseSheet}'!${c}${calcFcffRow}`, result: Number(result) || 0 };
+            cell.numFmt = NUM_FMT;
+        }
+    }
+
     // ════════════════════════════════════════════════════════
     // TAB 5 — RATIO ANALYSIS  (formulas from statement tabs)
     // ════════════════════════════════════════════════════════
@@ -1821,8 +1845,8 @@ export async function exportToExcel(
         `IF('Balance Sheet'!${c}${bsRows['totalEquity']}=0,0,'Income Statement'!${c}${isRows['netIncome']}/'Balance Sheet'!${c}${bsRows['totalEquity']})`,
         'roe');
 
-    addRatioRow('ROIC', (c) =>
-        `IF('Balance Sheet'!${c}${bsRows['totalEquity']}+'Balance Sheet'!${c}${bsRows['totalLiabilities']}=0,0,('Income Statement'!${c}${isRows['ebit']}*(1-${aRef('taxRate', 0)}))/('Balance Sheet'!${c}${bsRows['totalEquity']}+'Balance Sheet'!${c}${bsRows['shortTermDebt']}+'Balance Sheet'!${c}${bsRows['longTermDebt']}+'Balance Sheet'!${c}${bsRows['currentPortionLTD']}))`,
+    addRatioRow('ROIC', (c, yr) =>
+        `IF('Balance Sheet'!${c}${bsRows['totalEquity']}+'Balance Sheet'!${c}${bsRows['totalLiabilities']}=0,0,('Income Statement'!${c}${isRows['ebit']}*(1-${aRef('taxRate', yr)}))/('Balance Sheet'!${c}${bsRows['totalEquity']}+'Balance Sheet'!${c}${bsRows['shortTermDebt']}+'Balance Sheet'!${c}${bsRows['longTermDebt']}+'Balance Sheet'!${c}${bsRows['currentPortionLTD']}))`,
         'roic');
 
     // Liquidity

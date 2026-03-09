@@ -743,9 +743,9 @@ children.push(makeTable(
 ));
 children.push(heading3('Export Sub-Modules'));
 children.push(bullet('build-company-info.ts (131 lines) — Company metadata, regulatory defaults, color-coded editable vs auto-computed cells'));
-children.push(bullet('build-scenarios.ts (445 lines) — Builds all assumption arrays per scenario; maps ROW_SPECS keys to row positions for cross-sheet references'));
-children.push(bullet('build-calc-sheets.ts (707 lines) — Creates hidden formula sheets (_Calc_Base, _Calc_Opt, _Calc_Con) with 90-row IS/BS/CF replicas that reference the Scenarios tab'));
-children.push(bullet('build-dashboard.ts (397 lines) — Scenario comparison with IF() formulas switching between scenario calc sheets based on a dropdown'));
+children.push(bullet('build-scenarios.ts (471 lines) — Builds all assumption arrays per scenario; maps ROW_SPECS keys for cross-sheet references; includes ROIC, ICR, EBITDA Margin in Dashboard output metrics'));
+children.push(bullet('build-calc-sheets.ts (835 lines) — Creates hidden formula sheets (_Calc_Base, _Calc_Opt, _Calc_Con) with 105-row IS/BS/CF replicas including Distributable Profit, Cumulative Legal Reserve, NOPAT, FCFF, EPD Paid rows'));
+children.push(bullet('build-dashboard.ts (397 lines) — Scenario comparison with IF() formulas; includes Revenue, EBITDA, NI, EPS, CFO, FCF, Total Equity, ROIC, ICR, EBITDA Margin, ROE, ROA, Current Ratio, D/E'));
 children.push(heading3('Key Excel Architecture'));
 children.push(bullet('Historical vs Projected visual styling — historical columns have blue tint, vertical separator border'));
 children.push(bullet('Back-computed assumptions — historical DSO, DIO, DPO are reverse-calculated from actual BS/IS data'));

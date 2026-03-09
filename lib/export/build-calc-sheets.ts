@@ -690,9 +690,9 @@ function buildOneCalcSheet(cfg: CalcSheetConfig): CalcSheetRowMap {
             setF(R.legalReserveEquity, yr,
                 `${c}${R.cumulativeLegalReserve}`,
                 bsData?.legalReserve ?? 0);
-            // Retained Earnings — NI After EPD - Dividends (LR already subtracted)
+            // Retained Earnings — Distributable - Gross Dividends (using pre-computed Addition to RE)
             setF(R.retainedEarnings, yr,
-                `${pc}${R.retainedEarnings}+${c}${R.netIncomeAfterEPD}+${c}${R.cf_dividends}`,
+                `${pc}${R.retainedEarnings}+${c}${R.additionToRE}`,
                 bsData?.retainedEarnings ?? 0);
             // Treasury Stock — independent formula: prev - repurchases
             setF(R.treasuryStock, yr,
@@ -743,9 +743,9 @@ function buildOneCalcSheet(cfg: CalcSheetConfig): CalcSheetRowMap {
             // CFF
             setF(R.cf_debtIssuance, yr, sr('longTermDebtIssuance'), cfData?.debtIssuance ?? 0);
             setF(R.cf_debtRepayment, yr, `-ABS(${sr('longTermDebtRepayment')})`, cfData?.debtRepayment ?? 0);
-            // Dividends = -MAX(0, NI After EPD * payout)
+            // Dividends = -MAX(0, Distributable Profit * payout)
             setF(R.cf_dividends, yr,
-                `-MAX(0,${c}${R.netIncomeAfterEPD}*${sr('dividendPayoutRatio')})`,
+                `-MAX(0,${c}${R.distributableProfit}*${sr('dividendPayoutRatio')})`,
                 cfData?.dividendsPaid ?? 0);
             // Employee Profit Sharing Paid = -EPD (cash outflow)
             setF(R.cf_epdPaid, yr,
