@@ -54,9 +54,8 @@ export function resolveCircularReferences(
 
     while (!converged && iteration < maxIterations) {
         // Step 1: Calculate NWC from prior BS for FCFF calc
-        // NWC includes all CF working capital items: AR, Inv, Prepaid − AP, Accrued, DeferredRev
-        const previousNWC = (previousBalanceSheet.accountsReceivable + previousBalanceSheet.inventory + previousBalanceSheet.prepaidExpenses) -
-            (previousBalanceSheet.accountsPayable + previousBalanceSheet.accruedExpenses + previousBalanceSheet.deferredRevenue);
+        const previousNWC = (previousBalanceSheet.accountsReceivable + previousBalanceSheet.inventory) -
+            (previousBalanceSheet.accountsPayable);
 
         // CapEx for the period
         const capex = previousIncomeStatement.revenue * (1 + (assumptions.revenueGrowthRate[yearIndex] ?? 0)) *
@@ -93,8 +92,8 @@ export function resolveCircularReferences(
         const balanceSheet = calculateBalanceSheet(bsInputs);
 
         // Step 4: Update IS with actual NWC for FCFF
-        const currentNWC = (balanceSheet.accountsReceivable + balanceSheet.inventory + balanceSheet.prepaidExpenses) -
-            (balanceSheet.accountsPayable + balanceSheet.accruedExpenses + balanceSheet.deferredRevenue);
+        const currentNWC = (balanceSheet.accountsReceivable + balanceSheet.inventory) -
+            (balanceSheet.accountsPayable);
         const isInputsUpdated: IncomeStatementInputs = {
             ...isInputs,
             currentNWC,

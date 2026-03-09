@@ -327,7 +327,7 @@ function buildOneCalcSheet(cfg: CalcSheetConfig): CalcSheetRowMap {
             setF(R.revenue, yr, isRef(isRows, 'revenue', yr), isData?.revenue ?? 0);
             setF(R.revenueGrowth, yr,
                 yr === 0 ? '0' : `(${c}${R.revenue}-${pc}${R.revenue})/${pc}${R.revenue}`,
-                0, PCT_FMT);
+                isData?.revenueGrowthRate ?? 0, PCT_FMT);
             setF(R.cogs, yr, isRef(isRows, 'cogs', yr), isData?.cogs ?? 0);
             setF(R.grossProfit, yr, `${c}${R.revenue}-${c}${R.cogs}`, isData?.grossProfit ?? 0);
             setF(R.sga, yr, isRef(isRows, 'sgaExpense', yr), isData?.sgaExpense ?? 0);
@@ -350,15 +350,17 @@ function buildOneCalcSheet(cfg: CalcSheetConfig): CalcSheetRowMap {
             setF(R.netIncome, yr, `${c}${R.ebt}-${c}${R.tax}`, isData?.netIncome ?? 0);
             // Legal Reserve — Law 159/1981: 5% of NI, cap at 50% of issued capital
             setF(R.legalReserveAddition, yr, '0', isData?.legalReserveAddition ?? 0);
-            setF(R.cumulativeLegalReserve, yr, '0', 0);
-            setF(R.distributableProfit, yr, `${c}${R.netIncome}-${c}${R.legalReserveAddition}`,
-                (isData?.netIncome ?? 0) - (isData?.legalReserveAddition ?? 0));
-            // EPD — compute from Distributable Profit for historical consistency
+            setF(R.cumulativeLegalReserve, yr, '0', bsData?.legalReserve ?? 0);
+            // EPD = NI × rate (Egyptian Labor Law Art.41) — computed before Distributable
             setF(R.employeeProfitSharing, yr,
-                `MAX(0,${c}${R.distributableProfit}*${scenRef(scenarioRows, blockName, 'employeeProfitSharingRate', yr)})`,
+                `MAX(0,${c}${R.netIncome}*${scenRef(scenarioRows, blockName, 'employeeProfitSharingRate', yr)})`,
                 isData?.employeeProfitSharing ?? 0);
+            // Distributable = NI - EPD - Legal Reserve
+            setF(R.distributableProfit, yr,
+                `${c}${R.netIncome}-${c}${R.employeeProfitSharing}-${c}${R.legalReserveAddition}`,
+                isData?.distributableProfit ?? 0);
             setF(R.netIncomeAfterEPD, yr,
-                `${c}${R.distributableProfit}-${c}${R.employeeProfitSharing}`,
+                `${c}${R.netIncome}-${c}${R.employeeProfitSharing}`,
                 isData?.netIncomeAfterEPD ?? 0);
 
             // BS — reference existing BS tab
@@ -392,7 +394,7 @@ function buildOneCalcSheet(cfg: CalcSheetConfig): CalcSheetRowMap {
             setF(R.totalLiabilities, yr, `${c}${R.totalCL}+${c}${R.totalNCL}`, bsData?.totalLiabilities ?? 0);
             setF(R.commonStock, yr, bsRef(bsRows, 'commonStock', yr), bsData?.commonStock ?? 0);
             setF(R.apic, yr, bsRef(bsRows, 'additionalPaidInCapital', yr), bsData?.additionalPaidInCapital ?? 0);
-            setF(R.legalReserveEquity, yr, `${c}${R.cumulativeLegalReserve}`, 0);
+            setF(R.legalReserveEquity, yr, `${c}${R.cumulativeLegalReserve}`, bsData?.legalReserve ?? 0);
             setF(R.retainedEarnings, yr, bsRef(bsRows, 'retainedEarnings', yr), bsData?.retainedEarnings ?? 0);
             setF(R.treasuryStock, yr, bsRef(bsRows, 'treasuryStock', yr), bsData?.treasuryStock ?? 0);
             setF(R.oci, yr, bsRef(bsRows, 'otherComprehensiveIncome', yr), bsData?.otherComprehensiveIncome ?? 0);
@@ -459,7 +461,7 @@ function buildOneCalcSheet(cfg: CalcSheetConfig): CalcSheetRowMap {
             setF(R.revenue, yr,
                 `${pc}${R.revenue}*(1+${sr('revenueGrowthRate')})`,
                 isData?.revenue ?? 0);
-            setF(R.revenueGrowth, yr, sr('revenueGrowthRate'), 0, PCT_FMT);
+            setF(R.revenueGrowth, yr, sr('revenueGrowthRate'), isData?.revenueGrowthRate ?? 0, PCT_FMT);
 
             // COGS = Revenue * COGS%
             setF(R.cogs, yr, `${c}${R.revenue}*${sr('cogsPercent')}`, isData?.cogs ?? 0);
@@ -523,19 +525,18 @@ function buildOneCalcSheet(cfg: CalcSheetConfig): CalcSheetRowMap {
                 yr === numHistorical
                     ? `${c}${R.legalReserveAddition}`  // first projected year
                     : `${pc}${R.cumulativeLegalReserve}+${c}${R.legalReserveAddition}`,
-                0);
-            // Distributable Profit = NI - Legal Reserve Addition
-            setF(R.distributableProfit, yr,
-                `${c}${R.netIncome}-${c}${R.legalReserveAddition}`,
-                (isData?.netIncome ?? 0) - (isData?.legalReserveAddition ?? 0));
-
-            // EPD = MAX(0, Distributable Profit × EPD rate) — Law 159/1981
+                bsData?.legalReserve ?? 0);
+            // EPD = NI × rate (Egyptian Labor Law Art.41) — computed before Distributable
             setF(R.employeeProfitSharing, yr,
-                `MAX(0,${c}${R.distributableProfit}*${sr('employeeProfitSharingRate')})`,
+                `MAX(0,${c}${R.netIncome}*${sr('employeeProfitSharingRate')})`,
                 isData?.employeeProfitSharing ?? 0);
-            // NI After EPD = Distributable Profit - EPD
+            // Distributable Profit = NI - EPD - Legal Reserve Addition
+            setF(R.distributableProfit, yr,
+                `${c}${R.netIncome}-${c}${R.employeeProfitSharing}-${c}${R.legalReserveAddition}`,
+                isData?.distributableProfit ?? 0);
+            // NI After EPD = NI - EPD
             setF(R.netIncomeAfterEPD, yr,
-                `${c}${R.distributableProfit}-${c}${R.employeeProfitSharing}`,
+                `${c}${R.netIncome}-${c}${R.employeeProfitSharing}`,
                 isData?.netIncomeAfterEPD ?? 0);
 
             // ── BS formulas ──
@@ -625,12 +626,12 @@ function buildOneCalcSheet(cfg: CalcSheetConfig): CalcSheetRowMap {
             setF(R.commonStock, yr, sr('commonStock'), bsData?.commonStock ?? 0);
             // APIC — equity issuance only (SBC does NOT go to APIC)
             setF(R.apic, yr,
-                `${pc}${R.apic}+${sr('equityIssuance')}`,
+                `${pc}${R.apic}+${c}${R.sbc}+${sr('equityIssuance')}`,
                 bsData?.additionalPaidInCapital ?? 0);
             // Legal Reserve (Equity) — cumulative from IS
             setF(R.legalReserveEquity, yr,
                 `${c}${R.cumulativeLegalReserve}`,
-                0);
+                bsData?.legalReserve ?? 0);
             // Retained Earnings — NI After EPD - Dividends (LR already subtracted)
             setF(R.retainedEarnings, yr,
                 `${pc}${R.retainedEarnings}+${c}${R.netIncomeAfterEPD}+${c}${R.cf_dividends}`,
