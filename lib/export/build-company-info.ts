@@ -59,7 +59,13 @@ function infoRow(ws: ExcelJS.Worksheet, row: number, label: string, value: strin
     for (let i = 3; i <= 4; i++) ws.getCell(row, i).border = THIN_BORDER;
 }
 
-export function buildCompanyInfoSheet(workbook: ExcelJS.Workbook, companyName: string): ExcelJS.Worksheet {
+interface CompanyInfoConfig {
+    startYear?: number;
+    historicalYears?: number;
+    projectionYears?: number;
+}
+
+export function buildCompanyInfoSheet(workbook: ExcelJS.Workbook, companyName: string, config?: CompanyInfoConfig): ExcelJS.Worksheet {
     const ws = workbook.addWorksheet('Company Info');
     ws.properties.tabColor = { argb: MED_BLUE };
     ws.getColumn(1).width = 32;
@@ -91,8 +97,19 @@ export function buildCompanyInfoSheet(workbook: ExcelJS.Workbook, companyName: s
     infoRow(ws, 13, 'Reporting Currency', 'Egyptian Pound (EGP)', false);
     infoRow(ws, 14, 'Currency Symbol', 'E£', false);
     infoRow(ws, 15, 'Fiscal Year End', 'December 31', true);
-    infoRow(ws, 16, 'Historical Period', '2021 – 2023 (Actual)', false);
-    infoRow(ws, 17, 'Projection Period', '2024E – 2028E (5 Years)', false);
+    // Fix 6 + Part B correction: startYear = first PROJECTION year (e.g. 2026)
+    // Historical years count backward from startYear
+    const projStart = config?.startYear ?? 2026;
+    const histYears = config?.historicalYears ?? 2;
+    const projYears = config?.projectionYears ?? 5;
+    const histStart = projStart - histYears;          // 2026 - 2 = 2024
+    const histEnd = projStart - 1;                     // 2025
+    const projEnd = projStart + projYears - 1;         // 2030
+    const historicalPeriod = `${histStart} – ${histEnd} (Actual)`;
+    const projectionPeriod = `${projStart}E – ${projEnd}E (${projYears} Years)`;
+
+    infoRow(ws, 16, 'Historical Period', historicalPeriod, false);
+    infoRow(ws, 17, 'Projection Period', projectionPeriod, false);
     infoRow(ws, 18, 'Revenue Projection Base (E£)', 1000000, true);
     ws.getCell(18, 2).numFmt = '#,##0';
     infoRow(ws, 19, 'Model Version', 'v2.0  |  Feb 2026', false);

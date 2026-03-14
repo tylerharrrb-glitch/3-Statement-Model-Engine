@@ -362,7 +362,11 @@ export async function exportToExcel(
     // ════════════════════════════════════════════════════════
     // TAB: COMPANY INFO  (always created)
     // ════════════════════════════════════════════════════════
-    buildCompanyInfoSheet(workbook, companyName);
+    buildCompanyInfoSheet(workbook, companyName, {
+        startYear: assumptions.startYear ?? 2024,
+        historicalYears: numHistorical,
+        projectionYears: nYears - numHistorical,
+    });
 
     // ════════════════════════════════════════════════════════
     // TAB: SCENARIOS  (complete engine data for all scenarios)
@@ -868,11 +872,24 @@ export async function exportToExcel(
     });
 
     // Step 6: Addition to RE = Distributable Profit - Gross Dividends
-    addISRow('Addition to Retained Earnings', 'additionToRE', {
-        formula: (c) => `${c}${isRows['distributableProfit']}-${c}${isRows['grossDividends']}`,
-        value: yr => results.incomeStatements[yr]?.additionToRE ?? 0,
-        bold: true,
-    });
+    // Fix 4 (S20): For historical periods, stamp engine value directly
+    // (can't use BS formula reference here because bsRows isn't initialized yet)
+    isRows['additionToRE'] = isRow;
+    isSheet.getCell(isRow, 1).value = 'Addition to Retained Earnings';
+    for (let i = 0; i < nYears; i++) {
+        const c = colLetter(i + 2);
+        const cell = isSheet.getCell(isRow, i + 2);
+        const engineVal = results.incomeStatements[i]?.additionToRE ?? 0;
+        if (i < numHistorical) {
+            // Historical: stamp engine value (already correct from Fix 8 — uses actual BS RE change)
+            cell.value = engineVal;
+        } else {
+            // Projected: formula-based
+            cell.value = { formula: `${c}${isRows['distributableProfit']}-${c}${isRows['grossDividends']}`, result: engineVal };
+        }
+    }
+    styleRow(isSheet.getRow(isRow), { bold: true, numFmt: NUM_FMT });
+    isRow++;
 
     isSheet.getCell(isRow, 1).value = '';
     isRow++;
@@ -1642,8 +1659,8 @@ export async function exportToExcel(
         value: j => results.cashFlowStatements[j]?.employeeProfitSharingPaid ?? 0,
     });
 
-    // Dividend WHT — 10% withheld from gross dividends
-    addCFRow('Dividend WHT', 'dividendWHT', {
+    // Fix 10: WHT shown as memo — included in Dividends Paid total
+    addCFRow('  └ Dividend WHT (memo, incl. above)', 'dividendWHT', {
         formula: (_cfCol, isCol) => `-'Income Statement'!${isCol}${isRows['dividendWHT']}`,
         value: j => results.cashFlowStatements[j]?.dividendWHT ?? 0,
     });
@@ -1773,17 +1790,24 @@ export async function exportToExcel(
     // that Excel could not resolve, causing $0 values throughout.
 
     // (B) IS FCFF — replace hardcoded values with live formulas
-    // The IS tab always shows the active (base) scenario results,
-    // so FCFF references _Calc_Base directly.
+    // The IS tab should switch FCFF by active scenario using IF formulas.
     {
         const fcffRow = isRows['fcff'];
-        const baseSheet = calcSheets.base?.sheetName ?? '_Calc_Base';
+        const bcs = calcSheets.base?.sheetName ?? '_Calc_Base';
+        const ocs = calcSheets.optimistic?.sheetName ?? '_Calc_Opt';
+        const ccs = calcSheets.conservative?.sheetName ?? '_Calc_Con';
         const calcFcffRow = calcSheets.base?.rows?.fcff ?? 32;
+        // Dashboard!B6 is the scenario selector dropdown cell
+        const selRef = 'Dashboard!$B$6';
         for (let i = numHistorical; i < nYears; i++) {
             const c = colLetter(i + 2);
             const cell = isSheet.getCell(fcffRow, i + 2);
             const result = results.incomeStatements[i]?.fcff ?? 0;
-            cell.value = { formula: `'${baseSheet}'!${c}${calcFcffRow}`, result: Number(result) || 0 };
+            // Scenario-aware: picks from the correct _Calc sheet
+            cell.value = {
+                formula: `IF(${selRef}="Base Case",'${bcs}'!${c}${calcFcffRow},IF(${selRef}="Optimistic",'${ocs}'!${c}${calcFcffRow},'${ccs}'!${c}${calcFcffRow}))`,
+                result: Number(result) || 0,
+            };
             cell.numFmt = NUM_FMT;
         }
     }
@@ -1837,17 +1861,29 @@ export async function exportToExcel(
         `IF('Income Statement'!${c}${isRows['revenue']}=0,0,'Income Statement'!${c}${isRows['netIncome']}/'Income Statement'!${c}${isRows['revenue']})`,
         'netMargin');
 
-    addRatioRow('ROA', (c) =>
-        `IF('Balance Sheet'!${c}${bsRows['totalAssets']}=0,0,'Income Statement'!${c}${isRows['netIncome']}/'Balance Sheet'!${c}${bsRows['totalAssets']})`,
-        'roa');
+    // Fix 4: ROA/ROE use average balance (prior + current) / 2 — matches engine
+    addRatioRow('ROA (Avg Assets)', (c, yr) => {
+        const pc = colLetter(yr + 1); // prior period column
+        return yr === 0
+            ? `IF('Balance Sheet'!${c}${bsRows['totalAssets']}=0,0,'Income Statement'!${c}${isRows['netIncome']}/'Balance Sheet'!${c}${bsRows['totalAssets']})`
+            : `IF(('Balance Sheet'!${pc}${bsRows['totalAssets']}+'Balance Sheet'!${c}${bsRows['totalAssets']})/2=0,0,'Income Statement'!${c}${isRows['netIncome']}/(('Balance Sheet'!${pc}${bsRows['totalAssets']}+'Balance Sheet'!${c}${bsRows['totalAssets']})/2))`;
+    }, 'roa');
 
-    addRatioRow('ROE', (c) =>
-        `IF('Balance Sheet'!${c}${bsRows['totalEquity']}=0,0,'Income Statement'!${c}${isRows['netIncome']}/'Balance Sheet'!${c}${bsRows['totalEquity']})`,
-        'roe');
+    addRatioRow('ROE (Avg Equity)', (c, yr) => {
+        const pc = colLetter(yr + 1); // prior period column
+        return yr === 0
+            ? `IF('Balance Sheet'!${c}${bsRows['totalEquity']}=0,0,'Income Statement'!${c}${isRows['netIncome']}/'Balance Sheet'!${c}${bsRows['totalEquity']})`
+            : `IF(('Balance Sheet'!${pc}${bsRows['totalEquity']}+'Balance Sheet'!${c}${bsRows['totalEquity']})/2=0,0,'Income Statement'!${c}${isRows['netIncome']}/(('Balance Sheet'!${pc}${bsRows['totalEquity']}+'Balance Sheet'!${c}${bsRows['totalEquity']})/2))`;
+    }, 'roe');
 
-    addRatioRow('ROIC', (c, yr) =>
-        `IF('Balance Sheet'!${c}${bsRows['totalEquity']}+'Balance Sheet'!${c}${bsRows['totalLiabilities']}=0,0,('Income Statement'!${c}${isRows['ebit']}*(1-${aRef('taxRate', yr)}))/('Balance Sheet'!${c}${bsRows['totalEquity']}+'Balance Sheet'!${c}${bsRows['shortTermDebt']}+'Balance Sheet'!${c}${bsRows['longTermDebt']}+'Balance Sheet'!${c}${bsRows['currentPortionLTD']}))`,
+    addRatioRow('ROIC (Gross IC)', (c, yr) =>
+        `IF('Balance Sheet'!${c}${bsRows['totalEquity']}+'Balance Sheet'!${c}${bsRows['shortTermDebt']}+'Balance Sheet'!${c}${bsRows['longTermDebt']}+'Balance Sheet'!${c}${bsRows['currentPortionLTD']}=0,0,('Income Statement'!${c}${isRows['ebit']}*(1-${aRef('taxRate', yr)}))/('Balance Sheet'!${c}${bsRows['totalEquity']}+'Balance Sheet'!${c}${bsRows['shortTermDebt']}+'Balance Sheet'!${c}${bsRows['longTermDebt']}+'Balance Sheet'!${c}${bsRows['currentPortionLTD']}))`,
         'roic');
+
+    // IMP 5: ROIC Net IC version (NOPAT / (Equity + Debt - Cash))
+    addRatioRow('ROIC (Net IC)', (c, yr) =>
+        `IF('Balance Sheet'!${c}${bsRows['totalEquity']}+'Balance Sheet'!${c}${bsRows['shortTermDebt']}+'Balance Sheet'!${c}${bsRows['longTermDebt']}+'Balance Sheet'!${c}${bsRows['currentPortionLTD']}-'Balance Sheet'!${c}${bsRows['cash']}=0,0,('Income Statement'!${c}${isRows['ebit']}*(1-${aRef('taxRate', yr)}))/('Balance Sheet'!${c}${bsRows['totalEquity']}+'Balance Sheet'!${c}${bsRows['shortTermDebt']}+'Balance Sheet'!${c}${bsRows['longTermDebt']}+'Balance Sheet'!${c}${bsRows['currentPortionLTD']}-'Balance Sheet'!${c}${bsRows['cash']}))`,
+        undefined);
 
     // Liquidity
     ratioSheet.getCell(rRow, 1).value = '── Liquidity ──';
@@ -1862,7 +1898,8 @@ export async function exportToExcel(
         `IF('Income Statement'!${c}${isRows['interestExpense']}=0,0,'Income Statement'!${c}${isRows['ebit']}/'Income Statement'!${c}${isRows['interestExpense']})`,
         'interestCoverage', '#,##0.00x');
 
-    addRatioRow('Debt to Equity', (c) =>
+    // Fix 5: Renamed — formula uses totalLiabilities (not just financial debt)
+    addRatioRow('Total Liabilities / Equity', (c) =>
         `IF('Balance Sheet'!${c}${bsRows['totalEquity']}=0,0,'Balance Sheet'!${c}${bsRows['totalLiabilities']}/'Balance Sheet'!${c}${bsRows['totalEquity']})`,
         'debtToEquity', '#,##0.00x');
 
@@ -2322,7 +2359,7 @@ export async function exportToExcel(
     debtSheet.getCell(dbtRow, 1).value = 'INTEREST ANALYSIS';
     styleRow(debtSheet.getRow(dbtRow), { subheader: true }); dbtRow++;
 
-    addDebtRow('  Average Debt Balance', 'avgDebt', {
+    addDebtRow('  Beginning-of-Period Debt Balance', 'avgDebt', {
         formula: (c, yr) => {
             if (yr === 0) return `${c}${dbtRows['totalDebt']}`;
             const prevC = colLetter(yr + 1);
@@ -2543,12 +2580,12 @@ export async function exportToExcel(
         styleRow(dcfSheet.getRow(dRow), { bold: true });
         dRow++;
 
-        // FCF values from CF statements (projected only)
-        const projCFs = results.cashFlowStatements.slice(numHistorical > 0 ? numHistorical - 1 : 0);
+        // Fix 1 (S20): Use FCFF (unlevered) from IS, not levered FCF from CFS
+        const projISs = results.incomeStatements.slice(numHistorical);
         dcfRows['fcf'] = dRow;
-        dcfSheet.getCell(dRow, 1).value = 'Free Cash Flow';
-        for (let p = 0; p < nProj2 && p < projCFs.length; p++) {
-            dcfSheet.getCell(dRow, p + 2).value = projCFs[p]?.freeCashFlow ?? 0;
+        dcfSheet.getCell(dRow, 1).value = 'FCFF (Unlevered Free Cash Flow)';
+        for (let p = 0; p < nProj2 && p < projISs.length; p++) {
+            dcfSheet.getCell(dRow, p + 2).value = projISs[p]?.fcff ?? 0;
             dcfSheet.getCell(dRow, p + 2).numFmt = NUM_FMT;
             dcfSheet.getCell(dRow, p + 2).border = BORDERS;
         }
@@ -2571,7 +2608,7 @@ export async function exportToExcel(
         dcfSheet.getCell(dRow, 1).font = { name: 'Calibri', size: 10, bold: true };
         for (let p = 0; p < nProj2; p++) {
             const c = colLetter(p + 2);
-            dcfSheet.getCell(dRow, p + 2).value = { formula: `${c}${dcfRows['fcf']}*${c}${dcfRows['df']}`, result: (projCFs[p]?.freeCashFlow ?? 0) / Math.pow(1.1, p + 1) };
+            dcfSheet.getCell(dRow, p + 2).value = { formula: `${c}${dcfRows['fcf']}*${c}${dcfRows['df']}`, result: (projISs[p]?.fcff ?? 0) / Math.pow(1.1, p + 1) };
             dcfSheet.getCell(dRow, p + 2).numFmt = NUM_FMT;
             dcfSheet.getCell(dRow, p + 2).border = BORDERS;
         }
@@ -2595,11 +2632,11 @@ export async function exportToExcel(
         };
 
         const waccEst = (totalEquityVal / totalCapital) * (riskFreeRate + beta * erp) + (totalDebtVal / totalCapital) * debtRate * (1 - taxRate);
-        const lastFCF = projCFs[projCFs.length - 1]?.freeCashFlow ?? 0;
+        const lastFCF = projISs[projISs.length - 1]?.fcff ?? 0;
         const termGrowth = assumptions.terminalGrowthRate ?? 0.05;
         const tv = waccEst > termGrowth ? (lastFCF * (1 + termGrowth)) / (waccEst - termGrowth) : 0;
         const pvTV = tv / Math.pow(1 + waccEst, nProj2);
-        const sumPVFCF = projCFs.reduce((sum, cf, i) => sum + (cf?.freeCashFlow ?? 0) / Math.pow(1 + waccEst, i + 1), 0);
+        const sumPVFCF = projISs.reduce((sum: number, isp: typeof projISs[0], i: number) => sum + (isp?.fcff ?? 0) / Math.pow(1 + waccEst, i + 1), 0);
         const ev = sumPVFCF + pvTV;
         const netDebtVal = totalDebtVal - (lastBS?.cash ?? 0);
         const equityVal = ev - netDebtVal;
@@ -2645,7 +2682,7 @@ export async function exportToExcel(
                 if (wVal > gVal) {
                     const tvCalc = (lastFCF * (1 + gVal)) / (wVal - gVal);
                     const pvTVCalc = tvCalc / Math.pow(1 + wVal, nProj2);
-                    const sumPV = projCFs.reduce((sum, cf, i) => sum + (cf?.freeCashFlow ?? 0) / Math.pow(1 + wVal, i + 1), 0);
+                    const sumPV = projISs.reduce((sum: number, isp: typeof projISs[0], i: number) => sum + (isp?.fcff ?? 0) / Math.pow(1 + wVal, i + 1), 0);
                     impliedPrice = (sumPV + pvTVCalc - netDebtVal) / shares;
                 }
                 dcfSheet.getCell(dRow, g + 2).value = impliedPrice;
@@ -2756,7 +2793,7 @@ export async function exportToExcel(
         vRow++;
 
         const egxRef: [string, string][] = [
-            ['EGX 30 Avg P/E', '12.0–15.0x'],
+            ['EGX 30 Avg P/E', '8.0–15.0x'],
             ['EGX 30 Avg P/B', '1.5–2.5x'],
             ['EGX 30 Avg Div Yield', '2.0–4.0%'],
             ['Egyptian Market EV/EBITDA', '6.0–10.0x'],
@@ -2848,10 +2885,19 @@ export async function exportToExcel(
                 label: 'DSCR',
                 threshold: '≥ 1.25x',
                 compute: yr => {
-                    if (yr >= results.cashFlowStatements.length) return 999;
-                    const dna = (results.incomeStatements[yr]?.depreciation ?? 0) + (results.incomeStatements[yr]?.amortization ?? 0);
-                    const debtService = Math.abs(results.cashFlowStatements[yr]?.debtRepayment ?? 0) + (results.incomeStatements[yr]?.interestExpense ?? 0);
-                    return debtService !== 0 ? ((results.incomeStatements[yr]?.netIncome ?? 0) + dna) / debtService : 999;
+                    const is = results.incomeStatements[yr];
+                    if (!is) return 0;
+                    const ni = is.netIncome ?? 0;
+                    const depr = is.depreciation ?? 0;
+                    const amort = is.amortization ?? 0;
+                    const numerator = ni + depr + amort;
+                    const intExp = is.interestExpense ?? 0;
+                    // Get principal from CFS if available, else from assumptions
+                    const cf = results.cashFlowStatements[yr];
+                    const principal = cf ? Math.abs(cf.debtRepayment ?? 0) : 0;
+                    const debtService = intExp + principal;
+                    if (debtService <= 0) return 0;  // genuinely no debt service
+                    return numerator / debtService;
                 },
                 passFormula: (c, r) => `IF(${c}${r}>=1.25,"✓ PASS","✗ FAIL")`,
             },

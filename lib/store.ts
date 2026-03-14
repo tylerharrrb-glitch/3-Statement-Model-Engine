@@ -12,6 +12,8 @@ import { createDefaultScenarios, createScenario } from '@/lib/scenario-manager';
 import { runFullModel } from '@/lib/engines/integrator';
 import { ScenarioType } from '@/types/scenario';
 import { HistoricalDataInput, getDefaultHistoricalData, convertToHistoricalInputs } from '@/types/historical';
+import { FinancialValidationAgent } from '@/lib/agents/validation-agent';
+import type { ValidationReport } from '@/lib/agents/validation-types';
 
 interface ModelStore extends ModelState {
     // Historical data (Feature 1: per-year format)
@@ -23,6 +25,10 @@ interface ModelStore extends ModelState {
     dataVersion: number;
     conflictDetected: boolean;
     sidebarOpen: boolean;
+
+    // AI Validation Agent state
+    validationReport: ValidationReport | null;
+    isValidating: boolean;
 
     // Actions
     setCompanyInfo: (name: string, ticker: string, industry: string, currency: string, country?: string, fiscalYearEnd?: string, valuationDate?: string) => void;
@@ -45,6 +51,7 @@ interface ModelStore extends ModelState {
     setCellOverride: (scenarioId: string, rowKey: string, period: string, value: number) => void;
     dismissConflict: () => void;
     setSidebarOpen: (open: boolean) => void;
+    runValidation: () => Promise<void>;
 }
 
 const defaultScenarios = createDefaultScenarios();
@@ -77,6 +84,8 @@ export const useModelStore = create<ModelStore>()(
             dataVersion: 0,
             conflictDetected: false,
             sidebarOpen: false,
+            validationReport: null,
+            isValidating: false,
 
             // Actions
             setCompanyInfo: (name, ticker, industry, currency, country, fiscalYearEnd, valuationDate) => {
@@ -293,6 +302,9 @@ export const useModelStore = create<ModelStore>()(
                     isCalculating: false,
                     lastSaved: new Date().toISOString(),
                 });
+
+                // Auto-run validation after calculation
+                get().runValidation();
             },
 
             toggleDarkMode: () => {
@@ -322,6 +334,34 @@ export const useModelStore = create<ModelStore>()(
 
             setSidebarOpen: (open) => {
                 set({ sidebarOpen: open });
+            },
+
+            runValidation: async () => {
+                const state = get();
+                const scenario = state.scenarios.find(s => s.id === state.activeScenarioId);
+                if (!scenario?.results) return;
+
+                set({ isValidating: true });
+
+                try {
+                    const agent = new FinancialValidationAgent({
+                        runLocalChecksFirst: true,
+                        runAIChecks: false, // Local-only by default (free, instant)
+                        onlyRunAIIfLocalFails: true,
+                        blockExportOnCritical: true,
+                    });
+
+                    const report = await agent.validate(
+                        scenario.results,
+                        scenario.assumptions,
+                        scenario.name
+                    );
+
+                    set({ validationReport: report, isValidating: false });
+                } catch (error) {
+                    console.error('[Store] Validation failed:', error);
+                    set({ isValidating: false });
+                }
             },
 
             undo: () => {

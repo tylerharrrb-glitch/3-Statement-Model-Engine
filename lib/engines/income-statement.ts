@@ -158,12 +158,11 @@ export function calculateIncomeStatement(inputs: IncomeStatementInputs): IncomeS
 
     // Pre-Tax
     const ebt = ebit + interestIncome - interestExpense + otherIncomeExpense;
-    // Runtime safeguard: if taxRate is suspiciously low (< 10%), it's likely
-    // a data entry error (e.g., user typed 1.5 meaning 1.5% → stored as 0.015).
-    // Egyptian CIT minimum is 22.5%. Clamp to 0.225 for safety.
+    // Tax rate — regime-aware (Fix 2: removed blanket clamp that broke SME)
     let taxRate = assumptions.taxRate[yr] ?? 0.225;
-    if (taxRate > 0 && taxRate < 0.10) {
-        taxRate = 0.225; // Force Egyptian standard rate
+    const taxRegime = assumptions.taxRegime ?? 'standard';
+    if (taxRegime === 'standard' && taxRate > 0 && taxRate < 0.05) {
+        console.warn(`[Tax] Standard regime taxRate ${(taxRate * 100).toFixed(2)}% below 5% for year ${yr} — verify intentional.`);
     }
 
     // Tax with carryforward (C1)
@@ -316,7 +315,8 @@ export function buildHistoricalIncomeStatements(
         otherIncomeExpense: number[];
         taxExpense: number[];
         sharesOutstanding: number[];
-    }
+    },
+    retainedEarnings?: number[],  // Fix 8: optional BS RE array for actual additionToRE
 ): IncomeStatement[] {
     return periods.map((period, i) => {
         const revenue = data.revenue[i];
@@ -375,13 +375,15 @@ export function buildHistoricalIncomeStatements(
             taxLossUtilized: 0,
             taxLossRemaining: 0,
             taxableIncome: ebt,
-            // Profit appropriation — historical: not modeled
+            // Profit appropriation — historical: use actual BS RE change (Fix 8)
             legalReserveAddition: 0,
             distributableProfit: netIncome,
             grossDividends: 0,
             dividendWHT: 0,
             netDividends: 0,
-            additionToRE: netIncome,
+            additionToRE: retainedEarnings && i > 0
+                ? retainedEarnings[i] - retainedEarnings[i - 1]  // actual RE change
+                : netIncome,  // fallback: assume all NI flows to RE
             // Memo
             nopat: ebit * (1 - (ebt !== 0 ? taxExpense / ebt : 0.225)),
             fcff: 0, // historical FCFF not computed here

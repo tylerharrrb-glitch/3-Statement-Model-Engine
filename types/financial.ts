@@ -290,6 +290,10 @@ export interface ModelResults {
   };
   dcfValuation?: DCFValuation;
   valuationMultiples?: ValuationMultiples;
+
+  // AI Validation Agent results
+  validationReport?: import('@/lib/agents/validation-types').ValidationReport;
+  validationPassed?: boolean;
 }
 
 // ── DCF Valuation ──

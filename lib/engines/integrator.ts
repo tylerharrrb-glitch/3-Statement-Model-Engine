@@ -30,6 +30,7 @@ export function runFullModel(
     const historicalIS = buildHistoricalIncomeStatements(
         correctedPeriods,
         historicalInputs,
+        historicalInputs.retainedEarnings,  // Fix 8: actual RE for additionToRE
     );
 
     const historicalBS = buildHistoricalBalanceSheets(

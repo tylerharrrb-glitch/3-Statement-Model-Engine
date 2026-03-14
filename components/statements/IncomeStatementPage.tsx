@@ -118,7 +118,7 @@ export default function IncomeStatementPage() {
         { label: 'Remaining Loss', key: 'taxLossRemaining', format: 'currency' },
         { label: '', key: 'revenue', format: 'currency', separator: true },
         { label: 'Net Margin', key: 'netMargin', format: 'percent' },
-        { label: 'EPS', key: 'eps', format: 'eps' },
+        { label: 'EPS (Basic)', key: 'eps', format: 'eps' },
         { label: '', key: 'revenue', format: 'currency', separator: true },
         { label: 'MEMO ITEMS', key: 'revenue', format: 'currency', subheader: true },
         { label: 'NOPAT', key: 'nopat', format: 'currency' },

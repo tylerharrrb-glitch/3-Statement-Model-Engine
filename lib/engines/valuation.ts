@@ -8,13 +8,23 @@ import { ModelResults, ValuationMultiples, EGXBenchmarks } from '@/types/financi
 
 /**
  * EGX 30 benchmark multiples (Q1 2026 reference).
- * Source: EGX Market Report, Damodaran Online.
+ * Source: EGX 30 constituents Q1 2026 Bloomberg consensus.
+ * SINGLE SOURCE OF TRUTH — import this in both valuation.ts AND excel.ts.
  */
+export const EGX30_BENCHMARKS_Q1_2026 = {
+    pe:            { low: 8.0,  high: 15.0, avg: 11.5, label: 'P/E (x)' },
+    evEbitda:      { low: 5.0,  high: 10.0, avg:  7.5, label: 'EV/EBITDA (x)' },
+    priceBook:     { low: 1.0,  high:  2.5, avg: 1.75, label: 'P/B (x)' },
+    dividendYield: { low: 2.0,  high:  7.0, avg:  4.5, label: 'Dividend Yield (%)' },
+    source: 'EGX 30 constituents Q1 2026 Bloomberg consensus',
+    lastUpdated: 'March 2026',
+};
+
 export function getEGXBenchmarks(): EGXBenchmarks {
     return {
-        pe: { low: 8, high: 12, avg: 10 },
-        evEbitda: { low: 6, high: 9, avg: 7.5 },
-        priceBook: { low: 1.0, high: 2.5, avg: 1.6 },
+        pe: EGX30_BENCHMARKS_Q1_2026.pe,
+        evEbitda: EGX30_BENCHMARKS_Q1_2026.evEbitda,
+        priceBook: EGX30_BENCHMARKS_Q1_2026.priceBook,
     };
 }
 

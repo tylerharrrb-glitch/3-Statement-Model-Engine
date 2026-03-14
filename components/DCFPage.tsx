@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { useModelStore } from '@/lib/store';
 import { calculateDCF } from '@/lib/engines/dcf';
 import { twoWaySensitivity } from '@/lib/sensitivity';
-import { formatCurrency, formatPercent } from '@/lib/utils';
+import { formatCurrency, formatPercent, CURRENCY_MAP, SupportedCurrency } from '@/lib/utils';
 
 export default function DCFPage() {
     const { scenarios, activeScenarioId, historicalInputs, currency } = useModelStore();
@@ -130,7 +130,7 @@ export default function DCFPage() {
                     </thead>
                     <tbody>
                         <tr>
-                            <td style={{ padding: 8, fontWeight: 600 }}>FCF</td>
+                            <td style={{ padding: 8, fontWeight: 600 }}>FCFF (Unlevered)</td>
                             {dcf.fcfProjections.map((v, i) => <td key={i} style={{ textAlign: 'right', padding: 8 }}>{formatCurrency(v, currency, true)}</td>)}
                             <td style={{ textAlign: 'right', padding: 8, color: '#fbbf24' }}>—</td>
                         </tr>
@@ -198,7 +198,7 @@ export default function DCFPage() {
                                                     color: v > dcf.impliedSharePrice * 1.2 ? '#34d399' : v < dcf.impliedSharePrice * 0.8 ? '#f43f5e' : 'var(--text-primary)',
                                                     background: isBase ? 'rgba(251, 191, 36, 0.15)' : undefined,
                                                 }}>
-                                                    {v > 0 ? formatCurrency(v, currency) : '—'}
+                                                    {v > 0 ? `${CURRENCY_MAP[currency as SupportedCurrency]?.symbol ?? '$'}${v.toFixed(1)}` : '—'}
                                                 </td>
                                             );
                                         })}

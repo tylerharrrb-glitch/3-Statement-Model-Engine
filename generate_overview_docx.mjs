@@ -203,9 +203,11 @@ children.push(new Paragraph({
 const coverMeta = [
     'Framework: Next.js 16 + React 19 + TypeScript 5',
     'Engine: 7 calculation modules incl. DCF, Valuation, Circular Resolver',
+    'Validation: 28 integration checks + AI Validation Agent (Claude-powered)',
     'Export: Excel (9 tabs, live formulas) · PDF · CSV · JSON',
     'Analysis: Monte Carlo · Sensitivity · Scenario Comparison',
     'Valuation: DCF (WACC/CAPM) · Trading Multiples · EGX 30 Benchmarks',
+    'Compliance: Egyptian Law 159/1981 Profit Waterfall · Law 91/2005 Tax',
     'Localization: English / Arabic · Egyptian Market · CBE Metrics',
     '27 UI Components · 19 Navigation Tabs · Zustand State Management',
 ];
@@ -241,17 +243,19 @@ const tocItems = [
     ['2', 'Project Structure'],
     ['3', 'Type System'],
     ['4', 'Engine Layer (7 modules)'],
-    ['5', 'Financial Ratios'],
-    ['6', 'Analysis Tools'],
-    ['7', 'State Management'],
-    ['8', 'Export Layer'],
-    ['9', 'Internationalization & Egyptian Localization'],
-    ['10', 'Utility Functions'],
-    ['11', 'UI Components (27 total)'],
-    ['12', 'Navigation & Tab System (19 tabs)'],
-    ['13', 'Data Flow Architecture'],
-    ['14', 'Key Design Decisions'],
-    ['15', 'Known Limitations & Planned Improvements'],
+    ['5', 'Egyptian Profit Appropriation Waterfall'],
+    ['6', 'Financial Ratios'],
+    ['7', 'Analysis Tools'],
+    ['8', 'State Management'],
+    ['9', 'Export Layer'],
+    ['10', 'Internationalization & Egyptian Localization'],
+    ['11', 'Utility Functions'],
+    ['12', 'UI Components (27 total)'],
+    ['13', 'Navigation & Tab System (19 tabs)'],
+    ['14', 'Data Flow Architecture'],
+    ['15', 'AI Validation Agent'],
+    ['16', 'Key Design Decisions'],
+    ['17', 'Known Limitations & Planned Improvements'],
 ];
 
 for (const [num, title] of tocItems) {
@@ -312,8 +316,14 @@ children.push(...codeBlock([
     '│   │   ├── excel.ts            # 9-tab Excel workbook (103 KB of formulas)',
     '│   │   ├── pdf.ts              # Multi-page PDF report (49 KB)',
     '│   │   └── csv-json.ts         # CSV + JSON data export',
-    '│   ├── store.ts                # Zustand store (16 KB, 15+ actions)',
-    '│   ├── ratios.ts               # 23 financial ratios',
+    '│   ├── agents/                 # AI Validation Agent (5 modules)',
+    '│   │   ├── validation-agent.ts  # Main orchestrator (Phase 1: local, Phase 2: Claude AI)',
+    '│   │   ├── validation-rules.ts  # 19 deterministic checks (626 lines)',
+    '│   │   ├── validation-types.ts  # ValidationReport, Finding, Config types',
+    '│   │   ├── validation-prompt.ts # Claude API system prompt',
+    '│   │   └── multi-scenario-validator.ts  # Cross-scenario validator',
+    '│   ├── store.ts                # Zustand store (28 KB, 20+ actions)',
+    '│   ├── ratios.ts               # 35+ financial ratios (DuPont, Altman Z, Break-Even)',
     '│   ├── monte-carlo.ts          # Monte Carlo simulation (4 distributions)',
     '│   ├── sensitivity.ts          # 1-way and 2-way sensitivity analysis',
     '│   ├── scenario-manager.ts     # Scenario CRUD + comparison',
@@ -500,43 +510,56 @@ children.push(...codeBlock([
 children.push(para('Reconciliation utility (cash-flow-indirect.ts): Provides validateAllReconciliations() which checks that CF ending cash matches BS cash within $0.01 for every period. Re-exports the core CF engine functions.'));
 
 children.push(heading2('4.4 Circular Resolver (circular-resolver.ts) — THE HEART OF THE ENGINE'));
-children.push(importantBox('This module resolves the fundamental circular dependency in a 3-statement model: Interest ↔ Cash ↔ Cash Flow ↔ Net Income ↔ Interest'));
-children.push(para('resolveCircularReferences(assumptions, yearIndex, prevIS, prevBS) operates as follows:'));
-children.push(bullet('Starts with initial estimates: interestIncome = 0, interestExpense = 0'));
-children.push(bullet('Iterates up to 100 times (configurable, tolerance = 0.01):'));
-children.push(bullet('Calculate Depreciation from PP&E schedule', 1));
-children.push(bullet('Calculate Interest Expense from average total debt balance', 1));
-children.push(bullet('Calculate Interest Income from average cash balance', 1));
-children.push(bullet('Build complete Income Statement with these inputs', 1));
-children.push(bullet('Build complete Balance Sheet (cash = plug)', 1));
-children.push(bullet('Build complete Cash Flow Statement', 1));
-children.push(bullet('Check convergence: delta = |new interest values − old interest values|', 1));
+children.push(importantBox('This module resolves the fundamental circular dependency in a 3-statement model: Debt → Interest Expense → Net Income → Retained Earnings → Equity → Debt capacity → Debt'));
+children.push(para('resolveCircularReferences(assumptions, yearIndex, prevIS, prevBS, taxLossVintages, priorLegalReserve) operates as follows:'));
+children.push(bullet('Starts with initial estimates from previous period: estimatedDepreciation, estimatedInterestExpense, estimatedInterestIncome'));
+children.push(bullet('Iterates up to 500 times (configurable, tolerance = 0.01), converging on ending cash:'));
+children.push(bullet('Step 1: Calculate NWC from prior BS for FCFF calculation', 1));
+children.push(bullet('Step 2: Calculate Income Statement with current estimates (full waterfall incl. profit appropriation)', 1));
+children.push(bullet('Step 3: Calculate Balance Sheet (first pass, cash = null → uses prior cash)', 1));
+children.push(bullet('Step 4: Recalculate IS with actual NWC from BS (for correct FCFF)', 1));
+children.push(bullet('Step 5: Calculate Cash Flow Statement from final IS and BS', 1));
+children.push(bullet('Step 6: Update BS with CF ending cash (cash plug)', 1));
+children.push(bullet('Step 7: Update interest estimates from updated balances for next iteration', 1));
+children.push(bullet('Check convergence: delta = |new ending cash − previous ending cash|', 1));
 children.push(bullet('If delta < tolerance → converged ✓, exit loop', 1));
-children.push(bullet('Returns { incomeStatement, balanceSheet, cashFlow, converged, iterations, finalDelta }'));
+children.push(bullet('Returns { incomeStatement, balanceSheet, cashFlow, converged, iterations, finalDelta, updatedTaxLossVintages, newLegalReserve }'));
 
-children.push(heading3('16 Integration Checks (validateIntegration)'));
-children.push(para('After convergence, the engine validates cross-statement consistency with 16 checks:'));
+children.push(heading3('28 Integration Checks (validateIntegration)'));
+children.push(para('After convergence, the engine validates cross-statement consistency with 28 checks. The first 16 are structural, checks 17–28 are Egyptian compliance checks:'));
 children.push(makeTable(
     ['#', 'Check Name', 'Validation Formula'],
     [
         ['1', 'Assets Balance', 'Total Assets = Total Liabilities + Equity'],
         ['2', 'Cash Ties to CF', 'CF Ending Cash ≈ BS Cash (within 0.01)'],
         ['3', 'Net Income Flows', 'IS Net Income = CF Net Income (starting point)'],
-        ['4', 'PP&E Ties', 'Net PP&E = Gross PP&E − Accumulated Depreciation'],
-        ['5', 'Retained Earnings Flow', 'RE = Prior RE + Net Income − Dividends'],
-        ['6', 'Debt Ties', 'LTD = Prior LTD + Issuance − Repayment'],
-        ['7', 'CF Reconciliation', 'Ending Cash = Beginning Cash + Net Change'],
-        ['8', 'Working Capital Ties', 'Working Capital changes consistent with BS deltas'],
-        ['9', 'Total Current Assets', 'Sum of individual CA items = TCA'],
-        ['10', 'Total Non-Current Assets', 'Sum of individual NCA items = TNCA'],
-        ['11', 'Total Current Liabilities', 'Sum of individual CL items = TCL'],
-        ['12', 'Total Non-Current Liabilities', 'Sum of individual NCL items = TNCL'],
-        ['13', 'Total Equity', 'Sum of equity components = Total Equity'],
-        ['14', 'IS Waterfall', 'Revenue → COGS → Gross Profit → OpEx → EBIT → Tax → NI'],
+        ['4', 'PP&E Ties', 'Current Gross PPE = Prior Gross PPE + CapEx'],
+        ['5', 'Retained Earnings Roll', 'RE = Prior RE + Addition to RE'],
+        ['6', 'Long-Term Debt Ties', 'LTD = Prior LTD + Issuance − Repayment'],
+        ['7', 'CF Reconciliation', 'Net Change = CFO + CFI + CFF'],
+        ['8', 'Working Capital Ties', 'WC changes in CF match BS deltas (AR, Inv, AP)'],
+        ['9', 'Total Current Assets', 'Cash + AR + Inv + Prepaid + OCA = TCA'],
+        ['10', 'Total Non-Current Assets', 'Net PPE + Intangibles + Goodwill + OLTA = TNCA'],
+        ['11', 'Total Current Liabilities', 'AP + Accrued + ST Debt + CPLTD + DeferredRev + OCL = TCL'],
+        ['12', 'Total Non-Current Liabilities', 'LTD + DTL + OLTL + EOS = TNCL'],
+        ['13', 'Total Equity', 'CommonStock + APIC + LegalReserve + RE + Treasury + OCI = TE'],
+        ['14', 'IS Waterfall', 'Revenue − COGS − OpEx − Interest − Tax = Net Income'],
         ['15', 'EBITDA Identity', 'EBITDA = EBIT + Depreciation + Amortization'],
-        ['16', 'APIC Consistency', 'APIC = Prior APIC + SBC + Equity Issuance'],
+        ['16', 'APIC Consistency', 'ΔAPIC = Equity Issuance + SBC'],
+        ['17', 'EPD Calculation', 'EPD = NI × EPD Rate (0 if NI ≤ 0)'],
+        ['18', 'NI After EPD', 'NI After EPD = Net Income − Employee Profit Sharing'],
+        ['19', 'Distributable Profit', 'NI − EPD − Legal Reserve Addition'],
+        ['20', 'Gross Dividends ≤ Distributable', 'Dividends capped at MAX(0, Distributable Profit)'],
+        ['21', 'Net Dividends', 'Net Dividends = Gross − WHT'],
+        ['22', 'Addition to RE', 'Distributable Profit − Gross Dividends'],
+        ['23', 'NOPAT', 'EBIT × (1 − effective tax rate); statutory fallback when EBT ≤ 0'],
+        ['24', 'Legal Reserve Roll', 'LR = Prior LR + LR Addition (from IS)'],
+        ['25', 'Tax Loss Utilization', 'Tax Loss Utilized ≤ Tax Loss Carryforward'],
+        ['26', 'Taxable Income', 'MAX(0, EBT − Loss Utilized) — Law 91/2005'],
+        ['27', 'CF Dividends Tie', 'CF Dividends Paid = IS Gross Dividends (sign-adjusted)'],
+        ['28', 'CF Dividend WHT Tie', 'CF Dividend WHT = IS Dividend WHT (sign-adjusted)'],
     ],
-    [8, 28, 64],
+    [6, 26, 68],
 ));
 
 children.push(heading2('4.5 Integrator (integrator.ts) — Master Orchestrator'));
@@ -558,23 +581,35 @@ children.push(heading2('4.6 DCF Valuation Engine (dcf.ts)'));
 children.push(para('Calculates intrinsic value using Discounted Cash Flow with WACC derived from CAPM and Egyptian market inputs.'));
 children.push(heading3('calculateWACC(assumptions, results)'));
 children.push(...codeBlock([
-    'Cost of Equity (CAPM): ke = CBE_Rate + β × Equity_Risk_Premium',
-    '  Default: 0.2725 + 1.0 × 0.07 = 34.25%',
-    'Cost of Debt (after-tax): kd = interestRate × (1 − taxRate)',
+    'Cost of Equity (CAPM): ke = riskFreeRate + β × Equity_Risk_Premium',
+    '  Default: 0.20 + 1.0 × 0.105 = 30.5%',
+    '  riskFreeRate is decoupled from cbeRate (separate input)',
+    'Cost of Debt (after-tax): kd = interestRateOnDebt × (1 − taxRate)',
     'Capital Structure: D/(D+E) and E/(D+E) from last projected BS',
     'WACC = E/(D+E) × ke + D/(D+E) × kd',
+    '',
+    'Sanity Checks:',
+    '  - WACC > 0 (non-positive is invalid)',
+    '  - WACC < 50% (flag if unusually high)',
+    '  - Cost of Equity > Cost of Debt (else unusual risk pricing)',
+    '  - Debt weight < 90% (extreme leverage warning)',
+    '  - Cost of Equity < 60% (check ERP/beta)',
 ]));
 children.push(heading3('calculateDCF(assumptions, results)'));
 children.push(...codeBlock([
     '1. Extract projected FCFF from Income Statement memo field (is.fcff)',
+    '   FCFF = NOPAT + D&A − CapEx − ΔNWC',
     '2. Discount each FCF: PV(FCF_i) = FCF_i / (1 + WACC)^i',
     '3. Terminal Value (Gordon Growth): TV = FCF_n × (1+g) / (WACC − g)',
-    '   where g = terminalGrowthRate (default 5%)',
+    '   where g = terminalGrowthRate (default 7% for Egypt)',
+    '   Sanity check: g must be < WACC (else TV is undefined)',
     '4. PV(TV) = TV / (1 + WACC)^n',
     '5. Enterprise Value = Sum(PV of FCFs) + PV(TV)',
+    '   Warning if TV > 85% of EV (consider extending projections)',
     '6. Equity Bridge: Equity Value = EV − Net Debt',
     '   Net Debt = (ST Debt + LT Debt + Current LTD) − Cash',
     '7. Implied Share Price = Equity Value / Shares Outstanding',
+    '   Warning if negative (entity may be insolvent)',
 ]));
 children.push(importantBox('Returns DCFValuation with 13 fields: fcfProjections, discountedFCFs, terminalValue, pvTerminalValue, enterpriseValue, netDebt, equityValue, impliedSharePrice, wacc, costOfEquity, costOfDebt, debtWeight, equityWeight'));
 
@@ -618,9 +653,68 @@ children.push(makeTable(
     [30, 20, 20, 20],
 ));
 
-// ── 5. RATIOS ───────────────────────────────────────────
+// ── 5. EGYPTIAN PROFIT APPROPRIATION ────────────────────
 children.push(pageBreak());
-children.push(heading1('5. Financial Ratios (ratios.ts)'));
+children.push(heading1('5. Egyptian Profit Appropriation Waterfall'));
+children.push(importantBox('This waterfall is the legally mandated sequence under Egyptian Companies Law 159/1981 and Labor Law. The order is significant — each deduction is based on the result of the previous one.'));
+children.push(para('The engine implements the full waterfall in income-statement.ts → calculateIncomeStatement():'));
+children.push(...codeBlock([
+    'Step 1: NET INCOME (Already computed: Revenue → COGS → OpEx → EBT → Tax → NI)',
+    '',
+    'Step 2: LEGAL RESERVE (Companies Law Art. 40)',
+    '  LR Addition = min(NI × 5%, max(0, paidUpCapital × 50% − cumLR))',
+    '  Stops once cumulative LR reaches 50% of ISSUED (paid-up) capital',
+    '  Zero when NI ≤ 0',
+    '',
+    'Step 3: EMPLOYEE PROFIT DISTRIBUTION (Labor Law Art. 41)',
+    '  EPD = max(0, NI × 10%)',
+    '  Capped at totalAnnualPayroll (if provided, 0 = no cap)',
+    '  Note: Both EPD and LR are computed INDEPENDENTLY on NI — neither is',
+    '  deducted before computing the other',
+    '',
+    'Step 4: NI After EPD = Net Income − Employee Profit Sharing',
+    '',
+    'Step 5: DISTRIBUTABLE PROFIT = NI − EPD − Legal Reserve Addition',
+    '',
+    'Step 6: GROSS DIVIDENDS = max(0, Distributable Profit × payoutRatio)',
+    '  IMP: Blocked if distributableProfit ≤ 0 or prior RE < 0 (Art. 53)',
+    '',
+    'Step 7: DIVIDEND WHT (Law 30/2023, Art. 56 bis)',
+    '  WHT = Gross Dividends × 5%  (if EGX-listed)',
+    '  WHT = Gross Dividends × 10% (if unlisted)',
+    '',
+    'Step 8: NET DIVIDENDS = Gross Dividends − WHT',
+    '',
+    'Step 9: ADDITION TO RE = Distributable Profit − Gross Dividends',
+]));
+children.push(emptyLine());
+children.push(heading2('5.1 Tax Loss Carryforward (Tax Law Art. 29)'));
+children.push(para('The engine implements vintage-tracked FIFO tax loss carryforward:'));
+children.push(bullet('Tax losses from years with negative EBT are stored as TaxLossVintage objects ({year, amount, expiresAfterYear})'));
+children.push(bullet('Each loss vintage expires after 5 years (configurable via taxLossCarryforwardYears)'));
+children.push(bullet('In profitable years, oldest losses are utilized first (FIFO): taxableIncome = MAX(0, EBT − lossUtilized)'));
+children.push(bullet('Tax = taxableIncome × taxRate (so no tax on profit offset by prior-year losses)'));
+children.push(bullet('Fully vintage-tracked: each loss year is tracked separately with its own expiry'));
+children.push(emptyLine());
+children.push(heading2('5.2 Tax Regime Support'));
+children.push(makeTable(
+    ['Regime', 'Rate', 'Legal Basis'],
+    [
+        ['Standard', '22.5%', 'Law 91/2005 — most companies'],
+        ['Oil Exploration', '40.55%', 'Special regime for oil companies'],
+        ['Strategic Entities / CBE / Suez Canal', '40.0%', 'Special regime'],
+        ['SME Turnover Tax (≤1M)', '0.40% of Revenue', 'Law 6/2025'],
+        ['SME Turnover Tax (1-2M)', '0.75% of Revenue', 'Law 6/2025'],
+        ['SME Turnover Tax (2-3M)', '1.00% of Revenue', 'Law 6/2025'],
+        ['SME Turnover Tax (3-20M)', '1.50% of Revenue', 'Law 6/2025'],
+    ],
+    [40, 25, 35],
+));
+children.push(para('Runtime safeguard: if taxRate appears suspiciously low (<10%), the engine clamps it to 22.5% to prevent data entry errors.'));
+
+// ── 6. RATIOS ───────────────────────────────────────────
+children.push(pageBreak());
+children.push(heading1('6. Financial Ratios (ratios.ts)'));
 children.push(para('calculateFinancialRatios(is, bs, prevBS) and enrichRatios() compute 35+ ratios:'));
 children.push(makeTable(
     ['Category', 'Ratios', 'Notes'],
@@ -639,7 +733,7 @@ children.push(makeTable(
 ));
 
 // ── 6. ANALYSIS ─────────────────────────────────────────
-children.push(heading1('6. Analysis Tools'));
+children.push(heading1('7. Analysis Tools'));
 
 children.push(heading2('6.1 Sensitivity Analysis (sensitivity.ts)'));
 children.push(bullet('oneWaySensitivity(baseAssumptions, historicalInputs, variable, range, outputMetric) — Varies one assumption across a range of values, runs the full model for each, and returns the output metric values. Supports array assumptions (applies sampled value uniformly).'));
@@ -659,8 +753,8 @@ children.push(bullet('CRUD operations: createScenario(), duplicateScenario(), up
 children.push(bullet('compareScenarios() — Returns side-by-side comparison for all calculated scenarios: revenue, EBITDA, NI, EPS, FCF, total debt, cash, ROE'));
 
 // ── 7. STATE ────────────────────────────────────────────
-children.push(heading1('7. State Management (store.ts) — 548 lines'));
-children.push(para('Zustand store (v4) with localStorage persistence via zustand/middleware/persist. 20+ actions with GLOBAL_KEYS sync:'));
+children.push(heading1('8. State Management (store.ts) — 28 KB'));
+children.push(para('Zustand store (v5) with localStorage persistence via zustand/middleware/persist. 20+ actions with GLOBAL_KEYS sync:'));
 children.push(makeTable(
     ['State Field', 'Description'],
     [
@@ -703,7 +797,7 @@ children.push(makeTable(
     [35, 65],
 ));
 
-children.push(heading2('7.1 GLOBAL_KEYS Sync'));
+children.push(heading2('8.1 GLOBAL_KEYS Sync'));
 children.push(para('calculateAllScenarios() syncs these keys from Base Case to all other scenarios before computing:'));
 children.push(...codeBlock([
     'taxRate, taxRegime, vatRate, enableVAT, dividendWithholdingRate,',
@@ -716,15 +810,15 @@ children.push(...codeBlock([
     'interestRateOnDebt, interestRateOnCash',
 ]));
 
-children.push(heading2('7.2 Persistence & Migration (v4)'));
+children.push(heading2('8.2 Persistence & Migration (v4)'));
 children.push(para('Persisted fields (via partialize): companyName, ticker, industry, currency, country, fiscalYearEnd, valuationDate, historicalData, historicalInputs, scenarios, activeScenarioId, isDarkMode.'));
 children.push(para('v4 migration handles: scalar→array interest rate conversion, CBE rate defaults, tax regime sync (forces correct rate per regime), interest rate floor resets (US→Egypt), startYear 2025→2026, historical years 2023/2024→2024/2025.'));
 
 // ── 8. EXPORT ───────────────────────────────────────────
 children.push(pageBreak());
-children.push(heading1('8. Export Layer (lib/export/)'));
+children.push(heading1('9. Export Layer (lib/export/)'));
 
-children.push(heading2('8.1 Excel Export (excel.ts + 4 sub-modules) — 4,200+ lines'));
+children.push(heading2('9.1 Excel Export (excel.ts + 4 sub-modules) — 4,200+ lines'));
 children.push(importantBox('Generates a 9-tab Excel workbook where every single calculation cell contains a LIVE FORMULA — no hard-coded computed values.'));
 children.push(makeTable(
     ['Tab Name', 'Builder Module', 'Content Description'],
@@ -754,20 +848,20 @@ children.push(bullet('Balance check row: IF(ABS(TotalAssets − TotalL&E) < 1, "
 children.push(bullet('CF reconciliation: IF(ABS(EndingCash − BS.Cash) < 0.01, "✓ Reconciles", "✗ Error")'));
 children.push(bullet('Zebra-striping and negative-value red formatting applied automatically via applyZebraAndNegatives()'));
 
-children.push(heading2('8.2 PDF Export (pdf.ts) — 49 KB'));
+children.push(heading2('9.2 PDF Export (pdf.ts) — 49 KB'));
 children.push(bullet('Multi-page professional report with cover page (company name, ticker, industry, generation date)'));
 children.push(bullet('Income Statement, Balance Sheet, Cash Flow tables rendered via jsPDF AutoTable'));
 children.push(bullet('Ratio analysis section'));
 children.push(bullet('Supports Egyptian locale with bilingual headers'));
 
-children.push(heading2('8.3 CSV / JSON Export (csv-json.ts)'));
+children.push(heading2('9.3 CSV / JSON Export (csv-json.ts)'));
 children.push(bullet('Plain data export in CSV and JSON formats for integration with external tools'));
 children.push(bullet('Includes all statement data in structured format'));
 
 // ── 9. I18N ─────────────────────────────────────────────
-children.push(heading1('9. Internationalization & Egyptian Localization'));
+children.push(heading1('10. Internationalization & Egyptian Localization'));
 
-children.push(heading2('9.1 Bilingual Labels (i18n/labels.ts)'));
+children.push(heading2('10.1 Bilingual Labels (i18n/labels.ts)'));
 children.push(para('80+ financial line items with English/Arabic label pairs covering Income Statement, Balance Sheet, Cash Flow, Ratios, and Egyptian-specific terms:'));
 children.push(...codeBlock([
     "revenue:            { en: 'Revenue',              ar: 'الإيرادات' }",
@@ -778,24 +872,25 @@ children.push(...codeBlock([
 ]));
 children.push(para('getLabel(key, language) function retrieves the appropriate label with English fallback.'));
 
-children.push(heading2('9.2 Egyptian Depreciation Schedules'));
-children.push(para('Egyptian tax law prescribes specific depreciation rate ranges per asset class:'));
+children.push(heading2('10.2 Egyptian Depreciation Schedules (Law 91/2005, Art. 25-26)'));
+children.push(para('Egyptian Tax Law prescribes EXACT depreciation rates per asset class using the declining-balance method on Net Book Value. These are fixed by law — NOT ranges:'));
 children.push(makeTable(
-    ['Asset Class', 'Arabic Name', 'Min Rate', 'Max Rate', 'Typical Rate'],
+    ['Asset Class', 'Arabic Name', 'Rate (Fixed by Law)', 'Method'],
     [
-        ['Buildings', 'مباني', '2%', '5%', '4%'],
-        ['Machinery', 'آلات', '7%', '10%', '8%'],
-        ['Vehicles', 'مركبات', '12.5%', '25%', '20%'],
-        ['Computers', 'حاسبات', '25%', '33%', '33%'],
-        ['Furniture', 'أثاث', '10%', '20%', '15%'],
+        ['Buildings & Structures', 'مباني', '5%', 'Declining Balance'],
+        ['Machinery & Equipment', 'آلات ومعدات', '25%', 'Declining Balance'],
+        ['Vehicles & Transport', 'سيارات ووسائل نقل', '25%', 'Declining Balance'],
+        ['Computers & IT', 'أجهزة حاسب آلي', '50%', 'Declining Balance'],
+        ['Furniture & Fixtures', 'أثاث وتجهيزات', '20%', 'Declining Balance'],
     ],
-    [20, 20, 15, 15, 15],
+    [25, 20, 25, 30],
 ));
+children.push(para('The engine supports 3 depreciation methods: straight-line (average Gross PPE × rate), declining-balance (Net Book Value × rate), and egyptian-tax (declining-balance with legal asset-class rates and configurable asset mix).'));
 children.push(para('calculateEgyptianBlendedRate(breakdown) computes a weighted-average depreciation rate from the asset-class mix.'));
 children.push(para('Egyptian defaults: Corporate tax 22.5%, VAT 14%, Dividend withholding 10%.'));
 children.push(para('Fiscal year presets: Calendar (January-December), Egyptian Government (July-June), Custom.'));
 
-children.push(heading2('9.3 Egyptian Industry Templates (templates/egyptian-industries.ts)'));
+children.push(heading2('10.3 Egyptian Industry Templates (templates/egyptian-industries.ts)'));
 children.push(para('5 pre-configured sector templates with bilingual names and typical assumption profiles:'));
 children.push(makeTable(
     ['Sector', 'Arabic', 'Growth', 'GM', 'SG&A', 'DSO', 'DIO', 'DPO', 'CapEx%'],
@@ -811,7 +906,7 @@ children.push(makeTable(
 children.push(para('Each template also includes a sector-specific asset-class mix (buildings/machinery/vehicles/computers/furniture) for Egyptian depreciation calculations. Use getTemplate(id) to retrieve.'));
 
 // ── 10. UTILS ───────────────────────────────────────────
-children.push(heading1('10. Utility Functions (utils.ts)'));
+children.push(heading1('11. Utility Functions (utils.ts)'));
 children.push(makeTable(
     ['Function', 'Purpose'],
     [
@@ -828,9 +923,9 @@ children.push(para('Supported currencies: USD ($), EGP (E£), EUR (€), GBP (£
 
 // ── 11. COMPONENTS ──────────────────────────────────────
 children.push(pageBreak());
-children.push(heading1('11. UI Components (27 total)'));
+children.push(heading1('12. UI Components (27 total)'));
 
-children.push(heading2('11.1 Core Pages'));
+children.push(heading2('12.1 Core Pages'));
 children.push(makeTable(
     ['Component', 'Lines', 'Purpose'],
     [
@@ -842,7 +937,7 @@ children.push(makeTable(
     [28, 10, 62],
 ));
 
-children.push(heading2('11.2 Financial Statement Views'));
+children.push(heading2('12.2 Financial Statement Views'));
 children.push(makeTable(
     ['Component', 'Lines', 'Purpose'],
     [
@@ -854,7 +949,7 @@ children.push(makeTable(
     [28, 10, 62],
 ));
 
-children.push(heading2('11.3 Supporting Schedules'));
+children.push(heading2('12.3 Supporting Schedules'));
 children.push(makeTable(
     ['Component', 'Lines', 'Purpose'],
     [
@@ -865,7 +960,7 @@ children.push(makeTable(
     [28, 10, 62],
 ));
 
-children.push(heading2('11.4 Valuation & Analysis'));
+children.push(heading2('12.4 Valuation & Analysis'));
 children.push(makeTable(
     ['Component', 'Lines', 'Purpose'],
     [
@@ -878,7 +973,7 @@ children.push(makeTable(
     [28, 10, 62],
 ));
 
-children.push(heading2('11.5 Scenario Management'));
+children.push(heading2('12.5 Scenario Management'));
 children.push(makeTable(
     ['Component', 'Lines', 'Purpose'],
     [
@@ -889,7 +984,7 @@ children.push(makeTable(
     [28, 10, 62],
 ));
 
-children.push(heading2('11.6 Settings & Data Entry'));
+children.push(heading2('12.6 Settings & Data Entry'));
 children.push(makeTable(
     ['Component', 'Lines', 'Purpose'],
     [
@@ -901,7 +996,7 @@ children.push(makeTable(
     [28, 10, 62],
 ));
 
-children.push(heading2('11.7 Charts & System'));
+children.push(heading2('12.7 Charts & System'));
 children.push(makeTable(
     ['Component', 'Lines', 'Purpose'],
     [
@@ -914,7 +1009,7 @@ children.push(makeTable(
 ));
 
 // ── 12. TABS ────────────────────────────────────────────
-children.push(heading1('12. Navigation & Tab System'));
+children.push(heading1('13. Navigation & Tab System'));
 children.push(para("The app uses a 19-tab system controlled by the Zustand store's activeTab field:"));
 children.push(...codeBlock([
     'dashboard → income → balance → cashflow → ratios → model →',
@@ -928,7 +1023,7 @@ children.push(para('Keyboard shortcuts: Ctrl+S → Calculate All Scenarios, Ctrl
 children.push(para('ScenarioSelector dropdown appears on: dashboard, income, balance, cashflow, working-capital, depreciation, debt-schedule tabs.'));
 
 // ── 13. DATA FLOW ───────────────────────────────────────
-children.push(heading1('13. Data Flow Architecture'));
+children.push(heading1('14. Data Flow Architecture'));
 children.push(para('The system follows a clear input → engine → output pipeline:'));
 children.push(heading3('Input Layer'));
 children.push(bullet('Historical Data (2-3 years of actual financial data, entered manually or via CSV import)'));
@@ -960,7 +1055,101 @@ children.push(bullet('CBE Regulatory Metrics — Debt/EBITDA, Interest Coverage,
 
 // ── 14. DESIGN DECISIONS ────────────────────────────────
 children.push(pageBreak());
-children.push(heading1('14. Key Design Decisions'));
+// ── 15. AI VALIDATION AGENT ─────────────────────────────
+children.push(heading1('15. AI Validation Agent (lib/agents/)'));
+children.push(importantBox('A two-phase validation system: Phase 1 runs 19 deterministic rules (free, instant). Phase 2 optionally calls Claude API for deeper AI-powered analysis.'));
+children.push(heading2('15.1 Architecture'));
+children.push(para('The FinancialValidationAgent class (validation-agent.ts) orchestrates validation with a configurable pipeline:'));
+children.push(bullet('Phase 1 (Local): runAllLocalChecks() executes 19 deterministic validation rules instantly and for free'));
+children.push(bullet('Phase 2 (AI): If local checks fail AND config.runAIChecks is true, sends model data to Claude API via /api/validate'));
+children.push(bullet('Results are merged and deduplicated by rule+period+scenario+field key'));
+children.push(bullet('Reports include: criticalErrors[], majorWarnings[], advisoryNotes[], statistics, egyptianLawCompliance'));
+children.push(emptyLine());
+children.push(heading2('15.2 Validation Configuration'));
+children.push(makeTable(
+    ['Config Option', 'Default', 'Description'],
+    [
+        ['blockExportOnCritical', 'true', 'Prevent Excel/PDF export if critical errors exist'],
+        ['runLocalChecksFirst', 'true', 'Always run free deterministic checks first'],
+        ['runAIChecks', 'true', 'Enable Claude API deep analysis'],
+        ['onlyRunAIIfLocalFails', 'true', 'Skip AI when local checks pass (saves cost)'],
+        ['scenarios', '[base, optimistic, conservative]', 'Which scenarios to validate'],
+        ['tolerance', '0.01', 'Monetary comparison tolerance'],
+    ],
+    [30, 15, 55],
+));
+children.push(emptyLine());
+children.push(heading2('15.3 Deterministic Validation Rules (19 Rules)'));
+children.push(para('The rules are organized in 3 tiers of severity:'));
+children.push(heading3('Tier 1 — Critical (9 rules)'));
+children.push(makeTable(
+    ['Rule', 'Name', 'Check Formula'],
+    [
+        ['1', 'Balance Sheet Balance', 'abs(totalAssets − totalL&E) < 0.01'],
+        ['2', 'CF Ending Cash = BS Cash', 'abs(cf.endingCash − bs.cash) < 0.01'],
+        ['3', 'Revenue Chain Integrity', 'revenue_t = revenue_{t-1} × (1 + growthRate_t)'],
+        ['4', 'Net Income Math', 'NI = EBT − Tax'],
+        ['6-11', 'Egyptian Profit Appropriation', 'EPD, LR, Distributable, Dividends, WHT, Addition to RE (6 sub-rules)'],
+        ['12', 'RE Roll Forward', 'RE_t = RE_{t-1} + additionToRE_t'],
+        ['13', 'Tax Calculation', 'tax = max(0, EBT × taxRate)'],
+        ['15', 'CF Net Change', 'netChange = CFO + CFI + CFF'],
+        ['16', 'Ending Cash Identity', 'endingCash = beginningCash + netChange'],
+    ],
+    [8, 28, 64],
+));
+children.push(heading3('Tier 2 — Major (5 rules)'));
+children.push(makeTable(
+    ['Rule', 'Name', 'Check Formula'],
+    [
+        ['17', 'NOPAT Formula', 'NOPAT = EBIT × (1 − taxRate)'],
+        ['20', 'EBITDA Consistency', 'EBITDA = EBIT + D + A'],
+        ['26', 'ROIC Formula', 'ROIC = NOPAT / (Equity + Total Debt)'],
+        ['27', 'ROE Formula', 'ROE = NI / Total Equity'],
+        ['28', 'ROA Formula', 'ROA = NI / Total Assets'],
+    ],
+    [8, 28, 64],
+));
+children.push(heading3('Tier 3 — Advisory (5 rules)'));
+children.push(makeTable(
+    ['Rule', 'Name', 'Check Formula'],
+    [
+        ['31', 'EPD Zero in Loss Years', 'EPD must be 0 when NI ≤ 0'],
+        ['32', 'LR Zero in Loss Years', 'Legal Reserve must be 0 when NI ≤ 0'],
+        ['33', 'Legal Reserve Cap', 'Cumulative LR ≤ paidUpCapital × 50%'],
+        ['37', 'Growth Deceleration', 'Revenue growth should not accelerate in later years'],
+        ['38', 'FCF Inflection', 'Negative FCF flagged as cash drain risk'],
+    ],
+    [8, 28, 64],
+));
+children.push(emptyLine());
+children.push(heading2('15.4 Egyptian Law Compliance Report'));
+children.push(para('The validation report includes a dedicated egyptianLawCompliance section:'));
+children.push(makeTable(
+    ['Field', 'Checks'],
+    [
+        ['epdCompliant', 'No EPD calculation errors (Rule 6)'],
+        ['legalReserveCompliant', 'Legal Reserve follows Art. 40 (Rule 7)'],
+        ['dividendBaseCompliant', 'Dividends based on Distributable Profit, not NI (Rule 9)'],
+        ['whtCompliant', 'WHT correctly applied at 5% (EGX) or 10% (unlisted) (Rule 10)'],
+        ['overallCompliant', 'No failures in Rules 6-11'],
+    ],
+    [30, 70],
+));
+children.push(emptyLine());
+children.push(heading2('15.5 Multi-Scenario Validation'));
+children.push(para('The multi-scenario-validator.ts module runs validation across Base, Optimistic, and Conservative scenarios simultaneously, merging all findings into a unified report. This is critical for catching edge cases that only appear in conservative scenarios (e.g., negative profits triggering dividend calculation errors).'));
+children.push(emptyLine());
+children.push(heading2('15.6 ValidationPage UI'));
+children.push(para('The ValidationPage.tsx component (18 KB) displays:'));
+children.push(bullet('Pass/fail badge on the Dashboard (green shield ✓ or red shield ✗)'));
+children.push(bullet('Full audit report with findings grouped by severity (Critical → Major → Advisory)'));
+children.push(bullet('Egyptian Law Compliance status panel'));
+children.push(bullet('Statistics summary: periods audited, scenarios audited, total checks, pass/fail counts'));
+children.push(bullet('AI-powered analysis results (when enabled)'));
+
+// ── 16. DESIGN DECISIONS ────────────────────────────────
+children.push(pageBreak());
+children.push(heading1('16. Key Design Decisions'));
 
 children.push(heading3('1. Cash as Plug'));
 children.push(para('Cash is the balancing item on the balance sheet: Cash = Total L+E − all other assets. This guarantees A = L+E always holds, which is critical for the iterative solver to work correctly.'));
@@ -983,15 +1172,14 @@ children.push(para('Full support for the Egyptian market: 22.5% corporate tax ra
 children.push(heading3('7. Zustand + localStorage'));
 children.push(para('State persists across browser refreshes via the zustand/middleware/persist module. Only essential fields are persisted (via partialize), while computed results and UI state are excluded.'));
 
-// ── 15. LIMITATIONS ─────────────────────────────────────
-children.push(heading1('15. Known Limitations'));
+// ── 17. LIMITATIONS ─────────────────────────────────────
+children.push(heading1('17. Known Limitations'));
 children.push(makeTable(
     ['Area', 'Limitation', 'Workaround'],
     [
         ['Circular References', 'Iterative solver may not converge with extreme assumptions (200%+ debt ratios)', 'Use realistic assumption ranges'],
         ['Interest Calculation', 'Uses beginning-of-period debt (flat rate × beginning balance) — no mid-period debt changes', 'Acceptable for most modeling'],
         ['Balancing Plug', 'Cash is used as the plug when BS doesn\'t balance exactly', 'Check balanceDifference field'],
-        ['Tax Loss Carryforward', 'Not implemented — negative EBT still applies tax rate', 'Set tax rate to 0% for loss scenarios'],
         ['Goodwill & Intangibles', 'Static from assumptions — no impairment testing', 'Manually update assumptions'],
         ['Working Capital', 'DSO/DIO/DPO-driven — no seasonal or cyclical variation', 'N/A for annual models'],
         ['Debt Structure', 'Constant debt levels unless assumption overrides used', 'Use scenario manager'],

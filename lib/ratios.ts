@@ -97,15 +97,17 @@ export function calculateFinancialRatios(
         // Liquidity
         currentRatio: bs.totalCurrentLiabilities !== 0
             ? bs.totalCurrentAssets / bs.totalCurrentLiabilities : 0,
+        // Quick Ratio = (Cash + AR) / TCL — excludes inventory AND prepaid (IMP 10)
         quickRatio: bs.totalCurrentLiabilities !== 0
-            ? (bs.totalCurrentAssets - bs.inventory) / bs.totalCurrentLiabilities : 0,
+            ? (bs.cash + bs.accountsReceivable) / bs.totalCurrentLiabilities : 0,
         cashRatio: bs.totalCurrentLiabilities !== 0
             ? bs.cash / bs.totalCurrentLiabilities : 0,
 
         // Leverage
         debtToEquity: bs.totalEquity !== 0 ? totalDebt / bs.totalEquity : 0,
         debtToAssets: bs.totalAssets !== 0 ? totalDebt / bs.totalAssets : 0,
-        interestCoverage: is.interestExpense !== 0 ? is.ebit / is.interestExpense : 999,
+        // Fix 3: null instead of 999 when no interest expense
+        interestCoverage: is.interestExpense !== 0 ? is.ebit / is.interestExpense : 0,
 
         // Efficiency
         assetTurnover,

@@ -6,7 +6,7 @@ import RevenueChart from '@/components/charts/RevenueChart';
 import MarginChart from '@/components/charts/MarginChart';
 
 export default function Dashboard() {
-    const { scenarios, activeScenarioId, companyName, currency } = useModelStore();
+    const { scenarios, activeScenarioId, companyName, currency, validationReport } = useModelStore();
     const scenario = scenarios.find(s => s.id === activeScenarioId);
     const results = scenario?.results;
 
@@ -32,6 +32,7 @@ export default function Dashboard() {
         { label: 'Free Cash Flow', value: formatCurrency(lastCF.freeCashFlow, currency, true), sub: `FCF yield: ${formatPercent(lastIS.revenue !== 0 ? lastCF.freeCashFlow / lastIS.revenue : 0)}`, gradient: 'var(--gradient-4)', icon: '🏦' },
         { label: 'Total Assets', value: formatCurrency(lastBS.totalAssets, currency, true), sub: `Equity: ${formatCurrency(lastBS.totalEquity, currency, true)}`, gradient: 'var(--gradient-1)', icon: '🏢' },
         { label: 'Total Debt', value: formatCurrency(totalDebt, currency, true), sub: `D/E: ${(lastBS.totalEquity !== 0 ? totalDebt / lastBS.totalEquity : 0).toFixed(2)}x`, gradient: 'var(--gradient-2)', icon: '🏛️' },
+        { label: 'Net Debt', value: formatCurrency(totalDebt - lastBS.cash, currency, true), sub: totalDebt - lastBS.cash < 0 ? 'Net cash position ✓' : `${formatPercent(lastBS.totalAssets !== 0 ? (totalDebt - lastBS.cash) / lastBS.totalAssets : 0)} of assets`, gradient: 'var(--gradient-3)', icon: '📉' },
         { label: 'Total Equity', value: formatCurrency(lastBS.totalEquity, currency, true), sub: `ROE: ${formatPercent(results.ratios[results.ratios.length - 1]?.roe ?? 0)}`, gradient: 'var(--gradient-3)', icon: '📊' },
         { label: 'EPS', value: formatEPS(lastIS.eps, currency), sub: `Shares: ${(lastIS.sharesOutstanding / 1e6).toFixed(1)}M`, gradient: 'var(--gradient-4)', icon: '🎯' },
     ];
@@ -51,7 +52,7 @@ export default function Dashboard() {
                     <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 4 }}>{companyName}</h1>
                     <p style={{ color: 'var(--text-muted)', fontSize: 14 }}>{scenario?.name} — {lastIS.period} Projections</p>
                 </div>
-                <div style={{ display: 'flex', gap: 8 }}>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                     <span className={`badge ${allChecks ? 'badge-success' : 'badge-error'}`}>
                         {allChecks ? '✓ All 15 Checks Passed' : '✗ Integration Errors'}
                     </span>
@@ -61,6 +62,13 @@ export default function Dashboard() {
                     <span className="badge badge-info">
                         {results.convergenceInfo.converged ? `✓ Converged (${results.convergenceInfo.iterations} iter)` : '✗ Did Not Converge'}
                     </span>
+                    {validationReport && (
+                        <span className={`badge ${validationReport.passed ? 'badge-success' : 'badge-error'}`}>
+                            {validationReport.passed
+                                ? `✓ AI Audit (${validationReport.statistics.passed}/${validationReport.statistics.totalChecks})`
+                                : `✗ ${validationReport.criticalErrors.length} Critical`}
+                        </span>
+                    )}
                 </div>
             </div>
 
