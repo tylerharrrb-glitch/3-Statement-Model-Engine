@@ -39,7 +39,7 @@ export default function Home() {
         currency: useModelStore.getState().currency ?? 'EGP',
         incomeStatements: activeScenario.results.incomeStatements,
         balanceSheets: activeScenario.results.balanceSheets,
-        cashFlows: activeScenario.results.cashFlows,
+        cashFlows: activeScenario.results.cashFlowStatements,
         ratios: activeScenario.results.ratios,
         integrationChecks: activeScenario.results.integrationChecks,
         convergenceInfo: activeScenario.results.convergenceInfo,
