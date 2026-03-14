@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { AnalystPanel } from '@/components/AnalystPanel';
 import { useModelStore } from '@/lib/store';
 import Sidebar from '@/components/Sidebar';
 import Dashboard from '@/components/Dashboard';
@@ -27,7 +28,23 @@ import ErrorBanner from '@/components/ErrorBanner';
 import ConflictModal from '@/components/ConflictModal';
 
 export default function Home() {
-  const { activeTab, calculateAllScenarios, scenarios, calculationError, conflictDetected, dataVersion } = useModelStore();
+  const { activeTab, calculateAllScenarios, scenarios, activeScenarioId, calculationError, conflictDetected, dataVersion } = useModelStore();
+  const [analystOpen, setAnalystOpen] = useState(false);
+
+  // Build modelData for AI Analyst panel from active scenario
+  const activeScenario = scenarios.find(s => s.id === activeScenarioId);
+  const modelData = activeScenario?.results
+    ? {
+        companyName: useModelStore.getState().companyName,
+        currency: useModelStore.getState().currency ?? 'EGP',
+        incomeStatements: activeScenario.results.incomeStatements,
+        balanceSheets: activeScenario.results.balanceSheets,
+        cashFlows: activeScenario.results.cashFlows,
+        ratios: activeScenario.results.ratios,
+        integrationChecks: activeScenario.results.integrationChecks,
+        convergenceInfo: activeScenario.results.convergenceInfo,
+      }
+    : null;
 
   useEffect(() => {
     const hasResults = scenarios.some(s => s.results !== null);
@@ -107,6 +124,37 @@ export default function Home() {
         {showScenarioSelector && <ScenarioSelector />}
         {renderPage()}
       </main>
+
+      {/* AI Analyst toggle button */}
+      <button
+        onClick={() => setAnalystOpen(prev => !prev)}
+        style={{
+          position: 'fixed',
+          top: '16px',
+          right: analystOpen ? '436px' : '16px',
+          zIndex: 1001,
+          padding: '8px 16px',
+          background: 'var(--accent-blue, #4f8cff)',
+          color: '#fff',
+          border: 'none',
+          borderRadius: '8px',
+          cursor: 'pointer',
+          fontSize: '13px',
+          fontWeight: 600,
+          transition: 'right 0.2s ease',
+          boxShadow: '0 2px 12px rgba(0,0,0,0.4)',
+        }}
+      >
+        🧮 {analystOpen ? 'Close Analyst' : 'AI Analyst'}
+      </button>
+
+      {/* AI Analyst chat panel */}
+      <AnalystPanel
+        modelData={modelData}
+        isOpen={analystOpen}
+        onClose={() => setAnalystOpen(false)}
+      />
+
       {/* Skip to content link for accessibility (FIX #10) */}
       <a href="#" className="sr-only" style={{ position: 'absolute', top: -9999, left: -9999 }}>
         Skip to main content
