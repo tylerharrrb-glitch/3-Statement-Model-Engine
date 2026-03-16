@@ -75,41 +75,47 @@ export function AnalystPanel({ modelData, isOpen, onClose }: AnalystPanelProps) 
         right: 0,
         width: '420px',
         height: '100vh',
-        background: 'var(--bg-secondary, #111118)',
-        borderLeft: '1px solid var(--border-color, #2a2a3e)',
+        background: 'var(--bg-secondary)',
+        borderLeft: '1px solid var(--border)',
         display: 'flex',
         flexDirection: 'column',
         zIndex: 1000,
-        boxShadow: '-4px 0 24px rgba(0,0,0,0.4)',
+        boxShadow: '-8px 0 32px rgba(0,0,0,0.5)',
+        fontFamily: 'var(--ff-body)',
       }}
     >
       {/* Header */}
       <div
         style={{
           padding: '16px 20px',
-          borderBottom: '1px solid var(--border-color, #2a2a3e)',
+          borderBottom: '1px solid var(--border)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          background: 'var(--bg-primary, #0a0a0f)',
+          background: 'var(--bg-primary)',
         }}
       >
         <div>
           <h3
             style={{
               margin: 0,
-              fontSize: '16px',
+              fontSize: '15px',
               fontWeight: 700,
-              color: 'var(--accent-blue, #4f8cff)',
+              fontFamily: 'var(--ff-display)',
+              color: 'var(--accent-gold)',
+              letterSpacing: '0.5px',
             }}
           >
-            🧮 3-Statement Analyst
+            3-Statement Analyst
           </h3>
           <p
             style={{
-              margin: '2px 0 0',
-              fontSize: '11px',
-              color: 'var(--text-muted, #6a6a80)',
+              margin: '3px 0 0',
+              fontSize: '10px',
+              fontFamily: 'var(--ff-mono)',
+              color: 'var(--text-muted)',
+              letterSpacing: '1px',
+              textTransform: 'uppercase',
             }}
           >
             CFA-grade · Egyptian Market · EAS Compliant
@@ -119,38 +125,47 @@ export function AnalystPanel({ modelData, isOpen, onClose }: AnalystPanelProps) 
           onClick={onClose}
           style={{
             background: 'none',
-            border: 'none',
-            color: 'var(--text-muted, #6a6a80)',
+            border: '1px solid var(--border)',
+            color: 'var(--text-secondary)',
             cursor: 'pointer',
-            fontSize: '20px',
+            fontSize: '14px',
             lineHeight: 1,
-            padding: '4px 8px',
+            padding: '4px 10px',
+            borderRadius: '4px',
+            fontFamily: 'var(--ff-mono)',
+            transition: 'all .2s ease',
           }}
           aria-label="Close analyst panel"
+          onMouseOver={e => { (e.target as HTMLElement).style.borderColor = 'var(--accent-gold)'; (e.target as HTMLElement).style.color = 'var(--accent-gold)'; }}
+          onMouseOut={e => { (e.target as HTMLElement).style.borderColor = 'var(--border)'; (e.target as HTMLElement).style.color = 'var(--text-secondary)'; }}
         >
           ×
         </button>
       </div>
 
       {/* Verify All Button */}
-      <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border-color, #2a2a3e)' }}>
+      <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border)' }}>
         <button
           onClick={() => sendMessage(VERIFY_ALL_MESSAGE)}
           disabled={isLoading}
           style={{
             width: '100%',
             padding: '10px 16px',
-            background: isLoading ? '#555' : 'var(--accent-blue, #4f8cff)',
-            color: '#fff',
+            background: isLoading ? 'var(--bg-card)' : 'var(--accent-gold)',
+            color: isLoading ? 'var(--text-muted)' : 'var(--bg-primary)',
             border: 'none',
-            borderRadius: '6px',
-            fontSize: '13px',
+            borderRadius: '4px',
+            fontSize: '12px',
             fontWeight: 600,
+            fontFamily: 'var(--ff-mono)',
+            letterSpacing: '1px',
+            textTransform: 'uppercase',
             cursor: isLoading ? 'not-allowed' : 'pointer',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             gap: '8px',
+            transition: 'all .2s ease',
           }}
         >
           {isLoading ? (
@@ -160,16 +175,16 @@ export function AnalystPanel({ modelData, isOpen, onClose }: AnalystPanelProps) 
                   display: 'inline-block',
                   width: '12px',
                   height: '12px',
-                  border: '2px solid rgba(255,255,255,0.3)',
-                  borderTopColor: '#fff',
+                  border: '2px solid var(--text-muted)',
+                  borderTopColor: 'var(--accent-gold)',
                   borderRadius: '50%',
                   animation: 'spin 0.8s linear infinite',
                 }}
               />
-              Analyzing…
+              Analyzing...
             </>
           ) : (
-            '✅ Verify All Statements'
+            'Verify All Statements'
           )}
         </button>
       </div>
@@ -189,19 +204,20 @@ export function AnalystPanel({ modelData, isOpen, onClose }: AnalystPanelProps) 
           <div
             style={{
               textAlign: 'center',
-              color: 'var(--text-muted, #6a6a80)',
-              fontSize: '13px',
+              color: 'var(--text-muted)',
+              fontSize: '12px',
+              fontFamily: 'var(--ff-mono)',
               marginTop: '40px',
             }}
           >
-            <p>Click &quot;Verify All Statements&quot; for a full audit,</p>
+            <p style={{ marginBottom: 4 }}>Click &quot;Verify All Statements&quot; for a full audit,</p>
             <p>or ask any question about the model.</p>
             <div
               style={{
                 marginTop: '24px',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '8px',
+                gap: '6px',
               }}
             >
               {[
@@ -214,15 +230,19 @@ export function AnalystPanel({ modelData, isOpen, onClose }: AnalystPanelProps) 
                   key={q}
                   onClick={() => sendMessage(q)}
                   style={{
-                    background: 'var(--bg-card, #16161e)',
-                    border: '1px solid var(--border-color, #2a2a3e)',
-                    borderRadius: '6px',
-                    color: 'var(--text-secondary, #a0a0b8)',
+                    background: 'var(--bg-card)',
+                    border: '1px solid var(--border)',
+                    borderRadius: '4px',
+                    color: 'var(--text-secondary)',
                     cursor: 'pointer',
-                    fontSize: '12px',
+                    fontSize: '11px',
+                    fontFamily: 'var(--ff-mono)',
                     padding: '8px 12px',
                     textAlign: 'left',
+                    transition: 'all .2s ease',
                   }}
+                  onMouseOver={e => { (e.target as HTMLElement).style.borderColor = 'rgba(201,168,76,.4)'; (e.target as HTMLElement).style.color = 'var(--accent-gold)'; }}
+                  onMouseOut={e => { (e.target as HTMLElement).style.borderColor = 'var(--border)'; (e.target as HTMLElement).style.color = 'var(--text-secondary)'; }}
                 >
                   {q}
                 </button>
@@ -243,14 +263,18 @@ export function AnalystPanel({ modelData, isOpen, onClose }: AnalystPanelProps) 
               style={{
                 maxWidth: '85%',
                 padding: '10px 14px',
-                borderRadius: msg.role === 'user' ? '12px 12px 2px 12px' : '12px 12px 12px 2px',
+                borderRadius: msg.role === 'user' ? '10px 10px 2px 10px' : '10px 10px 10px 2px',
                 background:
                   msg.role === 'user'
-                    ? 'var(--accent-blue, #4f8cff)'
-                    : 'var(--bg-card, #16161e)',
-                color: msg.role === 'user' ? '#fff' : 'var(--text-primary, #e8e8f0)',
-                fontSize: '13px',
-                lineHeight: '1.6',
+                    ? 'rgba(201,168,76,.15)'
+                    : 'var(--bg-card)',
+                border: msg.role === 'user'
+                  ? '1px solid rgba(201,168,76,.3)'
+                  : '1px solid var(--border)',
+                color: msg.role === 'user' ? 'var(--accent-gold)' : 'var(--text-primary)',
+                fontSize: '12px',
+                fontFamily: msg.role === 'assistant' ? 'var(--ff-mono)' : 'var(--ff-body)',
+                lineHeight: '1.7',
                 whiteSpace: 'pre-wrap',
                 wordBreak: 'break-word',
               }}
@@ -265,13 +289,15 @@ export function AnalystPanel({ modelData, isOpen, onClose }: AnalystPanelProps) 
             <div
               style={{
                 padding: '10px 16px',
-                background: 'var(--bg-card, #16161e)',
-                borderRadius: '12px 12px 12px 2px',
-                color: 'var(--text-muted, #6a6a80)',
-                fontSize: '13px',
+                background: 'var(--bg-card)',
+                border: '1px solid var(--border)',
+                borderRadius: '10px 10px 10px 2px',
+                color: 'var(--text-muted)',
+                fontSize: '12px',
+                fontFamily: 'var(--ff-mono)',
               }}
             >
-              Analyzing model data…
+              Analyzing model data...
             </div>
           </div>
         )}
@@ -280,14 +306,15 @@ export function AnalystPanel({ modelData, isOpen, onClose }: AnalystPanelProps) 
           <div
             style={{
               padding: '10px 14px',
-              background: '#3a1a1a',
-              border: '1px solid #c0392b',
-              borderRadius: '8px',
-              color: '#e74c3c',
-              fontSize: '12px',
+              background: 'rgba(248,113,113,.08)',
+              border: '1px solid rgba(248,113,113,.3)',
+              borderRadius: '4px',
+              color: '#f87171',
+              fontSize: '11px',
+              fontFamily: 'var(--ff-mono)',
             }}
           >
-            ❌ Error: {error}
+            Error: {error}
           </div>
         )}
 
@@ -298,8 +325,8 @@ export function AnalystPanel({ modelData, isOpen, onClose }: AnalystPanelProps) 
       <div
         style={{
           padding: '12px 16px',
-          borderTop: '1px solid var(--border-color, #2a2a3e)',
-          background: 'var(--bg-primary, #0a0a0f)',
+          borderTop: '1px solid var(--border)',
+          background: 'var(--bg-primary)',
           display: 'flex',
           gap: '8px',
           alignItems: 'flex-end',
@@ -310,21 +337,21 @@ export function AnalystPanel({ modelData, isOpen, onClose }: AnalystPanelProps) 
           value={input}
           onChange={e => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Ask about the model… (Enter to send, Shift+Enter for newline)"
+          placeholder="Ask about the model..."
           disabled={isLoading}
           rows={2}
           style={{
             flex: 1,
             padding: '10px 12px',
-            background: 'var(--bg-secondary, #111118)',
-            border: '1px solid var(--border-color, #2a2a3e)',
-            borderRadius: '8px',
-            color: 'var(--text-primary, #e8e8f0)',
-            fontSize: '13px',
+            background: 'var(--bg-secondary)',
+            border: '1px solid var(--border)',
+            borderRadius: '4px',
+            color: 'var(--text-primary)',
+            fontSize: '12px',
+            fontFamily: 'var(--ff-mono)',
             resize: 'none',
             outline: 'none',
             lineHeight: '1.5',
-            fontFamily: 'inherit',
           }}
         />
         <button
@@ -334,16 +361,20 @@ export function AnalystPanel({ modelData, isOpen, onClose }: AnalystPanelProps) 
             padding: '10px 16px',
             background:
               isLoading || !input.trim()
-                ? 'var(--bg-card, #16161e)'
-                : 'var(--accent-blue, #4f8cff)',
-            color: isLoading || !input.trim() ? 'var(--text-muted, #6a6a80)' : '#fff',
+                ? 'var(--bg-card)'
+                : 'var(--accent-gold)',
+            color: isLoading || !input.trim() ? 'var(--text-muted)' : 'var(--bg-primary)',
             border: 'none',
-            borderRadius: '8px',
+            borderRadius: '4px',
             cursor: isLoading || !input.trim() ? 'not-allowed' : 'pointer',
-            fontSize: '13px',
+            fontSize: '11px',
             fontWeight: 600,
+            fontFamily: 'var(--ff-mono)',
+            letterSpacing: '1px',
+            textTransform: 'uppercase',
             minWidth: '64px',
             height: '42px',
+            transition: 'all .2s ease',
           }}
         >
           Send
