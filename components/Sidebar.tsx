@@ -255,8 +255,22 @@ export default function Sidebar() {
                             style={{ fontSize: 12, padding: '6px 8px' }}
                             onClick={async () => {
                                 if (!activeScenario?.results) return;
+                                const state = useModelStore.getState();
                                 const { exportToJSON } = await import('@/lib/export/csv-json');
-                                exportToJSON(activeScenario.results, companyName, currency);
+                                exportToJSON({
+                                    companyName: state.companyName,
+                                    ticker: state.ticker,
+                                    industry: state.industry,
+                                    currency: state.currency,
+                                    country: state.country,
+                                    fiscalYearEnd: state.fiscalYearEnd,
+                                    valuationDate: state.valuationDate,
+                                    activeScenarioId: state.activeScenarioId,
+                                    assumptions: activeScenario.assumptions,
+                                    historicalInputs: state.historicalInputs,
+                                    scenarios: state.scenarios,
+                                    results: activeScenario.results,
+                                });
                             }}
                             disabled={!activeScenario?.results}
                             aria-label="Export to JSON"

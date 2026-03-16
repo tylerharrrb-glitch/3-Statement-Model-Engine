@@ -87,21 +87,81 @@ export function exportToCSV(results: ModelResults, companyName: string, currency
 
 // ── JSON EXPORT ──────────────────────────────────────────────
 
-export function exportToJSON(results: ModelResults, companyName: string, currency: string = 'USD'): void {
+import type { AssumptionSet, HistoricalInputs } from '@/types/assumptions';
+import type { Scenario } from '@/types/scenario';
+
+export interface JSONExportOptions {
+    companyName: string;
+    ticker?: string;
+    industry?: string;
+    currency: string;
+    country?: string;
+    fiscalYearEnd?: string;
+    valuationDate?: string;
+    activeScenarioId?: string;
+    assumptions: AssumptionSet;
+    historicalInputs: HistoricalInputs;
+    scenarios: Scenario[];
+    results: ModelResults;
+}
+
+export function exportToJSON(opts: JSONExportOptions): void {
+    const { results } = opts;
+
     const data = {
-        companyName,
-        currency,
+        // ── Metadata ─────────────────────────────────────────
         exportDate: new Date().toISOString(),
+        engineVersion: '3SM-v6',
+
+        // ── Company Info ─────────────────────────────────────
+        companyInfo: {
+            companyName: opts.companyName,
+            ticker: opts.ticker ?? '',
+            industry: opts.industry ?? '',
+            currency: opts.currency,
+            country: opts.country ?? '',
+            fiscalYearEnd: opts.fiscalYearEnd ?? '',
+            valuationDate: opts.valuationDate ?? '',
+        },
+
+        // ── Active Scenario Assumptions ──────────────────────
+        assumptions: opts.assumptions,
+
+        // ── Historical Inputs ────────────────────────────────
+        historicalInputs: opts.historicalInputs,
+
+        // ── All Scenarios ────────────────────────────────────
+        activeScenarioId: opts.activeScenarioId ?? '',
+        scenarios: opts.scenarios.map(s => ({
+            id: s.id,
+            name: s.name,
+            type: s.type,
+            description: s.description,
+            assumptions: s.assumptions,
+            results: s.results,
+            createdAt: s.createdAt,
+            updatedAt: s.updatedAt,
+        })),
+
+        // ── Active Scenario Results (flat for convenience) ───
         incomeStatements: results.incomeStatements,
         balanceSheets: results.balanceSheets,
         cashFlowStatements: results.cashFlowStatements,
         ratios: results.ratios,
         convergenceInfo: results.convergenceInfo,
         integrationChecks: results.integrationChecks,
+
+        // ── Valuation ────────────────────────────────────────
+        dcfValuation: results.dcfValuation ?? null,
+        valuationMultiples: results.valuationMultiples ?? null,
+
+        // ── Validation ───────────────────────────────────────
+        validationReport: results.validationReport ?? null,
+        validationPassed: results.validationPassed ?? null,
     };
 
     const json = JSON.stringify(data, null, 2);
-    downloadText(json, `${safeName(companyName)}_Financial_Model.json`, 'application/json');
+    downloadText(json, `${safeName(opts.companyName)}_Financial_Model.json`, 'application/json');
 }
 
 // ── HELPERS ──────────────────────────────────────────────────
