@@ -138,7 +138,7 @@ export default function IncomeStatementPage() {
         return (
             <>
                 {label.slice(0, idx)}
-                <mark style={{ background: 'rgba(79,140,255,0.3)', color: 'inherit', padding: '0 2px', borderRadius: 2 }}>
+            <mark style={{ background: 'rgba(201,168,76,0.3)', color: 'inherit', padding: '0 2px', borderRadius: 2 }}>
                     {label.slice(idx, idx + searchTerm.length)}
                 </mark>
                 {label.slice(idx + searchTerm.length)}
@@ -180,7 +180,7 @@ export default function IncomeStatementPage() {
     return (
         <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
-                <h1 style={{ fontSize: 22, fontWeight: 700 }}>💰 Income Statement</h1>
+                <h2 style={{ fontFamily: 'var(--ff-display)', fontSize: 'clamp(1.3rem, 3vw, 1.6rem)', fontWeight: 700 }}>Income Statement</h2>
                 {/* Search input (FIX #8) */}
                 <div style={{ position: 'relative', minWidth: 220 }}>
                     <input
@@ -207,7 +207,7 @@ export default function IncomeStatementPage() {
                     )}
                 </div>
             </div>
-            <div className="metric-card" style={{ marginBottom: 24 }}>
+            <div className="card" style={{ marginBottom: 24 }}>
                 <RevenueChart data={statements} />
             </div>
 
@@ -234,7 +234,7 @@ export default function IncomeStatementPage() {
                 </div>
             )}
 
-            <div className="metric-card table-scroll-container" ref={scrollContainerRef} style={{ overflow: 'auto' }}>
+            <div className="table-card table-scroll-container" ref={scrollContainerRef} style={{ overflow: 'auto' }}>
                 <table className="fin-table" role="table" aria-label="Income Statement">
                     <thead>
                         <tr>

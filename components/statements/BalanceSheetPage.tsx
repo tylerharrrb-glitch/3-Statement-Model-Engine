@@ -67,9 +67,9 @@ export default function BalanceSheetPage() {
 
     return (
         <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-                <h1 style={{ fontSize: 22, fontWeight: 700 }}>🏦 Balance Sheet</h1>
-                <div style={{ display: 'flex', gap: 8 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
+                <h2 style={{ fontFamily: 'var(--ff-display)', fontSize: 'clamp(1.3rem, 3vw, 1.6rem)', fontWeight: 700 }}>Balance Sheet</h2>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                     {statements.filter(s => s.periodType === 'projected').map(s => (
                         <span key={s.period} className={`badge ${s.isBalanced ? 'badge-success' : 'badge-error'}`}>
                             {s.period}: {s.isBalanced ? '✓ Balanced' : `✗ Diff: ${formatCurrency(s.balanceDifference, currency)}`}
@@ -77,7 +77,7 @@ export default function BalanceSheetPage() {
                     ))}
                 </div>
             </div>
-            <div className="metric-card" style={{ overflow: 'auto' }}>
+            <div className="table-card" style={{ overflow: 'auto' }}>
                 <table className="fin-table">
                     <thead>
                         <tr>

@@ -84,23 +84,26 @@ export default function ModelPage() {
 
     return (
         <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-                <h1 style={{ fontSize: 22, fontWeight: 700 }}>⚙️ Model Assumptions — {scenario.name}</h1>
-                <button className="btn-primary" onClick={calculateModel} disabled={isCalculating}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+                <div>
+                    <h2 style={{ fontFamily: 'var(--ff-display)', fontSize: 'clamp(1.3rem, 3vw, 1.6rem)', fontWeight: 700 }}>Model Assumptions</h2>
+                    <p style={{ fontFamily: 'var(--ff-mono)', fontSize: '.78rem', color: 'var(--text-muted)', marginTop: 4 }}>{scenario.name}</p>
+                </div>
+                <button className="btn-gold" onClick={calculateModel} disabled={isCalculating}>
                     {isCalculating ? '⏳ Calculating...' : '▶ Recalculate'}
                 </button>
             </div>
 
-            <div style={{ display: 'flex', gap: 4, marginBottom: 16, flexWrap: 'wrap' }}>
+            <div className="tab-list" style={{ marginBottom: 20 }}>
                 {assumptionGroups.map((g, i) => (
                     <button key={i} className={`tab-item ${openGroup === i ? 'active' : ''}`} onClick={() => setOpenGroup(i)}>{g.title}</button>
                 ))}
             </div>
 
-            <div className="metric-card">
-                <h3 style={{ fontSize: 14, fontWeight: 600, marginBottom: 16, color: 'var(--accent-blue)' }}>
+            <div className="table-card" style={{ padding: '20px' }}>
+                <div className="section-label" style={{ marginBottom: 16 }}>
                     {assumptionGroups[openGroup].title}
-                </h3>
+                </div>
                 <table className="fin-table">
                     <thead>
                         <tr>

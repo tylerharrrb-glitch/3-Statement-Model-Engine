@@ -64,8 +64,8 @@ export default function CashFlowPage() {
 
     return (
         <div>
-            <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 20 }}>💵 Cash Flow Statement</h1>
-            <div className="metric-card" style={{ overflow: 'auto' }}>
+            <h2 style={{ fontFamily: 'var(--ff-display)', fontSize: 'clamp(1.3rem, 3vw, 1.6rem)', fontWeight: 700, marginBottom: 20 }}>Cash Flow Statement</h2>
+            <div className="table-card" style={{ overflow: 'auto' }}>
                 <table className="fin-table">
                     <thead>
                         <tr>
@@ -98,7 +98,7 @@ export default function CashFlowPage() {
                                         {statements.map((s, idx) => {
                                             const val = s[row.key] as number;
                                             return (
-                                                <td key={s.period} className={colClass(idx, s)} style={{ color: val < 0 ? 'var(--accent-rose)' : undefined }}>
+                                                <td key={s.period} className={colClass(idx, s)} style={{ color: val < 0 ? '#f87171' : undefined }}>
                                                     {formatCurrency(val, currency)}
                                                 </td>
                                             );
@@ -115,7 +115,7 @@ export default function CashFlowPage() {
                             {statements.map((s, idx) => (
                                 <td key={s.period} className={colClass(idx, s)} style={{
                                     fontWeight: 700,
-                                    color: s.reconciles ? 'var(--accent-green, #16a34a)' : 'var(--accent-rose, #dc2626)',
+                                    color: s.reconciles ? '#4ade80' : '#f87171',
                                     background: s.reconciles
                                         ? 'rgba(22, 163, 74, 0.08)'
                                         : 'rgba(220, 38, 38, 0.08)',

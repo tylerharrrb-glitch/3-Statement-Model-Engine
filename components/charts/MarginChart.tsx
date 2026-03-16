@@ -13,14 +13,14 @@ export default function MarginChart({ data }: { data: IncomeStatement[] }) {
     return (
         <ResponsiveContainer width="100%" height={250}>
             <BarChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#2a2a3e" />
-                <XAxis dataKey="period" tick={{ fill: '#a0a0b8', fontSize: 11 }} axisLine={{ stroke: '#2a2a3e' }} />
-                <YAxis tick={{ fill: '#a0a0b8', fontSize: 11 }} axisLine={{ stroke: '#2a2a3e' }} tickFormatter={v => `${v}%`} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#1E2D45" />
+                <XAxis dataKey="period" tick={{ fill: '#8892A4', fontSize: 11, fontFamily: 'IBM Plex Mono, monospace' }} axisLine={{ stroke: '#1E2D45' }} />
+                <YAxis tick={{ fill: '#8892A4', fontSize: 11, fontFamily: 'IBM Plex Mono, monospace' }} axisLine={{ stroke: '#1E2D45' }} tickFormatter={v => `${v}%`} />
                 {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                <Tooltip contentStyle={{ background: '#16161e', border: '1px solid #2a2a3e', borderRadius: 8, fontSize: 12 }} formatter={(v: any) => `${v}%`} />
-                <Bar dataKey="Gross" fill="#4f8cff" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="Operating" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="Net" fill="#34d399" radius={[4, 4, 0, 0]} />
+                <Tooltip contentStyle={{ background: '#141B2D', border: '1px solid #1E2D45', borderRadius: 4, fontSize: 12, fontFamily: 'IBM Plex Mono, monospace' }} formatter={(v: any) => `${v}%`} />
+                <Bar dataKey="Gross" fill="#C9A84C" radius={[3, 3, 0, 0]} />
+                <Bar dataKey="Operating" fill="#3B82F6" radius={[3, 3, 0, 0]} />
+                <Bar dataKey="Net" fill="#4ade80" radius={[3, 3, 0, 0]} />
             </BarChart>
         </ResponsiveContainer>
     );

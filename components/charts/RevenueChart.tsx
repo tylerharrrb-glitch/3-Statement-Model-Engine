@@ -15,25 +15,25 @@ export default function RevenueChart({ data }: { data: IncomeStatement[] }) {
             <AreaChart data={chartData}>
                 <defs>
                     <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#4f8cff" stopOpacity={0.3} />
-                        <stop offset="95%" stopColor="#4f8cff" stopOpacity={0} />
+                        <stop offset="5%" stopColor="#C9A84C" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="#C9A84C" stopOpacity={0} />
                     </linearGradient>
                     <linearGradient id="gpGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#34d399" stopOpacity={0.3} />
-                        <stop offset="95%" stopColor="#34d399" stopOpacity={0} />
+                        <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="#3B82F6" stopOpacity={0} />
                     </linearGradient>
                     <linearGradient id="niGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} />
-                        <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
+                        <stop offset="5%" stopColor="#4ade80" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="#4ade80" stopOpacity={0} />
                     </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#2a2a3e" />
-                <XAxis dataKey="period" tick={{ fill: '#a0a0b8', fontSize: 11 }} axisLine={{ stroke: '#2a2a3e' }} />
-                <YAxis tick={{ fill: '#a0a0b8', fontSize: 11 }} axisLine={{ stroke: '#2a2a3e' }} tickFormatter={v => `$${(v / 1000).toFixed(0)}K`} />
-                <Tooltip contentStyle={{ background: '#16161e', border: '1px solid #2a2a3e', borderRadius: 8, fontSize: 12 }} />
-                <Area type="monotone" dataKey="Revenue" stroke="#4f8cff" fill="url(#revGrad)" strokeWidth={2} />
-                <Area type="monotone" dataKey="Gross Profit" stroke="#34d399" fill="url(#gpGrad)" strokeWidth={2} />
-                <Area type="monotone" dataKey="Net Income" stroke="#8b5cf6" fill="url(#niGrad)" strokeWidth={2} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#1E2D45" />
+                <XAxis dataKey="period" tick={{ fill: '#8892A4', fontSize: 11, fontFamily: 'IBM Plex Mono, monospace' }} axisLine={{ stroke: '#1E2D45' }} />
+                <YAxis tick={{ fill: '#8892A4', fontSize: 11, fontFamily: 'IBM Plex Mono, monospace' }} axisLine={{ stroke: '#1E2D45' }} tickFormatter={v => `$${(v / 1000).toFixed(0)}K`} />
+                <Tooltip contentStyle={{ background: '#141B2D', border: '1px solid #1E2D45', borderRadius: 4, fontSize: 12, fontFamily: 'IBM Plex Mono, monospace' }} />
+                <Area type="monotone" dataKey="Revenue" stroke="#C9A84C" fill="url(#revGrad)" strokeWidth={2} />
+                <Area type="monotone" dataKey="Gross Profit" stroke="#3B82F6" fill="url(#gpGrad)" strokeWidth={2} />
+                <Area type="monotone" dataKey="Net Income" stroke="#4ade80" fill="url(#niGrad)" strokeWidth={2} />
             </AreaChart>
         </ResponsiveContainer>
     );
