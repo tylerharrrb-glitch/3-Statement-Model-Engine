@@ -207,9 +207,10 @@ const coverMeta = [
     'Export: Excel (9 tabs, live formulas) · PDF · CSV · JSON',
     'Analysis: Monte Carlo · Sensitivity · Scenario Comparison',
     'Valuation: DCF (WACC/CAPM) · Trading Multiples · EGX 30 Benchmarks',
+    'AI: Chat Analyst (Groq/Llama 3.1) · Validation Agent (Claude)',
     'Compliance: Egyptian Law 159/1981 Profit Waterfall · Law 91/2005 Tax',
     'Localization: English / Arabic · Egyptian Market · CBE Metrics',
-    '27 UI Components · 19 Navigation Tabs · Zustand State Management',
+    '31 UI Components · 19 Navigation Tabs · Zustand State Management',
 ];
 for (const line of coverMeta) {
     children.push(new Paragraph({
@@ -250,12 +251,13 @@ const tocItems = [
     ['9', 'Export Layer'],
     ['10', 'Internationalization & Egyptian Localization'],
     ['11', 'Utility Functions'],
-    ['12', 'UI Components (27 total)'],
+    ['12', 'UI Components (31 total)'],
     ['13', 'Navigation & Tab System (19 tabs)'],
     ['14', 'Data Flow Architecture'],
     ['15', 'AI Validation Agent'],
-    ['16', 'Key Design Decisions'],
-    ['17', 'Known Limitations & Planned Improvements'],
+    ['16', 'AI Chat Analyst (Groq)'],
+    ['17', 'Key Design Decisions'],
+    ['18', 'Known Limitations & Planned Improvements'],
 ];
 
 for (const [num, title] of tocItems) {
@@ -322,20 +324,28 @@ children.push(...codeBlock([
     '│   │   ├── validation-types.ts  # ValidationReport, Finding, Config types',
     '│   │   ├── validation-prompt.ts # Claude API system prompt',
     '│   │   └── multi-scenario-validator.ts  # Cross-scenario validator',
+    '│   ├── services/',
+    '│   │   └── analyst.ts          # Groq/Llama 3.1 AI chat analyst (215 lines)',
     '│   ├── store.ts                # Zustand store (28 KB, 20+ actions)',
     '│   ├── ratios.ts               # 35+ financial ratios (DuPont, Altman Z, Break-Even)',
+    '│   ├── cash-flow-indirect.ts   # CF reconciliation utilities',
     '│   ├── monte-carlo.ts          # Monte Carlo simulation (4 distributions)',
     '│   ├── sensitivity.ts          # 1-way and 2-way sensitivity analysis',
     '│   ├── scenario-manager.ts     # Scenario CRUD + comparison',
     '│   ├── scenarios.ts            # Pre-defined scenario definitions',
-    '│   ├── i18n/labels.ts          # Bilingual labels (English / Arabic)',
+    '│   ├── i18n/labels.ts          # 130 bilingual labels (English / Arabic)',
     '│   ├── templates/egyptian-industries.ts  # 5 sector-specific assumption templates',
     '│   ├── schedules/egyptian-depreciation.ts',
-    '│   └── utils.ts                # Multi-currency formatting utilities',
-    '└── components/                 # 27 React UI components',
-    '    ├── Dashboard, Sidebar, ModelPage, ValidationPage, ...',
-    '    ├── DCFPage, ValuationPage, CBEMetricsPage    (NEW)',
-    '    ├── ErrorBanner, ConflictModal                (NEW)',
+    '│   └── utils.ts                # Multi-currency formatting (6 currencies)',
+    '├── app/',
+    '│   ├── page.tsx                # Main page (tab router, 4850 lines)',
+    '│   ├── layout.tsx              # Root layout (748 lines)',
+    '│   ├── globals.css             # Design system',
+    '│   └── api/validate/route.ts   # Claude API proxy for validation',
+    '└── components/                 # 31 React UI components',
+    '    ├── Navbar, Dashboard, ModelPage, ValidationPage, ...',
+    '    ├── AnalystPanel (Groq chat), DCFPage, ValuationPage, CBEMetricsPage',
+    '    ├── HeroStrip, Navbar, Footer, ErrorBanner, ConflictModal',
     '    ├── charts/ (RevenueChart, MarginChart)',
     '    ├── statements/ (IS, BS, CF pages)',
     '    └── schedules/ (WorkingCapital, Depreciation, Debt)',
@@ -923,7 +933,7 @@ children.push(para('Supported currencies: USD ($), EGP (E£), EUR (€), GBP (£
 
 // ── 11. COMPONENTS ──────────────────────────────────────
 children.push(pageBreak());
-children.push(heading1('12. UI Components (27 total)'));
+children.push(heading1('12. UI Components (31 total)'));
 
 children.push(heading2('12.1 Core Pages'));
 children.push(makeTable(
@@ -932,7 +942,7 @@ children.push(makeTable(
         ['Sidebar.tsx', '~400', 'Navigation (19 tabs), Calculate button, Export buttons (Excel/PDF/CSV/JSON), dark mode toggle'],
         ['Dashboard.tsx', '~500', 'KPI cards (Revenue, EBITDA, NI, EPS, FCF), Scenario comparison table with delta vs base case'],
         ['ModelPage.tsx', '~250', 'Assumptions editor — all 60+ fields organized in collapsible sections by category'],
-        ['ValidationPage.tsx', '~280', 'Displays 80+ integration checks (16 checks × projection years) with pass/fail indicators'],
+        ['ValidationPage.tsx', '~700', 'AI Validation Agent results: critical/major/advisory findings, Egyptian compliance, statistics'],
     ],
     [28, 10, 62],
 ));
@@ -996,7 +1006,18 @@ children.push(makeTable(
     [28, 10, 62],
 ));
 
-children.push(heading2('12.7 Charts & System'));
+children.push(heading2('12.7 Navigation & Layout'));
+children.push(makeTable(
+    ['Component', 'Lines', 'Purpose'],
+    [
+        ['Navbar.tsx', '268', 'Responsive desktop/mobile navigation: 6 primary tabs + "More" dropdown (13 items), Export dropdown (Excel/PDF/CSV/JSON), Undo/Redo, Calculate button, hamburger menu for mobile'],
+        ['HeroStrip.tsx', '41', 'Hero banner with solver convergence status badge (converged ✓ / not converged)'],
+        ['Footer.tsx', '17', 'Site footer with author credit and engine description'],
+    ],
+    [28, 10, 62],
+));
+
+children.push(heading2('12.8 Charts & System'));
 children.push(makeTable(
     ['Component', 'Lines', 'Purpose'],
     [
@@ -1004,6 +1025,7 @@ children.push(makeTable(
         ['MarginChart.tsx', '~55', 'Gross/Operating/Net margin line chart with period labels'],
         ['ErrorBanner.tsx', '75', 'Auto-dismissing (10s) error alert banner with Retry button, shown when calculateModel() throws'],
         ['ConflictModal.tsx', '76', 'Multi-tab conflict detection modal — Keep Mine / Load Latest / Dismiss options when localStorage is modified by another tab'],
+        ['AnalystPanel.tsx', '393', 'Slide-in AI chat panel (Groq/Llama 3.1): "Verify All Statements" button, conversational Q&A about model data, preset questions, auto-scrolling message list'],
     ],
     [28, 10, 62],
 ));
@@ -1147,9 +1169,55 @@ children.push(bullet('Egyptian Law Compliance status panel'));
 children.push(bullet('Statistics summary: periods audited, scenarios audited, total checks, pass/fail counts'));
 children.push(bullet('AI-powered analysis results (when enabled)'));
 
-// ── 16. DESIGN DECISIONS ────────────────────────────────
+// ── 16. AI CHAT ANALYST ─────────────────────────────────
 children.push(pageBreak());
-children.push(heading1('16. Key Design Decisions'));
+children.push(heading1('16. AI Chat Analyst (lib/services/analyst.ts)'));
+children.push(importantBox('A real-time conversational AI analyst powered by Groq (Llama 3.1 8B Instant), separate from the validation agent. Users can ask questions and get CFA-grade audit responses.'));
+children.push(heading2('16.1 Architecture'));
+children.push(bullet('Backend: callAnalyst(userMessage, modelData, history) → Groq API (llama-3.1-8b-instant, temperature 0.1)'));
+children.push(bullet('Frontend: AnalystPanel.tsx — 420px slide-in panel fixed to right side of screen'));
+children.push(bullet('API Key: NEXT_PUBLIC_GROQ_API_KEY in .env.local (client-side for simplicity)'));
+children.push(bullet('Context: buildCompactSummary() sends a formatted text summary of IS, BS, CF, Egyptian waterfall, RE roll-forward, CF reconciliation, and convergence status'));
+children.push(bullet('History: last 4 messages maintained for conversational context'));
+children.push(emptyLine());
+children.push(heading2('16.2 Model Summary Format'));
+children.push(para('The analyst receives a compact ASCII table summary of the model data:'));
+children.push(...codeBlock([
+    '=== INCOME STATEMENT ===',
+    'Period       | Revenue    | EBIT       | Net Income | FCFF       | EPS',
+    '2024         |    850,000 |    120,000 |     80,625 |     90,625 | 0.8063',
+    '',
+    '=== EGYPTIAN PROFIT WATERFALL ===',
+    'Period       | NI         | EPD        | Leg.Res.   | Distribut. | Gr.Divs    | AddToRE',
+    '',
+    '=== BALANCE SHEET ===',
+    'Period       | Cash       | Tot.Assets | Tot.Liab   | Tot.Equity | Balanced?',
+    '',
+    '=== RE ROLL-FORWARD ===',
+    'Period       | RE(open)   | AddToRE    | RE(calc)   | RE(BS)     | Match?',
+    '',
+    '=== CASH FLOW RECONCILIATION ===',
+    'Period       | CFO        | CFI        | CFF        | EndCash(CF)| Cash(BS)   | Match?',
+]));
+children.push(emptyLine());
+children.push(heading2('16.3 Preset Questions'));
+children.push(bullet('"Does the balance sheet balance?"'));
+children.push(bullet('"Explain the Egyptian profit waterfall"'));
+children.push(bullet('"Why is FCFF different from FCF?"'));
+children.push(bullet('"Check the 2026E retained earnings roll"'));
+children.push(bullet('"Verify All Statements" — comprehensive 6-point audit covering BS balance, CF reconciliation, IS flow, Egyptian waterfall, RE roll-forward, and integration checks'));
+children.push(emptyLine());
+children.push(heading2('16.4 System Prompt'));
+children.push(para('The analyst is configured as a "CFA-grade financial analyst embedded in a 3-Statement Financial Model Engine for the Egyptian market" with expertise in:'));
+children.push(bullet('Egyptian Company Law 159/1981 (EPD, Legal Reserve)'));
+children.push(bullet('Egyptian Tax Law (corporate tax 22.5%, dividend WHT 10%)'));
+children.push(bullet('3-statement model integration (IS → BS → CF circular dependency)'));
+children.push(bullet('CBE banking metrics'));
+children.push(bullet('Output format: ✅ / ⚠️ / ❌ [Check] — [Status] with Expected vs Actual vs Match'));
+
+// ── 17. DESIGN DECISIONS ────────────────────────────────
+children.push(pageBreak());
+children.push(heading1('17. Key Design Decisions'));
 
 children.push(heading3('1. Cash as Plug'));
 children.push(para('Cash is the balancing item on the balance sheet: Cash = Total L+E − all other assets. This guarantees A = L+E always holds, which is critical for the iterative solver to work correctly.'));
@@ -1172,8 +1240,8 @@ children.push(para('Full support for the Egyptian market: 22.5% corporate tax ra
 children.push(heading3('7. Zustand + localStorage'));
 children.push(para('State persists across browser refreshes via the zustand/middleware/persist module. Only essential fields are persisted (via partialize), while computed results and UI state are excluded.'));
 
-// ── 17. LIMITATIONS ─────────────────────────────────────
-children.push(heading1('17. Known Limitations'));
+// ── 18. LIMITATIONS ─────────────────────────────────────
+children.push(heading1('18. Known Limitations'));
 children.push(makeTable(
     ['Area', 'Limitation', 'Workaround'],
     [

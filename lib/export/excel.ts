@@ -1840,7 +1840,7 @@ export async function exportToExcel(
         rRow++;
     }
 
-    // Profitability
+    // ── Profitability ──
     ratioSheet.getCell(rRow, 1).value = '── Profitability ──';
     styleRow(ratioSheet.getRow(rRow), { subheader: true });
     rRow++;
@@ -1853,7 +1853,7 @@ export async function exportToExcel(
         `IF('Income Statement'!${c}${isRows['revenue']}=0,0,'Income Statement'!${c}${isRows['ebitda']}/'Income Statement'!${c}${isRows['revenue']})`,
         'ebitdaMargin');
 
-    addRatioRow('Operating Margin', (c) =>
+    addRatioRow('EBIT Margin', (c) =>
         `IF('Income Statement'!${c}${isRows['revenue']}=0,0,'Income Statement'!${c}${isRows['ebit']}/'Income Statement'!${c}${isRows['revenue']})`,
         'operatingMargin');
 
@@ -1861,31 +1861,19 @@ export async function exportToExcel(
         `IF('Income Statement'!${c}${isRows['revenue']}=0,0,'Income Statement'!${c}${isRows['netIncome']}/'Income Statement'!${c}${isRows['revenue']})`,
         'netMargin');
 
-    // Fix 4: ROA/ROE use average balance (prior + current) / 2 — matches engine
-    addRatioRow('ROA (Avg Assets)', (c, yr) => {
-        const pc = colLetter(yr + 1); // prior period column
-        return yr === 0
-            ? `IF('Balance Sheet'!${c}${bsRows['totalAssets']}=0,0,'Income Statement'!${c}${isRows['netIncome']}/'Balance Sheet'!${c}${bsRows['totalAssets']})`
-            : `IF(('Balance Sheet'!${pc}${bsRows['totalAssets']}+'Balance Sheet'!${c}${bsRows['totalAssets']})/2=0,0,'Income Statement'!${c}${isRows['netIncome']}/(('Balance Sheet'!${pc}${bsRows['totalAssets']}+'Balance Sheet'!${c}${bsRows['totalAssets']})/2))`;
-    }, 'roa');
+    addRatioRow('ROA', (c) =>
+        `IF('Balance Sheet'!${c}${bsRows['totalAssets']}=0,0,'Income Statement'!${c}${isRows['netIncome']}/'Balance Sheet'!${c}${bsRows['totalAssets']})`,
+        'roa');
 
-    addRatioRow('ROE (Avg Equity)', (c, yr) => {
-        const pc = colLetter(yr + 1); // prior period column
-        return yr === 0
-            ? `IF('Balance Sheet'!${c}${bsRows['totalEquity']}=0,0,'Income Statement'!${c}${isRows['netIncome']}/'Balance Sheet'!${c}${bsRows['totalEquity']})`
-            : `IF(('Balance Sheet'!${pc}${bsRows['totalEquity']}+'Balance Sheet'!${c}${bsRows['totalEquity']})/2=0,0,'Income Statement'!${c}${isRows['netIncome']}/(('Balance Sheet'!${pc}${bsRows['totalEquity']}+'Balance Sheet'!${c}${bsRows['totalEquity']})/2))`;
-    }, 'roe');
+    addRatioRow('ROE', (c) =>
+        `IF('Balance Sheet'!${c}${bsRows['totalEquity']}=0,0,'Income Statement'!${c}${isRows['netIncome']}/'Balance Sheet'!${c}${bsRows['totalEquity']})`,
+        'roe');
 
-    addRatioRow('ROIC (Gross IC)', (c, yr) =>
-        `IF('Balance Sheet'!${c}${bsRows['totalEquity']}+'Balance Sheet'!${c}${bsRows['shortTermDebt']}+'Balance Sheet'!${c}${bsRows['longTermDebt']}+'Balance Sheet'!${c}${bsRows['currentPortionLTD']}=0,0,('Income Statement'!${c}${isRows['ebit']}*(1-${aRef('taxRate', yr)}))/('Balance Sheet'!${c}${bsRows['totalEquity']}+'Balance Sheet'!${c}${bsRows['shortTermDebt']}+'Balance Sheet'!${c}${bsRows['longTermDebt']}+'Balance Sheet'!${c}${bsRows['currentPortionLTD']}))`,
-        'roic');
-
-    // IMP 5: ROIC Net IC version (NOPAT / (Equity + Debt - Cash))
     addRatioRow('ROIC (Net IC)', (c, yr) =>
         `IF('Balance Sheet'!${c}${bsRows['totalEquity']}+'Balance Sheet'!${c}${bsRows['shortTermDebt']}+'Balance Sheet'!${c}${bsRows['longTermDebt']}+'Balance Sheet'!${c}${bsRows['currentPortionLTD']}-'Balance Sheet'!${c}${bsRows['cash']}=0,0,('Income Statement'!${c}${isRows['ebit']}*(1-${aRef('taxRate', yr)}))/('Balance Sheet'!${c}${bsRows['totalEquity']}+'Balance Sheet'!${c}${bsRows['shortTermDebt']}+'Balance Sheet'!${c}${bsRows['longTermDebt']}+'Balance Sheet'!${c}${bsRows['currentPortionLTD']}-'Balance Sheet'!${c}${bsRows['cash']}))`,
-        undefined);
+        'roic');
 
-    // Liquidity
+    // ── Liquidity ── (includes Quick Ratio, Cash Ratio — moved from Efficiency)
     ratioSheet.getCell(rRow, 1).value = '── Liquidity ──';
     styleRow(ratioSheet.getRow(rRow), { subheader: true });
     rRow++;
@@ -1894,16 +1882,19 @@ export async function exportToExcel(
         `IF('Balance Sheet'!${c}${bsRows['totalCurrentLiabilities']}=0,0,'Balance Sheet'!${c}${bsRows['totalCurrentAssets']}/'Balance Sheet'!${c}${bsRows['totalCurrentLiabilities']})`,
         'currentRatio', '#,##0.00x');
 
-    addRatioRow('Interest Coverage (×)', (c) =>
-        `IF('Income Statement'!${c}${isRows['interestExpense']}=0,0,'Income Statement'!${c}${isRows['ebit']}/'Income Statement'!${c}${isRows['interestExpense']})`,
-        'interestCoverage', '#,##0.00x');
+    addRatioRow('Quick Ratio', (c) =>
+        `IF('Balance Sheet'!${c}${bsRows['totalCurrentLiabilities']}=0,0,('Balance Sheet'!${c}${bsRows['totalCurrentAssets']}-'Balance Sheet'!${c}${bsRows['inventory']})/'Balance Sheet'!${c}${bsRows['totalCurrentLiabilities']})`,
+        'quickRatio', '#,##0.0000x');
 
-    // Fix 5: Renamed — formula uses totalLiabilities (not just financial debt)
+    addRatioRow('Cash Ratio', (c) =>
+        `IF('Balance Sheet'!${c}${bsRows['totalCurrentLiabilities']}=0,0,'Balance Sheet'!${c}${bsRows['cash']}/'Balance Sheet'!${c}${bsRows['totalCurrentLiabilities']})`,
+        'cashRatio', '#,##0.0000x');
+
     addRatioRow('Total Liabilities / Equity', (c) =>
         `IF('Balance Sheet'!${c}${bsRows['totalEquity']}=0,0,'Balance Sheet'!${c}${bsRows['totalLiabilities']}/'Balance Sheet'!${c}${bsRows['totalEquity']})`,
         'debtToEquity', '#,##0.00x');
 
-    // Efficiency
+    // ── Efficiency ── (Quick/Cash Ratio removed — now in Liquidity)
     ratioSheet.getCell(rRow, 1).value = '── Efficiency ──';
     styleRow(ratioSheet.getRow(rRow), { subheader: true });
     rRow++;
@@ -1911,6 +1902,181 @@ export async function exportToExcel(
     addRatioRow('Asset Turnover', (c) =>
         `IF('Balance Sheet'!${c}${bsRows['totalAssets']}=0,0,'Income Statement'!${c}${isRows['revenue']}/'Balance Sheet'!${c}${bsRows['totalAssets']})`,
         'assetTurnover', '#,##0.00x');
+
+    addRatioRow('Inventory Turnover (×)', (c, yr) => {
+        if (yr === 0) {
+            return `IF('Balance Sheet'!${c}${bsRows['inventory']}=0,0,'Income Statement'!${c}${isRows['cogs']}/'Balance Sheet'!${c}${bsRows['inventory']})`;
+        }
+        const pc = colLetter(yr + 1);
+        return `IF(('Balance Sheet'!${pc}${bsRows['inventory']}+'Balance Sheet'!${c}${bsRows['inventory']})/2=0,0,'Income Statement'!${c}${isRows['cogs']}/(('Balance Sheet'!${pc}${bsRows['inventory']}+'Balance Sheet'!${c}${bsRows['inventory']})/2))`;
+    }, 'inventoryTurnover', '#,##0.0000x');
+
+    addRatioRow('Receivables Turnover (×)', (c, yr) => {
+        if (yr === 0) {
+            return `IF('Balance Sheet'!${c}${bsRows['accountsReceivable']}=0,0,'Income Statement'!${c}${isRows['revenue']}/'Balance Sheet'!${c}${bsRows['accountsReceivable']})`;
+        }
+        const pc = colLetter(yr + 1);
+        return `IF(('Balance Sheet'!${pc}${bsRows['accountsReceivable']}+'Balance Sheet'!${c}${bsRows['accountsReceivable']})/2=0,0,'Income Statement'!${c}${isRows['revenue']}/(('Balance Sheet'!${pc}${bsRows['accountsReceivable']}+'Balance Sheet'!${c}${bsRows['accountsReceivable']})/2))`;
+    }, 'receivablesTurnover', '#,##0.0000x');
+
+    addRatioRow('DSO (Days)', (c) =>
+        `IF('Income Statement'!${c}${isRows['revenue']}=0,0,'Balance Sheet'!${c}${bsRows['accountsReceivable']}/'Income Statement'!${c}${isRows['revenue']}*365)`,
+        'dso', '#,##0.00');
+
+    addRatioRow('DIO (Days)', (c) =>
+        `IF('Income Statement'!${c}${isRows['cogs']}=0,0,'Balance Sheet'!${c}${bsRows['inventory']}/'Income Statement'!${c}${isRows['cogs']}*365)`,
+        'dio', '#,##0.00');
+
+    addRatioRow('DPO (Days)', (c) =>
+        `IF('Income Statement'!${c}${isRows['cogs']}=0,0,'Balance Sheet'!${c}${bsRows['accountsPayable']}/'Income Statement'!${c}${isRows['cogs']}*365)`,
+        'dpo', '#,##0.00');
+
+    addRatioRow('Cash Conversion Cycle (Days)', (c) =>
+        `${c}${ratioRows['dso']}+${c}${ratioRows['dio']}-${c}${ratioRows['dpo']}`,
+        'cashConversionCycle', '#,##0.00');
+
+    // ── Leverage ── (Interest Coverage moved here from Liquidity)
+    ratioSheet.getCell(rRow, 1).value = '── Leverage ──';
+    styleRow(ratioSheet.getRow(rRow), { subheader: true });
+    rRow++;
+
+    addRatioRow('Total Debt / Equity (D/E)', (c) =>
+        `IF('Balance Sheet'!${c}${bsRows['totalEquity']}=0,0,('Balance Sheet'!${c}${bsRows['shortTermDebt']}+'Balance Sheet'!${c}${bsRows['longTermDebt']}+'Balance Sheet'!${c}${bsRows['currentPortionLTD']})/'Balance Sheet'!${c}${bsRows['totalEquity']})`,
+        'debtToEquityFinancial', '#,##0.0000x');
+
+    addRatioRow('Total Debt / Assets', (c) =>
+        `IF('Balance Sheet'!${c}${bsRows['totalAssets']}=0,0,('Balance Sheet'!${c}${bsRows['shortTermDebt']}+'Balance Sheet'!${c}${bsRows['longTermDebt']}+'Balance Sheet'!${c}${bsRows['currentPortionLTD']})/'Balance Sheet'!${c}${bsRows['totalAssets']})`,
+        'debtToAssets', '#,##0.0000');
+
+    addRatioRow('Net Debt (EGP)', (c) =>
+        `('Balance Sheet'!${c}${bsRows['shortTermDebt']}+'Balance Sheet'!${c}${bsRows['longTermDebt']}+'Balance Sheet'!${c}${bsRows['currentPortionLTD']})-'Balance Sheet'!${c}${bsRows['cash']}`,
+        'netDebt', NUM_FMT);
+
+    addRatioRow('Net Debt / EBITDA (×)', (c) =>
+        `IF('Income Statement'!${c}${isRows['ebitda']}=0,0,(('Balance Sheet'!${c}${bsRows['shortTermDebt']}+'Balance Sheet'!${c}${bsRows['longTermDebt']}+'Balance Sheet'!${c}${bsRows['currentPortionLTD']})-'Balance Sheet'!${c}${bsRows['cash']})/'Income Statement'!${c}${isRows['ebitda']})`,
+        'netDebtToEbitda', '#,##0.0000x');
+
+    addRatioRow('Interest Coverage (×)', (c) =>
+        `IF('Income Statement'!${c}${isRows['interestExpense']}=0,0,'Income Statement'!${c}${isRows['ebit']}/'Income Statement'!${c}${isRows['interestExpense']})`,
+        'interestCoverage', '#,##0.00x');
+
+    // ── Per Share ──
+    ratioSheet.getCell(rRow, 1).value = '── Per Share ──';
+    styleRow(ratioSheet.getRow(rRow), { subheader: true });
+    rRow++;
+
+    addRatioRow('EPS (After EPD)', (c) =>
+        `'Income Statement'!${c}${isRows['eps']}`,
+        'epsRatio', EPS_FMT);
+
+    addRatioRow('Book Value Per Share (BVPS)', (c, yr) =>
+        `IF(${aRef('sharesOutstanding', yr)}=0,0,'Balance Sheet'!${c}${bsRows['totalEquity']}/${aRef('sharesOutstanding', yr)})`,
+        'bvps', '#,##0.0000');
+
+    addRatioRow('Revenue Per Share', (c, yr) =>
+        `IF(${aRef('sharesOutstanding', yr)}=0,0,'Income Statement'!${c}${isRows['revenue']}/${aRef('sharesOutstanding', yr)})`,
+        'revenuePerShare', '#,##0.0000');
+
+    addRatioRow('FCFF Per Share', (c, yr) =>
+        `IF(${aRef('sharesOutstanding', yr)}=0,0,'Income Statement'!${c}${isRows['fcff']}/${aRef('sharesOutstanding', yr)})`,
+        'fcffPerShare', '#,##0.0000');
+
+    // ── DuPont Decomposition ── (ATO + EM use ending balances to match ROE)
+    ratioSheet.getCell(rRow, 1).value = '── DuPont Decomposition ──';
+    styleRow(ratioSheet.getRow(rRow), { subheader: true });
+    rRow++;
+
+    addRatioRow('Net Profit Margin', (c) =>
+        `IF('Income Statement'!${c}${isRows['revenue']}=0,0,'Income Statement'!${c}${isRows['netIncome']}/'Income Statement'!${c}${isRows['revenue']})`,
+        'dupontNetMargin', PCT_FMT);
+
+    addRatioRow('Asset Turnover', (c) =>
+        `IF('Balance Sheet'!${c}${bsRows['totalAssets']}=0,0,'Income Statement'!${c}${isRows['revenue']}/'Balance Sheet'!${c}${bsRows['totalAssets']})`,
+        'dupontAssetTurnover', '#,##0.0000x');
+
+    addRatioRow('Equity Multiplier', (c) =>
+        `IF('Balance Sheet'!${c}${bsRows['totalEquity']}=0,0,'Balance Sheet'!${c}${bsRows['totalAssets']}/'Balance Sheet'!${c}${bsRows['totalEquity']})`,
+        'dupontEquityMultiplier', '#,##0.0000x');
+
+    addRatioRow('DuPont ROE (3-Factor)', (c) =>
+        `${c}${ratioRows['dupontNetMargin']}*${c}${ratioRows['dupontAssetTurnover']}*${c}${ratioRows['dupontEquityMultiplier']}`,
+        'dupontROE3F', PCT_FMT);
+
+    addRatioRow('Tax Burden (NI / EBT)', (c) =>
+        `IF('Income Statement'!${c}${isRows['ebt']}=0,0,'Income Statement'!${c}${isRows['netIncome']}/'Income Statement'!${c}${isRows['ebt']})`,
+        'dupontTaxBurden', '#,##0.0000');
+
+    addRatioRow('Interest Burden (EBT / EBIT)', (c) =>
+        `IF('Income Statement'!${c}${isRows['ebit']}=0,0,'Income Statement'!${c}${isRows['ebt']}/'Income Statement'!${c}${isRows['ebit']})`,
+        'dupontInterestBurden', '#,##0.0000');
+
+    addRatioRow('Operating Margin', (c) =>
+        `IF('Income Statement'!${c}${isRows['revenue']}=0,0,'Income Statement'!${c}${isRows['ebit']}/'Income Statement'!${c}${isRows['revenue']})`,
+        'dupontEBITMargin', PCT_FMT);
+
+    addRatioRow('DuPont ROE (5-Factor)', (c) =>
+        `${c}${ratioRows['dupontTaxBurden']}*${c}${ratioRows['dupontInterestBurden']}*${c}${ratioRows['dupontEBITMargin']}*${c}${ratioRows['dupontAssetTurnover']}*${c}${ratioRows['dupontEquityMultiplier']}`,
+        'dupontROE5F', PCT_FMT);
+
+    // ── Altman Z'-Score (Credit Risk) ──
+    ratioSheet.getCell(rRow, 1).value = "── Altman Z'-Score (Credit Risk) ──";
+    styleRow(ratioSheet.getRow(rRow), { subheader: true });
+    rRow++;
+
+    addRatioRow('X1 = Working Capital / Total Assets', (c) =>
+        `IF('Balance Sheet'!${c}${bsRows['totalAssets']}=0,0,('Balance Sheet'!${c}${bsRows['totalCurrentAssets']}-'Balance Sheet'!${c}${bsRows['totalCurrentLiabilities']})/'Balance Sheet'!${c}${bsRows['totalAssets']})`,
+        'altmanX1', '#,##0.0000');
+
+    addRatioRow('X2 = Retained Earnings / Total Assets', (c) =>
+        `IF('Balance Sheet'!${c}${bsRows['totalAssets']}=0,0,'Balance Sheet'!${c}${bsRows['retainedEarnings']}/'Balance Sheet'!${c}${bsRows['totalAssets']})`,
+        'altmanX2', '#,##0.0000');
+
+    addRatioRow('X3 = EBIT / Total Assets', (c) =>
+        `IF('Balance Sheet'!${c}${bsRows['totalAssets']}=0,0,'Income Statement'!${c}${isRows['ebit']}/'Balance Sheet'!${c}${bsRows['totalAssets']})`,
+        'altmanX3', '#,##0.0000');
+
+    addRatioRow('X4 = Book Equity / Total Financial Debt', (c) =>
+        `IF(('Balance Sheet'!${c}${bsRows['shortTermDebt']}+'Balance Sheet'!${c}${bsRows['longTermDebt']}+'Balance Sheet'!${c}${bsRows['currentPortionLTD']})=0,0,'Balance Sheet'!${c}${bsRows['totalEquity']}/('Balance Sheet'!${c}${bsRows['shortTermDebt']}+'Balance Sheet'!${c}${bsRows['longTermDebt']}+'Balance Sheet'!${c}${bsRows['currentPortionLTD']}))`,
+        'altmanX4', '#,##0.0000');
+
+    addRatioRow("Altman Z' Score (Emerging Markets)", (c) =>
+        `6.56*${c}${ratioRows['altmanX1']}+3.26*${c}${ratioRows['altmanX2']}+6.72*${c}${ratioRows['altmanX3']}+1.05*${c}${ratioRows['altmanX4']}`,
+        'altmanZEM', '#,##0.0000');
+
+    addRatioRow('Zone', (c) =>
+        `IF(${c}${ratioRows['altmanZEM']}>=2.9,"✅ Safe",IF(${c}${ratioRows['altmanZEM']}>=1.23,"⚠️ Grey","❌ Distress"))`,
+        'altmanZone', '@');
+
+    // ── Break-Even Analysis ──
+    ratioSheet.getCell(rRow, 1).value = '── Break-Even Analysis ──';
+    styleRow(ratioSheet.getRow(rRow), { subheader: true });
+    rRow++;
+
+    addRatioRow('Fixed Costs (Total OpEx)', (c) =>
+        `'Income Statement'!${c}${isRows['totalOpex']}`,
+        'fixedCosts', NUM_FMT);
+
+    addRatioRow('Contribution Margin Ratio', (c) =>
+        `IF('Income Statement'!${c}${isRows['revenue']}=0,0,'Income Statement'!${c}${isRows['grossProfit']}/'Income Statement'!${c}${isRows['revenue']})`,
+        'contribMarginRatio', PCT_FMT);
+
+    addRatioRow('Break-Even Revenue (EGP)', (c) =>
+        `IF(${c}${ratioRows['contribMarginRatio']}=0,0,${c}${ratioRows['fixedCosts']}/${c}${ratioRows['contribMarginRatio']})`,
+        'breakEvenRevenue', NUM_FMT);
+
+    addRatioRow('Margin of Safety %', (c) =>
+        `IF('Income Statement'!${c}${isRows['revenue']}=0,0,('Income Statement'!${c}${isRows['revenue']}-${c}${ratioRows['breakEvenRevenue']})/'Income Statement'!${c}${isRows['revenue']})`,
+        'marginOfSafety', PCT_FMT);
+
+    addRatioRow('Margin of Safety (EGP)', (c) =>
+        `'Income Statement'!${c}${isRows['revenue']}-${c}${ratioRows['breakEvenRevenue']}`,
+        'marginOfSafetyAbs', NUM_FMT);
+
+    addRatioRow('Operating Leverage', (c) =>
+        `IF('Income Statement'!${c}${isRows['ebit']}=0,0,'Income Statement'!${c}${isRows['grossProfit']}/'Income Statement'!${c}${isRows['ebit']})`,
+        'operatingLeverage', '#,##0.0000x');
+
+    applyZebraAndNegatives(ratioSheet);
 
     // ════════════════════════════════════════════════════════
     // HISTORICAL vs PROJECTED COLUMN STYLING (Feature 1)

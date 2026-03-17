@@ -104,7 +104,9 @@ export function runFullModel(
     const ratios = allIS.map((is, i) => {
         const bs = allBS[i];
         const prevBS = i > 0 ? allBS[i - 1] : bs;
-        return calculateFinancialRatios(is, bs, prevBS);
+        // CF array starts at IS index 1 (no CF for first historical period)
+        const cf = i > 0 && i - 1 < allCF.length ? allCF[i - 1] : null;
+        return calculateFinancialRatios(is, bs, prevBS, cf);
     });
 
     return {

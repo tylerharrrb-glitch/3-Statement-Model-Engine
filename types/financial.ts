@@ -193,6 +193,7 @@ export interface FinancialRatios {
 
   // Profitability
   grossMargin: number;
+  ebitdaMargin: number;
   operatingMargin: number;
   netMargin: number;
   roe: number;
@@ -245,6 +246,20 @@ export interface FinancialRatios {
   breakEvenRevenue?: number;
   marginOfSafety?: number;
   operatingLeverage?: number;
+
+  // Leverage (extended)
+  netDebt?: number;
+  netDebtToEbitda?: number;
+  dscr?: number | null;
+
+  // Efficiency (extended)
+  fcfMargin?: number | null;
+  fcfToEbitda?: number | null;
+
+  // Per Share (extended)
+  bookValuePerShare?: number;
+  fcfPerShare?: number;
+  revenuePerShare?: number;
 }
 
 export interface IntegrationChecks {

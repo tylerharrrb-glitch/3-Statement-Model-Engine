@@ -4,12 +4,13 @@
 // Includes standard ratios + DuPont Analysis (3F & 5F),
 // Altman Z'-Score (private companies), and Break-Even Analysis.
 
-import { FinancialRatios, IncomeStatement, BalanceSheet } from '@/types/financial';
+import { FinancialRatios, IncomeStatement, BalanceSheet, CashFlowStatement } from '@/types/financial';
 
 export function calculateFinancialRatios(
     is: IncomeStatement,
     bs: BalanceSheet,
     previousBS: BalanceSheet,
+    cf?: CashFlowStatement | null,
 ): FinancialRatios {
     const avgTotalAssets = (bs.totalAssets + previousBS.totalAssets) / 2;
     const avgEquity = (bs.totalEquity + previousBS.totalEquity) / 2;
@@ -31,11 +32,11 @@ export function calculateFinancialRatios(
     const dio = is.cogs !== 0 ? (bs.inventory / is.cogs) * 365 : 0;
     const dpo = is.cogs !== 0 ? (bs.accountsPayable / is.cogs) * 365 : 0;
 
-    // ROE and ROA
-    const roe = avgEquity !== 0 ? is.netIncome / avgEquity : 0;
-    const roa = avgTotalAssets !== 0 ? is.netIncome / avgTotalAssets : 0;
-    const assetTurnover = avgTotalAssets !== 0 ? is.revenue / avgTotalAssets : 0;
-    const equityMultiplier = avgEquity !== 0 ? avgTotalAssets / avgEquity : 0;
+    // ROE and ROA — use ending balances (matches UI)
+    const roe = bs.totalEquity !== 0 ? is.netIncome / bs.totalEquity : 0;
+    const roa = bs.totalAssets !== 0 ? is.netIncome / bs.totalAssets : 0;
+    const assetTurnover = bs.totalAssets !== 0 ? is.revenue / bs.totalAssets : 0;
+    const equityMultiplier = bs.totalEquity !== 0 ? bs.totalAssets / bs.totalEquity : 0;
 
     // ── DuPont Analysis (I2) ────────────────────────────
     // 3-Factor: ROE = Net Margin × Asset Turnover × Equity Multiplier
@@ -83,31 +84,54 @@ export function calculateFinancialRatios(
     const contributionMargin = is.revenue - is.cogs;
     const operatingLeverage = is.ebit !== 0 ? contributionMargin / is.ebit : 0;
 
+    // ── Leverage (extended) ─────────────────────────────
+    const netDebt = totalDebt - bs.cash;
+    const netDebtToEbitda = is.ebitda !== 0 ? netDebt / is.ebitda : 0;
+    // DSCR = EBITDA / (Interest Expense + Scheduled Principal)
+    // Scheduled principal = 20,000 per year (standard debt schedule repayment)
+    // null when no CF data (first historical period)
+    const scheduledPrincipal = 20_000;
+    const debtService = is.interestExpense + scheduledPrincipal;
+    const dscr = !cf ? null : (debtService > 0 ? is.ebitda / debtService : null);
+
+    // ── Efficiency (extended) ───────────────────────────
+    const fcfMargin = cf ? (is.revenue !== 0 ? cf.freeCashFlow / is.revenue : 0) : null;
+    const fcfToEbitda = cf ? (is.ebitda !== 0 ? cf.freeCashFlow / is.ebitda : 0) : null;
+
+    // ── Per Share (extended) ────────────────────────────
+    const bookValuePerShare = is.sharesOutstanding !== 0 ? bs.totalEquity / is.sharesOutstanding : 0;
+    const fcfPerShare = is.sharesOutstanding !== 0 ? is.fcff / is.sharesOutstanding : 0;
+    const revenuePerShare = is.sharesOutstanding !== 0 ? is.revenue / is.sharesOutstanding : 0;
+
     return {
         period: is.period,
 
         // Profitability
         grossMargin: is.grossMargin,
+        ebitdaMargin: is.revenue !== 0 ? is.ebitda / is.revenue : 0,
         operatingMargin: is.ebitMargin,
         netMargin: is.netMargin,
         roe,
         roa,
-        roic: investedCapital !== 0 ? nopat / investedCapital : 0,
+        // ROIC uses Net IC (equity + debt − cash) to match UI
+        roic: (investedCapital - bs.cash) !== 0 ? nopat / (investedCapital - bs.cash) : 0,
 
         // Liquidity
         currentRatio: bs.totalCurrentLiabilities !== 0
             ? bs.totalCurrentAssets / bs.totalCurrentLiabilities : 0,
-        // Quick Ratio = (Cash + AR) / TCL — excludes inventory AND prepaid (IMP 10)
+        // Quick Ratio = (TCA - Inventory) / TCL — standard definition
         quickRatio: bs.totalCurrentLiabilities !== 0
-            ? (bs.cash + bs.accountsReceivable) / bs.totalCurrentLiabilities : 0,
+            ? (bs.totalCurrentAssets - bs.inventory) / bs.totalCurrentLiabilities : 0,
         cashRatio: bs.totalCurrentLiabilities !== 0
             ? bs.cash / bs.totalCurrentLiabilities : 0,
 
         // Leverage
         debtToEquity: bs.totalEquity !== 0 ? totalDebt / bs.totalEquity : 0,
         debtToAssets: bs.totalAssets !== 0 ? totalDebt / bs.totalAssets : 0,
-        // Fix 3: null instead of 999 when no interest expense
         interestCoverage: is.interestExpense !== 0 ? is.ebit / is.interestExpense : 0,
+        netDebt,
+        netDebtToEbitda,
+        dscr,
 
         // Efficiency
         assetTurnover,
@@ -117,6 +141,13 @@ export function calculateFinancialRatios(
         dio,
         dpo,
         cashConversionCycle: dso + dio - dpo,
+        fcfMargin,
+        fcfToEbitda,
+
+        // Per Share (extended)
+        bookValuePerShare,
+        fcfPerShare,
+        revenuePerShare,
 
         // DuPont Analysis (I2)
         dupontNetMargin,

@@ -598,9 +598,19 @@ export const useModelStore = create<ModelStore>()(
                     }
                 }
 
+                // ── v7: Force recalculation to include new ratio fields ──
+                // Sessions 24-25 added ebitdaMargin, netDebt, dscr, fcfMargin, etc.
+                // Stale persisted results don't have these. Nulling results forces
+                // recalculation on next page load / interaction.
+                if (persisted?.scenarios && Array.isArray(persisted.scenarios)) {
+                    for (const s of persisted.scenarios) {
+                        s.results = null;
+                    }
+                }
+
                 return persisted;
             },
-            version: 6, // v6: fix period labels + ROIC/FCFF formulas
+            version: 7, // v7: force recalc so ratios[] includes all new fields
         },
     ),
 );
