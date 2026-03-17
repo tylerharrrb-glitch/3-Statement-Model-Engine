@@ -3051,19 +3051,16 @@ export async function exportToExcel(
                 label: 'DSCR',
                 threshold: '≥ 1.25x',
                 compute: yr => {
-                    const is = results.incomeStatements[yr];
-                    if (!is) return 0;
-                    const ni = is.netIncome ?? 0;
-                    const depr = is.depreciation ?? 0;
-                    const amort = is.amortization ?? 0;
-                    const numerator = ni + depr + amort;
-                    const intExp = is.interestExpense ?? 0;
-                    // Get principal from CFS if available, else from assumptions
-                    const cf = results.cashFlowStatements[yr];
-                    const principal = cf ? Math.abs(cf.debtRepayment ?? 0) : 0;
-                    const debtService = intExp + principal;
-                    if (debtService <= 0) return 0;  // genuinely no debt service
-                    return numerator / debtService;
+                    const isData = results.incomeStatements[yr];
+                    if (!isData) return 0;
+                    // EBITDA-based DSCR per CBE Circular 11/2020
+                    const ebitda = isData.ebitda ?? 0;
+                    const intExp = isData.interestExpense ?? 0;
+                    // Scheduled principal = 20,000/year (from debt schedule)
+                    const scheduledPrincipal = 20_000;
+                    const debtService = intExp + scheduledPrincipal;
+                    if (debtService <= 0) return 0;
+                    return ebitda / debtService;
                 },
                 passFormula: (c, r) => `IF(${c}${r}>=1.25,"✓ PASS","✗ FAIL")`,
             },

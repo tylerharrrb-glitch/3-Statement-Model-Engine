@@ -260,6 +260,7 @@ export interface FinancialRatios {
   bookValuePerShare?: number;
   fcfPerShare?: number;
   revenuePerShare?: number;
+  eps?: number;
 }
 
 export interface IntegrationChecks {

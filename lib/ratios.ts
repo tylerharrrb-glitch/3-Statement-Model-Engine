@@ -102,6 +102,7 @@ export function calculateFinancialRatios(
     const bookValuePerShare = is.sharesOutstanding !== 0 ? bs.totalEquity / is.sharesOutstanding : 0;
     const fcfPerShare = is.sharesOutstanding !== 0 ? is.fcff / is.sharesOutstanding : 0;
     const revenuePerShare = is.sharesOutstanding !== 0 ? is.revenue / is.sharesOutstanding : 0;
+    const eps = is.sharesOutstanding !== 0 ? is.netIncomeAfterEPD / is.sharesOutstanding : 0;
 
     return {
         period: is.period,
@@ -148,6 +149,7 @@ export function calculateFinancialRatios(
         bookValuePerShare,
         fcfPerShare,
         revenuePerShare,
+        eps,
 
         // DuPont Analysis (I2)
         dupontNetMargin,
