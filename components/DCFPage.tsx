@@ -85,8 +85,9 @@ export default function DCFPage() {
                     <div style={kpiStyle}><div style={{ ...kpiVal, color: '#fbbf24' }}>{formatPercent(dcf.wacc)}</div><div style={kpiLabel}>WACC</div></div>
                 </div>
                 <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 12, textAlign: 'center' }}>
-                    ke = CBE ({formatPercent(cbeRate)}) + β ({beta.toFixed(1)}) × ERP ({formatPercent(erp)})
+                    ke = Rf ({formatPercent(scenario.assumptions.riskFreeRate ?? 0.235)}) + β ({beta.toFixed(1)}) × ERP ({formatPercent(erp)})
                     &nbsp;|&nbsp; kd = Debt Rate × (1 − Tax)
+                    &nbsp;|&nbsp; CBE: Deposit 19.00% | Lending 20.00% | Discount 19.50% (April 2, 2026)
                 </div>
             </div>
 
@@ -94,7 +95,7 @@ export default function DCFPage() {
             {(() => {
                 const projIdx2 = (scenario.results?.incomeStatements.length ?? 0) - (scenario.results?.incomeStatements.filter((s: any) => s.periodType === 'historical').length ?? 0) - 1;
                 const modelDebtRate = scenario.assumptions.interestRateOnDebt?.[Math.max(0, projIdx2)] ?? 0.18;
-                const CBE_RATE = 0.2725;
+                const CBE_RATE = 0.195; // CBE discount rate (April 2, 2026 MPC)
                 if (modelDebtRate < 0.20) {
                     return (
                         <div style={{ ...card, borderLeft: '4px solid #f59e0b', background: 'rgba(245,158,11,0.06)' }}>

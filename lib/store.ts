@@ -460,10 +460,10 @@ export const useModelStore = create<ModelStore>()(
                         updatedAssumptions.useEgyptianRates = true;
                         updatedAssumptions.fiscalYearPreset = 'egyptian-govt';
                         updatedAssumptions.fiscalYearEnd = 6;
-                        // CBE-linked defaults
-                        updatedAssumptions.cbeRate = 0.2725;
-                        updatedAssumptions.interestRateOnDebt = [0.22, 0.22, 0.20, 0.18, 0.18];
-                        updatedAssumptions.interestRateOnCash = [0.22, 0.20, 0.18, 0.16, 0.15];
+                        // CBE-linked defaults (April 2, 2026 MPC decision)
+                        updatedAssumptions.cbeRate = 0.195;
+                        updatedAssumptions.interestRateOnDebt = [0.22, 0.20, 0.18, 0.17, 0.16];
+                        updatedAssumptions.interestRateOnCash = [0.19, 0.17, 0.15, 0.13, 0.12];
                         updatedAssumptions.legacyDebtRate = 0.045;
                         updatedAssumptions.employeeProfitSharingRate = 0.10;
                     } else if (preset === 'us') {
@@ -608,9 +608,40 @@ export const useModelStore = create<ModelStore>()(
                     }
                 }
 
+                // ── v8: CBE Rate Correction (April 2, 2026 MPC — rates on hold at 19.50%) ──
+                // Stale cbeRate of 0.2725 (March 2024 emergency peak) must be corrected.
+                if (persisted?.scenarios && Array.isArray(persisted.scenarios)) {
+                    for (const s of persisted.scenarios) {
+                        const a = s?.assumptions;
+                        if (!a) continue;
+                        // Update stale CBE rate (was 27.25%, now 19.50%)
+                        if (a.cbeRate !== undefined && a.cbeRate > 0.25) {
+                            a.cbeRate = 0.195;
+                        }
+                        // Update stale risk-free rate (was 20%, now 23.50%)
+                        if (a.riskFreeRate !== undefined && a.riskFreeRate < 0.22) {
+                            a.riskFreeRate = 0.235;
+                        }
+                        // Update flat interestRateOnDebt (was flat 0.22 → declining)
+                        if (Array.isArray(a.interestRateOnDebt)) {
+                            const allFlat22 = a.interestRateOnDebt.every((r: number) => Math.abs(r - 0.22) < 0.001);
+                            if (allFlat22) {
+                                a.interestRateOnDebt = [0.22, 0.20, 0.18, 0.17, 0.16];
+                            }
+                        }
+                        // Update flat interestRateOnCash (was flat 0.18 → declining)
+                        if (Array.isArray(a.interestRateOnCash)) {
+                            const allFlat18 = a.interestRateOnCash.every((r: number) => Math.abs(r - 0.18) < 0.001);
+                            if (allFlat18) {
+                                a.interestRateOnCash = [0.19, 0.17, 0.15, 0.13, 0.12];
+                            }
+                        }
+                    }
+                }
+
                 return persisted;
             },
-            version: 7, // v7: force recalc so ratios[] includes all new fields
+            version: 8, // v8: CBE rate correction + declining rate arrays (April 2026 MPC)
         },
     ),
 );

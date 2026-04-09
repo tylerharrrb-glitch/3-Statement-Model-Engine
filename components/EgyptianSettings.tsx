@@ -188,18 +188,108 @@ export default function EgyptianSettings() {
                     <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>Source: Tax Law Art. 56 bis (Law 30/2023)</span>
                 </div>
 
-                {/* Risk-Free Rate for DCF */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 0', borderTop: '1px solid var(--border-color)' }}>
                     <label style={{ fontSize: 13, minWidth: 120 }}>Risk-Free Rate (%)</label>
                     <input
                         className="fin-input"
                         type="number"
                         step="0.5"
-                        value={((a.riskFreeRate ?? 0.20) * 100).toFixed(1)}
-                        onChange={(e) => updateAssumption('riskFreeRate', parseFloat(e.target.value) / 100 || 0.20)}
+                        value={((a.riskFreeRate ?? 0.235) * 100).toFixed(1)}
+                        onChange={(e) => updateAssumption('riskFreeRate', parseFloat(e.target.value) / 100 || 0.235)}
                         style={{ width: 80, textAlign: 'right' }}
                     />
-                    <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>CBE deposit: 19% | T-Bill: ~25.7%</span>
+                    <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>12M T-Bill: ~23.5% | CBE deposit: 19% (April 2026)</span>
+                </div>
+            </div>
+
+            {/* Rate Settings (FIX-04) */}
+            <div style={{ marginBottom: 16, padding: 12, background: 'var(--bg-tertiary)', borderRadius: 8 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+                    Interest Rate Schedule
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+                    <label style={{ fontSize: 13, minWidth: 180 }}>Formula-Driven Rates</label>
+                    <input
+                        type="checkbox"
+                        checked={a.useFormulaRates || false}
+                        onChange={(e) => updateAssumption('useFormulaRates', e.target.checked ? 1 : 0)}
+                        style={{ width: 18, height: 18 }}
+                    />
+                    <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+                        {a.useFormulaRates ? 'ON — Rates derived from CBE projection + spread' : 'OFF — Manual rate arrays'}
+                    </span>
+                </div>
+                {a.useFormulaRates && (
+                    <>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+                            <label style={{ fontSize: 13, minWidth: 180 }}>Credit Spread (bps)</label>
+                            <input
+                                className="fin-input"
+                                type="number"
+                                step="25"
+                                min="0"
+                                max="500"
+                                value={Math.round((a.corporateCreditSpread ?? 0.02) * 10000)}
+                                onChange={(e) => updateAssumption('corporateCreditSpread', (parseInt(e.target.value) || 200) / 10000)}
+                                style={{ width: 80, textAlign: 'right' }}
+                            />
+                            <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+                                Debt rate = CBE + spread + 50bps
+                            </span>
+                        </div>
+                        <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 4 }}>
+                            CBE Rate Projection (per year):
+                        </div>
+                        <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+                            {(a.cbeRateProjection ?? [0.195, 0.175, 0.155, 0.140, 0.130]).map((rate: number, i: number) => (
+                                <div key={i} style={{ textAlign: 'center' }}>
+                                    <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 2 }}>Yr {i + 1}</div>
+                                    <input
+                                        className="fin-input"
+                                        type="number"
+                                        step="0.5"
+                                        value={(rate * 100).toFixed(1)}
+                                        onChange={(e) => {
+                                            const arr = [...(a.cbeRateProjection ?? [0.195, 0.175, 0.155, 0.140, 0.130])];
+                                            arr[i] = parseFloat(e.target.value) / 100 || 0.195;
+                                            updateAssumption('cbeRateProjection', arr);
+                                        }}
+                                        style={{ width: 60, textAlign: 'right', fontSize: 11 }}
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                        <div style={{ fontSize: 10, color: 'var(--text-muted)', padding: 8, background: 'var(--bg-primary)', borderRadius: 6 }}>
+                            Computed Debt Rate: {(a.cbeRateProjection ?? [0.195]).map((r: number, i: number) =>
+                                `Yr${i + 1}: ${((r + (a.corporateCreditSpread ?? 0.02) + 0.005) * 100).toFixed(1)}%`
+                            ).join(' | ')}
+                        </div>
+                    </>
+                )}
+            </div>
+
+            {/* Labor Law (FIX-06) */}
+            <div style={{ marginBottom: 16, padding: 12, background: 'var(--bg-tertiary)', borderRadius: 8 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+                    Employee Profit Distribution (Law No. 14/2025)
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+                    <label style={{ fontSize: 13, minWidth: 180 }}>Exclude Non-Operating Gains</label>
+                    <input
+                        type="checkbox"
+                        checked={a.enableNonOperatingExclusion || false}
+                        onChange={(e) => updateAssumption('enableNonOperatingExclusion', e.target.checked ? 1 : 0)}
+                        style={{ width: 18, height: 18 }}
+                    />
+                    <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+                        {a.enableNonOperatingExclusion
+                            ? 'ON — EPD base excludes other income/gains'
+                            : 'OFF — EPD computed on full Net Income'}
+                    </span>
+                </div>
+                <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+                    Law No. 14 of 2025 (amended Labor Law) permits excluding non-operating
+                    income from the EPD base to avoid distributing extraordinary gains.
                 </div>
             </div>
 

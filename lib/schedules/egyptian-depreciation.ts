@@ -21,6 +21,10 @@ export const EGYPTIAN_TAX_DEPRECIATION_RATES: Record<string, EgyptianAssetClass>
     buildings: { name: 'Buildings & Structures', nameArabic: 'مباني', rate: 0.05, method: 'declining-balance' },
     machinery: { name: 'Machinery & Equipment', nameArabic: 'آلات ومعدات', rate: 0.25, method: 'declining-balance' },
     vehicles: { name: 'Vehicles & Transport', nameArabic: 'سيارات ووسائل نقل', rate: 0.25, method: 'declining-balance' },
+    // Computers: 50% declining-balance on NBV. In practice this means:
+    // Year 1 on new assets: 50% of cost (accelerated write-off)
+    // Year 2+: 50% of declining NBV → approaches 25% effective rate
+    // FIX-08: This rate is deliberately set at 50% per Tax Law 91/2005 Art.25
     computers: { name: 'Computers & IT', nameArabic: 'أجهزة حاسب آلي', rate: 0.50, method: 'declining-balance' },
     furniture: { name: 'Furniture & Fixtures', nameArabic: 'أثاث وتجهيزات', rate: 0.20, method: 'declining-balance' },
 };

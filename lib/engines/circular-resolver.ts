@@ -62,6 +62,21 @@ export function resolveCircularReferences(
             (assumptions.capexPercent[yearIndex] ?? 0.05);
 
         // Step 2: Calculate Income Statement with current estimates
+        // Thin-cap uses beginning-of-period (prior BS) D/E ratio (Law 30/2023)
+        const priorTotalDebt = previousBalanceSheet.shortTermDebt +
+            previousBalanceSheet.longTermDebt + previousBalanceSheet.currentPortionLTD;
+        const priorTotalEquity = previousBalanceSheet.totalEquity;
+
+        // FIX-04: Formula-driven rate schedule
+        let effectiveDebtRate = assumptions.interestRateOnDebt[yearIndex] ?? assumptions.legacyDebtRate ?? 0.22;
+        let effectiveCashRate = assumptions.interestRateOnCash[yearIndex] ?? 0.15;
+        if (assumptions.useFormulaRates && assumptions.cbeRateProjection?.length > 0) {
+            const cbeProj = assumptions.cbeRateProjection[yearIndex] ?? assumptions.cbeRate;
+            const spread = assumptions.corporateCreditSpread ?? 0.02;
+            effectiveDebtRate = cbeProj + spread + 0.005;
+            effectiveCashRate = cbeProj - 0.005;
+        }
+
         const isInputs: IncomeStatementInputs = {
             assumptions,
             yearIndex,
@@ -75,6 +90,8 @@ export function resolveCircularReferences(
             previousNWC,
             capex,
             previousRetainedEarnings: previousBalanceSheet.retainedEarnings,
+            totalDebt: priorTotalDebt,
+            totalEquity: priorTotalEquity,
         };
         const isResult = calculateIncomeStatement(isInputs);
         const incomeStatement = isResult.incomeStatement;
@@ -136,14 +153,14 @@ export function resolveCircularReferences(
         estimatedInterestExpense = calculateInterestExpense(
             beginDebt,
             endDebt,
-            assumptions.interestRateOnDebt[yearIndex] ?? assumptions.legacyDebtRate ?? 0.22,
+            effectiveDebtRate,
         );
 
         // Interest income: beginning-of-period cash
         estimatedInterestIncome = calculateInterestIncome(
             previousBalanceSheet.cash,
             cashFlow.endingCash,
-            assumptions.interestRateOnCash[yearIndex] ?? 0.15,
+            effectiveCashRate,
         );
 
         // Check convergence on ending cash
@@ -274,9 +291,10 @@ export function validateIntegration(
         difference: expectedWCImpact - actualWCImpact,
     });
 
-    // 9. Total Current Assets Sum
+    // 9. Total Current Assets Sum (includes VAT receivable from FIX-07)
     const expectedCurrentAssets = balanceSheet.cash + balanceSheet.accountsReceivable +
-        balanceSheet.inventory + balanceSheet.prepaidExpenses + balanceSheet.otherCurrentAssets;
+        balanceSheet.inventory + balanceSheet.prepaidExpenses + balanceSheet.otherCurrentAssets +
+        (balanceSheet.vatReceivable ?? 0);
     const totalCurrentAssetsCheck = Math.abs(balanceSheet.totalCurrentAssets - expectedCurrentAssets) < 0.01;
     details.push({
         name: 'Total Current Assets Sum',
@@ -298,10 +316,11 @@ export function validateIntegration(
         difference: balanceSheet.totalNonCurrentAssets - expectedNonCurrentAssets,
     });
 
-    // 11. Total Current Liabilities Sum
+    // 11. Total Current Liabilities Sum (includes VAT payable from FIX-07)
     const expectedCurrentLiabilities = balanceSheet.accountsPayable + balanceSheet.accruedExpenses +
         balanceSheet.shortTermDebt + balanceSheet.currentPortionLTD +
-        balanceSheet.deferredRevenue + balanceSheet.otherCurrentLiabilities;
+        balanceSheet.deferredRevenue + balanceSheet.otherCurrentLiabilities +
+        (balanceSheet.vatPayable ?? 0);
     const totalCurrentLiabilitiesCheck = Math.abs(balanceSheet.totalCurrentLiabilities - expectedCurrentLiabilities) < 0.01;
     details.push({
         name: 'Total Current Liabilities Sum',

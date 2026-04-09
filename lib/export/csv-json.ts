@@ -41,11 +41,23 @@ export function exportToCSV(results: ModelResults, companyName: string, currency
         ['Amortization', ...results.incomeStatements.map(s => s.amortization)],
         ['EBIT', ...results.incomeStatements.map(s => s.ebit)],
         ['EBITDA', ...results.incomeStatements.map(s => s.ebitda)],
+        ['Interest Income', ...results.incomeStatements.map(s => s.interestIncome)],
         ['Interest Expense', ...results.incomeStatements.map(s => s.interestExpense)],
+        ['Other Income/Expense', ...results.incomeStatements.map(s => s.otherIncomeExpense)],
         ['EBT', ...results.incomeStatements.map(s => s.ebt)],
+        ['Disallowed Interest (Thin-Cap)', ...results.incomeStatements.map(s => s.disallowedInterest ?? 0)],
+        ['Adjusted Taxable Income', ...results.incomeStatements.map(s => s.adjustedTaxableIncome ?? s.taxableIncome)],
         ['Tax Expense', ...results.incomeStatements.map(s => s.taxExpense)],
         ['Net Income', ...results.incomeStatements.map(s => s.netIncome)],
+        ['Employee Profit Sharing (EPD)', ...results.incomeStatements.map(s => s.employeeProfitSharing)],
+        ['Net Income After EPD', ...results.incomeStatements.map(s => s.netIncomeAfterEPD)],
+        ['Legal Reserve Addition', ...results.incomeStatements.map(s => s.legalReserveAddition)],
+        ['Distributable Profit', ...results.incomeStatements.map(s => s.distributableProfit)],
+        ['Gross Dividends', ...results.incomeStatements.map(s => s.grossDividends)],
+        ['Dividend WHT', ...results.incomeStatements.map(s => s.dividendWHT)],
+        ['Addition to RE', ...results.incomeStatements.map(s => s.additionToRE)],
         ['EPS', ...results.incomeStatements.map(s => s.eps)],
+        ['FCFF', ...results.incomeStatements.map(s => s.fcff ?? 0)],
     ];
     sections.push(buildCsvRows(['Item', ...isPeriods], isRows));
 
@@ -57,11 +69,15 @@ export function exportToCSV(results: ModelResults, companyName: string, currency
         ['Accounts Receivable', ...results.balanceSheets.map(s => s.accountsReceivable)],
         ['Inventory', ...results.balanceSheets.map(s => s.inventory)],
         ['Total Current Assets', ...results.balanceSheets.map(s => s.totalCurrentAssets)],
+        ['VAT Receivable', ...results.balanceSheets.map(s => s.vatReceivable ?? 0)],
         ['Net PPE', ...results.balanceSheets.map(s => s.netPPE)],
         ['Total Assets', ...results.balanceSheets.map(s => s.totalAssets)],
         ['Total Current Liabilities', ...results.balanceSheets.map(s => s.totalCurrentLiabilities)],
+        ['VAT Payable', ...results.balanceSheets.map(s => s.vatPayable ?? 0)],
         ['Long-Term Debt', ...results.balanceSheets.map(s => s.longTermDebt)],
         ['Total Liabilities', ...results.balanceSheets.map(s => s.totalLiabilities)],
+        ['Legal Reserve', ...results.balanceSheets.map(s => s.legalReserve ?? 0)],
+        ['Retained Earnings', ...results.balanceSheets.map(s => s.retainedEarnings)],
         ['Total Equity', ...results.balanceSheets.map(s => s.totalEquity)],
         ['Total L+E', ...results.balanceSheets.map(s => s.totalLiabilitiesEquity)],
     ];
@@ -80,6 +96,22 @@ export function exportToCSV(results: ModelResults, companyName: string, currency
         ['Free Cash Flow', ...results.cashFlowStatements.map(s => s.freeCashFlow)],
     ];
     sections.push(buildCsvRows(['Item', ...cfPeriods], cfRows));
+
+    // DCF Valuation Summary
+    if (results.dcfValuation) {
+        sections.push('\n=== DCF VALUATION ===');
+        const dcf = results.dcfValuation;
+        const dcfRows: [string, ...number[]][] = [
+            ['WACC', dcf.wacc],
+            ['Enterprise Value', dcf.enterpriseValue],
+            ['Equity Value', dcf.equityValue],
+            ['Implied Share Price', dcf.impliedSharePrice],
+            ['Terminal Value', dcf.terminalValue],
+            ['PV of Terminal Value', dcf.pvTerminalValue],
+            ['Sum of Discounted FCFs', dcf.discountedFCFs.reduce((a, b) => a + b, 0)],
+        ];
+        sections.push(buildCsvRows(['Metric', 'Value'], dcfRows));
+    }
 
     const csv = sections.join('\n');
     downloadText(csv, `${safeName(companyName)}_Financial_Model.csv`, 'text/csv');
@@ -111,7 +143,7 @@ export function exportToJSON(opts: JSONExportOptions): void {
     const data = {
         // ── Metadata ─────────────────────────────────────────
         exportDate: new Date().toISOString(),
-        engineVersion: '3SM-v6',
+        engineVersion: '3SM-v8',  // v8: CBE rates, thin-cap, DCF, Labor Law 14/2025, VAT WC
 
         // ── Company Info ─────────────────────────────────────
         companyInfo: {
@@ -128,7 +160,16 @@ export function exportToJSON(opts: JSONExportOptions): void {
         assumptions: opts.assumptions,
 
         // ── Historical Inputs ────────────────────────────────
-        historicalInputs: opts.historicalInputs,
+        // Fix period labels: raw store may have duplicates like ['2025','2025'].
+        // Apply the same correction the engine integrator uses.
+        historicalInputs: {
+            ...opts.historicalInputs,
+            periods: opts.historicalInputs.periods.map((_, idx) => {
+                const numHist = opts.historicalInputs.periods.length;
+                const startYear = opts.assumptions.startYear ?? 2026;
+                return `${startYear - numHist + idx}`;
+            }),
+        },
 
         // ── All Scenarios ────────────────────────────────────
         activeScenarioId: opts.activeScenarioId ?? '',
@@ -152,7 +193,10 @@ export function exportToJSON(opts: JSONExportOptions): void {
         integrationChecks: results.integrationChecks,
 
         // ── Valuation ────────────────────────────────────────
-        dcfValuation: results.dcfValuation ?? null,
+        dcfValuation: results.dcfValuation ?? (() => {
+            console.warn('[WOLF Export] DCF valuation is null — run calculateModel() first');
+            return null;
+        })(),
         valuationMultiples: results.valuationMultiples ?? null,
 
         // ── Validation ───────────────────────────────────────

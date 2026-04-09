@@ -13,6 +13,7 @@ import { buildHistoricalBalanceSheets } from './balance-sheet';
 import { buildHistoricalCashFlows } from './cash-flow';
 import { resolveCircularReferences, validateIntegration } from './circular-resolver';
 import { calculateFinancialRatios } from '@/lib/ratios';
+import { calculateDCF } from './dcf';
 
 export function runFullModel(
     assumptions: AssumptionSet,
@@ -108,6 +109,39 @@ export function runFullModel(
         const cf = i > 0 && i - 1 < allCF.length ? allCF[i - 1] : null;
         return calculateFinancialRatios(is, bs, prevBS, cf);
     });
+
+    // ── DCF VALUATION ────────────────────────────────
+    // Compute DCF inside runFullModel so it's always attached to ModelResults
+    // and serialized correctly in JSON/Excel exports (FIX-02)
+    try {
+        const dcfResult = calculateDCF(assumptions, {
+            incomeStatements: allIS,
+            balanceSheets: allBS,
+            cashFlowStatements: allCF,
+            ratios,
+            integrationChecks,
+            convergenceInfo: {
+                converged: allConverged,
+                iterations: totalIterations,
+                finalDelta: maxDelta,
+            },
+        });
+        return {
+            incomeStatements: allIS,
+            balanceSheets: allBS,
+            cashFlowStatements: allCF,
+            ratios,
+            integrationChecks,
+            convergenceInfo: {
+                converged: allConverged,
+                iterations: totalIterations,
+                finalDelta: maxDelta,
+            },
+            dcfValuation: dcfResult,
+        };
+    } catch (dcfError) {
+        console.warn('[WOLF] DCF calculation failed:', dcfError);
+    }
 
     return {
         incomeStatements: allIS,

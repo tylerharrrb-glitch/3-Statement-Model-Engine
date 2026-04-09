@@ -37,8 +37,13 @@ export function calculateCashFlow(inputs: CashFlowInputs): CashFlowStatement {
     const changeInAccruedExp = curr.accruedExpenses - prev.accruedExpenses;
     const changeInDeferredRev = curr.deferredRevenue - prev.deferredRevenue;
 
+    // FIX-07: VAT working capital changes
+    const changeInVATReceivable = -((curr.vatReceivable ?? 0) - (prev.vatReceivable ?? 0));
+    const changeInVATPayable = (curr.vatPayable ?? 0) - (prev.vatPayable ?? 0);
+
     const totalWorkingCapitalChange = changeInAR + changeInInventory + changeInPrepaid +
-        changeInAP + changeInAccruedExp + changeInDeferredRev;
+        changeInAP + changeInAccruedExp + changeInDeferredRev +
+        changeInVATReceivable + changeInVATPayable;
 
     const cashFromOperations = netIncome + depreciation + amortization +
         stockBasedComp + deferredTaxes + totalWorkingCapitalChange;

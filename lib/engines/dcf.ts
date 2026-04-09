@@ -8,6 +8,12 @@
 import { AssumptionSet } from '@/types/assumptions';
 import { ModelResults, DCFValuation } from '@/types/financial';
 
+// CBE Policy Rates (April 2, 2026 MPC Decision):
+// Overnight Deposit: 19.00% | Overnight Lending: 20.00%
+// Main Operation / Discount: 19.50% ← this is cbeRate
+// Risk-Free Rate: ~23.50% (12M T-bill average auction yield, Q1 2026)
+// Corporate Credit Spread (typical): +200bps over CBE lending rate
+
 /**
  * Calculate WACC using CAPM for cost of equity and after-tax cost of debt.
  * Capital structure weights derived from the last projected balance sheet.

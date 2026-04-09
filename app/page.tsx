@@ -25,6 +25,7 @@ import DCFPage from '@/components/DCFPage';
 import ValuationPage from '@/components/ValuationPage';
 import RatiosPage from '@/components/RatiosPage';
 import CBEMetricsPage from '@/components/CBEMetricsPage';
+import CBERateBanner from '@/components/CBERateBanner';
 import ErrorBanner from '@/components/ErrorBanner';
 import ConflictModal from '@/components/ConflictModal';
 
@@ -145,6 +146,7 @@ export default function Home() {
     return (
         <div style={{ paddingTop: 56 }}>
             <Navbar />
+            <CBERateBanner />
 
             {showScenarioSelector && <ScenarioSelector />}
 

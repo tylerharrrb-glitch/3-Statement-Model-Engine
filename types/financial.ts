@@ -55,6 +55,12 @@ export interface IncomeStatement {
   taxLossRemaining: number;        // available for future years
   taxableIncome: number;           // EBT after loss offset
 
+  // Thin Capitalization (Law No. 30 of 2023)
+  disallowedInterest?: number;      // non-deductible interest portion
+  adjustedTaxableIncome?: number;   // EBT + disallowedInterest - NOL
+  thinCapDeRatioLimit?: number;     // 3:1 (2024-2027) or 2:1 (2028+)
+  thinCapRateCeiling?: number;      // 2× CBE discount rate
+
   // Profit Appropriation Waterfall
   legalReserveAddition: number;    // 5% of NI after EPS, stops at 50% of capital
   distributableProfit: number;     // NI after EPS - legal reserve
@@ -134,6 +140,10 @@ export interface BalanceSheet {
   // Check
   isBalanced: boolean;
   balanceDifference: number;
+
+  // VAT Working Capital (Egyptian market — FIX-07)
+  vatReceivable?: number;   // input VAT (included in totalCurrentAssets)
+  vatPayable?: number;      // output VAT net of input (included in totalCurrentLiabilities)
 }
 
 export interface CashFlowStatement {

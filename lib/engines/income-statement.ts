@@ -29,6 +29,9 @@ export interface IncomeStatementInputs {
     capex: number;
     // Retained earnings from prior period (for dividend blocking per Companies Law Art. 53)
     previousRetainedEarnings: number;
+    // Thin Capitalization (Law 30/2023) — balance sheet data for D/E check
+    totalDebt: number;     // STD + LTD + CPLTD from prior BS
+    totalEquity: number;   // from prior BS
 }
 
 export interface IncomeStatementResult {
@@ -95,6 +98,51 @@ function calculateTaxWithCarryforward(
     };
 }
 
+// ── Thin Capitalization Compliance (Law No. 30 of 2023) ──────────────
+// Restricts interest deductibility based on D/E ratio and CBE rate ceiling.
+// 2024–2027: Max D/E = 3:1 | 2028+: Max D/E = 2:1
+// Rate ceiling: deductible rate ≤ 2× CBE discount rate at year-start
+function calculateThinCapCompliance(
+    interestExpense: number,
+    totalDebt: number,
+    totalEquity: number,
+    cbeRate: number,
+    calendarYear: number,
+    enableThinCap: boolean,
+): { deductible: number; disallowed: number; deRatioLimit: number; rateCeiling: number } {
+    if (!enableThinCap || totalDebt <= 0 || totalEquity <= 0 || interestExpense <= 0) {
+        return {
+            deductible: interestExpense,
+            disallowed: 0,
+            deRatioLimit: calendarYear >= 2028 ? 2.0 : 3.0,
+            rateCeiling: cbeRate * 2,
+        };
+    }
+    const deRatioLimit = calendarYear >= 2028 ? 2.0 : 3.0;
+    const rateCeiling = cbeRate * 2; // e.g. 0.195 * 2 = 0.39 (39%)
+
+    // Step 1: Rate cap — compute interest at capped rate
+    const effectiveRate = interestExpense / totalDebt;
+    const cappedRate = Math.min(effectiveRate, rateCeiling);
+    const rateCapInterest = totalDebt * cappedRate;
+
+    // Step 2: D/E cap — limit deductible debt
+    const currentDE = totalDebt / totalEquity;
+    let deductibleInterest = rateCapInterest;
+    if (currentDE > deRatioLimit) {
+        const deductibleDebtFraction = (totalEquity * deRatioLimit) / totalDebt;
+        deductibleInterest = rateCapInterest * deductibleDebtFraction;
+    }
+
+    const disallowed = Math.max(0, interestExpense - deductibleInterest);
+    return {
+        deductible: interestExpense - disallowed,
+        disallowed,
+        deRatioLimit,
+        rateCeiling,
+    };
+}
+
 function calculateLegalReserveAddition(
     netIncome: number,
     priorLegalReserve: number,
@@ -122,6 +170,7 @@ export function calculateIncomeStatement(inputs: IncomeStatementInputs): IncomeS
         interestExpenseFromDebt, interestIncomeFromCash,
         taxLossVintages, priorLegalReserve,
         currentNWC, previousNWC, capex, previousRetainedEarnings,
+        totalDebt, totalEquity,
     } = inputs;
     const yr = yearIndex;
     const currentYear = assumptions.startYear + yr;
@@ -165,9 +214,17 @@ export function calculateIncomeStatement(inputs: IncomeStatementInputs): IncomeS
         console.warn(`[Tax] Standard regime taxRate ${(taxRate * 100).toFixed(2)}% below 5% for year ${yr} — verify intentional.`);
     }
 
-    // Tax with carryforward (C1)
+    // ── Thin Capitalization Compliance (Law 30/2023) ──────────────────
+    const thinCap = calculateThinCapCompliance(
+        interestExpense, totalDebt, totalEquity,
+        assumptions.cbeRate, currentYear,
+        assumptions.enableThinCapRule ?? true,
+    );
+
+    // Tax with carryforward (C1) — adjusted for thin-cap disallowance
     const taxResult = calculateTaxWithCarryforward(
-        ebt, taxRate, taxLossVintages, currentYear,
+        ebt + thinCap.disallowed, // add back non-deductible interest to taxable base
+        taxRate, taxLossVintages, currentYear,
         assumptions.taxLossCarryforwardYears ?? 5,
         assumptions.enableTaxLossCarryforward ?? true,
     );
@@ -177,7 +234,7 @@ export function calculateIncomeStatement(inputs: IncomeStatementInputs): IncomeS
     const netIncome = ebt - taxExpense;
     const netMargin = revenue !== 0 ? netIncome / revenue : 0;
 
-    // ── Profit Appropriation (Egyptian Law — Labor Law Art.41 + Companies Law Art.40-42) ──
+    // ── Profit Appropriation (Egyptian Law — Labor Law No. 14/2025 + Companies Law Art.40-42) ──
     // Both EPD and Legal Reserve are computed INDEPENDENTLY on Net Income.
     // Neither is deducted before computing the other.
 
@@ -193,11 +250,15 @@ export function calculateIncomeStatement(inputs: IncomeStatementInputs): IncomeS
         assumptions.enableLegalReserve ?? true,
     );
 
-    // Step 3: EPD = 10% × Net Income (Labor Law Art.41 — computed on NI directly)
+    // Step 3: EPD = 10% × NI base (Labor Law No. 14/2025 — replaces Law 137/1981)
+    // When enableNonOperatingExclusion is true, exclude non-operating gains from EPD base
     // Capped at total annual payroll (if provided)
+    const epdBase = (assumptions.enableNonOperatingExclusion ?? false)
+        ? Math.max(0, netIncome - Math.max(0, otherIncomeExpense))
+        : netIncome;
     const rawEPD = (
-        (assumptions.enableEmployeeProfitShare ?? true) && netIncome > 0
-    ) ? netIncome * (assumptions.employeeProfitSharingRate ?? 0.10) : 0;
+        (assumptions.enableEmployeeProfitShare ?? true) && epdBase > 0
+    ) ? epdBase * (assumptions.employeeProfitSharingRate ?? 0.10) : 0;
     const epdPayrollCap = assumptions.totalAnnualPayroll;
     const employeeProfitSharing = epdPayrollCap != null && epdPayrollCap > 0
         ? Math.min(rawEPD, epdPayrollCap)
@@ -290,6 +351,11 @@ export function calculateIncomeStatement(inputs: IncomeStatementInputs): IncomeS
         eps,
         // VAT memo
         ...(revenueInclVAT !== undefined && { revenueInclVAT, revenueExclVAT, vatCollected }),
+        // Thin Capitalization (Law 30/2023)
+        disallowedInterest: thinCap.disallowed,
+        adjustedTaxableIncome: taxResult.taxableIncome,
+        thinCapDeRatioLimit: thinCap.deRatioLimit,
+        thinCapRateCeiling: thinCap.rateCeiling,
     };
 
     return {

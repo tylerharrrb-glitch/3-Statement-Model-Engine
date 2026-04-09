@@ -121,18 +121,19 @@ export async function exportToExcel(
     workbook.created = new Date();
 
     // ⭐ Workbook calculation properties
-    // fullCalcOnLoad is TRUE — all formulas are live.
-    // Balance is guaranteed by the Cash "plug" formula on the BS tab:
-    //   Cash = Total L+E − Non-Cash Current Assets − Total Non-Current Assets
-    // This is the standard Wall Street financial modeling approach.
-    // Iterative calculation is enabled as a safety net for any residual circular references.
-    // Bug 1 fix (beginning-of-period cash for Interest Income) removes the main circularity.
+    // fullCalcOnLoad = FALSE — Excel displays the pre-computed cached engine values.
+    // This prevents Excel from overwriting correct converged values with wrong
+    // first-pass results when iterative calculation is not enabled in user's Excel settings.
+    // The circular reference (Cash → Interest Income → NI → CF → Cash) requires
+    // iterative calculation to converge. If the user's Excel has iterative calc off,
+    // fullCalcOnLoad=true would produce wrong values (e.g. 39,387 instead of 61,771).
+    // With fullCalcOnLoad=false, cached engine values display correctly on first open.
     workbook.calcProperties = {
-        fullCalcOnLoad: true,
-        calcOnSave: true,
+        fullCalcOnLoad: false,
+        calcOnSave: false,
         calcMode: 'auto',
     } as ExcelJS.CalculationProperties;
-    // Force iterative calculation in OOXML calcPr attributes
+    // Iterative calculation settings — used IF user manually recalculates (Ctrl+Alt+F9)
     // ExcelJS types don't include iterate/iterateCount/iterateDelta, but they are
     // written to <calcPr> when present on the object.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -369,6 +370,137 @@ export async function exportToExcel(
     });
 
     // ════════════════════════════════════════════════════════
+    // TAB: HISTORICAL DATA  (locked engine values for all historical periods)
+    // ════════════════════════════════════════════════════════
+    if (numHistorical > 0) {
+        const hdSheet = workbook.addWorksheet('Historical Data');
+        hdSheet.properties.tabColor = { argb: 'FF2E75B6' }; // Blue
+        hdSheet.getColumn(1).width = 32;
+        for (let i = 0; i < numHistorical; i++) hdSheet.getColumn(i + 2).width = 18;
+
+        // Title
+        hdSheet.mergeCells(1, 1, 1, numHistorical + 1);
+        const hdTitle = hdSheet.getCell(1, 1);
+        hdTitle.value = `${companyName} — Historical Data (${periods.slice(0, numHistorical).join('–')})`;
+        hdTitle.font = { bold: true, size: 12, color: { argb: 'FFFFFFFF' } };
+        hdTitle.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1A1A2E' } };
+        hdTitle.alignment = { vertical: 'middle', horizontal: 'center' };
+
+        // Period headers
+        let hdRow = 2;
+        hdSheet.getCell(hdRow, 1).value = '';
+        for (let i = 0; i < numHistorical; i++) {
+            const hc = hdSheet.getCell(hdRow, i + 2);
+            hc.value = periods[i];
+            hc.font = { bold: true, size: 11, color: { argb: 'FFFFFFFF' } };
+            hc.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF444444' } };
+            hc.alignment = { horizontal: 'center' };
+        }
+        hdRow++;
+
+        // Section header helper
+        const hdSection = (label: string) => {
+            hdSheet.getCell(hdRow, 1).value = label;
+            hdSheet.getCell(hdRow, 1).font = { bold: true, size: 10, color: { argb: 'FFFFFFFF' } };
+            hdSheet.getCell(hdRow, 1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1F3864' } };
+            for (let i = 0; i < numHistorical; i++) {
+                hdSheet.getCell(hdRow, i + 2).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1F3864' } };
+            }
+            hdRow++;
+        };
+
+        // Value row helper (locked engine values — no formulas)
+        const hdVal = (label: string, values: number[], fmt: string = NUM_FMT) => {
+            hdSheet.getCell(hdRow, 1).value = label;
+            hdSheet.getCell(hdRow, 1).font = { size: 10 };
+            for (let i = 0; i < numHistorical; i++) {
+                const cell = hdSheet.getCell(hdRow, i + 2);
+                cell.value = values[i] ?? 0;
+                cell.numFmt = fmt;
+                cell.alignment = { horizontal: 'right' };
+            }
+            hdRow++;
+        };
+
+        // Formula row helper
+        const hdFormula = (label: string, formulaFn: (col: string, yr: number) => string, fmt: string = NUM_FMT) => {
+            hdSheet.getCell(hdRow, 1).value = label;
+            hdSheet.getCell(hdRow, 1).font = { size: 10, italic: true, color: { argb: 'FF666666' } };
+            for (let i = 0; i < numHistorical; i++) {
+                const c = colLetter(i + 2);
+                const cell = hdSheet.getCell(hdRow, i + 2);
+                const result = 0;
+                cell.value = { formula: formulaFn(c, i), result };
+                cell.numFmt = fmt;
+                cell.alignment = { horizontal: 'right' };
+            }
+            hdRow++;
+        };
+
+        const hIS = results.incomeStatements.slice(0, numHistorical);
+        const hBS = results.balanceSheets.slice(0, numHistorical);
+
+        // ── Income Statement ──
+        hdSection('INCOME STATEMENT');
+        const hdISRevRow = hdRow;
+        hdVal('Revenue', hIS.map(s => s.revenue));
+        const hdISCogsRow = hdRow;
+        hdVal('COGS', hIS.map(s => s.cogs));
+        hdVal('Gross Profit', hIS.map(s => s.grossProfit));
+        hdVal('SG&A', hIS.map(s => s.sgaExpense));
+        hdVal('R&D', hIS.map(s => s.rdExpense));
+        hdVal('Depreciation', hIS.map(s => s.depreciation));
+        hdVal('Amortization', hIS.map(s => s.amortization));
+        hdVal('Other OpEx', hIS.map(s => s.otherOpex));
+        hdVal('Total OpEx', hIS.map(s => s.totalOpex));
+        hdVal('EBIT', hIS.map(s => s.ebit));
+        hdVal('Interest Expense', hIS.map(s => s.interestExpense));
+        hdVal('Interest Income', hIS.map(s => s.interestIncome));
+        const hdISEbtRow = hdRow;
+        hdVal('EBT', hIS.map(s => s.ebt));
+        const hdISTaxRow = hdRow;
+        hdVal('Tax Expense', hIS.map(s => s.taxExpense));
+        hdVal('Net Income', hIS.map(s => s.netIncome));
+
+        hdRow++; // spacer
+
+        // ── Balance Sheet ──
+        hdSection('BALANCE SHEET');
+        hdVal('Cash & Equivalents', hBS.map(s => s.cash));
+        const hdBSArRow = hdRow;
+        hdVal('Accounts Receivable', hBS.map(s => s.accountsReceivable));
+        const hdBSInvRow = hdRow;
+        hdVal('Inventory', hBS.map(s => s.inventory));
+        hdVal('Net PP&E', hBS.map(s => s.netPPE));
+        hdVal('Total Assets', hBS.map(s => s.totalAssets));
+        const hdBSApRow = hdRow;
+        hdVal('Accounts Payable', hBS.map(s => s.accountsPayable));
+        hdVal('Long-Term Debt', hBS.map(s => s.longTermDebt));
+        hdVal('Total Equity', hBS.map(s => s.totalEquity));
+        hdVal('Total L+E', hBS.map(s => s.totalLiabilitiesEquity));
+
+        hdRow++; // spacer
+
+        // ── Derived Ratios (reference only — Excel formulas) ──
+        hdSection('DERIVED ASSUMPTIONS (for reference)');
+        hdFormula('Gross Margin %',
+            (c) => `IF(${c}${hdISRevRow}=0,0,(${c}${hdISRevRow}-${c}${hdISCogsRow})/${c}${hdISRevRow})`,
+            PCT_FMT);
+        hdFormula('Effective Tax Rate %',
+            (c) => `IF(${c}${hdISEbtRow}=0,0,${c}${hdISTaxRow}/${c}${hdISEbtRow})`,
+            PCT_FMT);
+        hdFormula('DSO (Days)',
+            (c) => `IF(${c}${hdISRevRow}=0,0,ROUND(${c}${hdBSArRow}/${c}${hdISRevRow}*365,1))`,
+            '0.0');
+        hdFormula('DIO (Days)',
+            (c) => `IF(${c}${hdISCogsRow}=0,0,ROUND(${c}${hdBSInvRow}/${c}${hdISCogsRow}*365,1))`,
+            '0.0');
+        hdFormula('DPO (Days)',
+            (c) => `IF(${c}${hdISCogsRow}=0,0,ROUND(${c}${hdBSApRow}/${c}${hdISCogsRow}*365,1))`,
+            '0.0');
+    }
+
+    // ════════════════════════════════════════════════════════
     // TAB: SCENARIOS  (complete engine data for all scenarios)
     // ════════════════════════════════════════════════════════
     const { scenarioRows } = buildScenariosSheet(workbook, periods, allScenarios, numHistorical, nYears);
@@ -419,15 +551,8 @@ export async function exportToExcel(
 
     // Revenue Base — first historical year revenue (drives the historical revenue chain)
     aRows['revenueBase'] = aRow;
-    aSheet.getCell(aRow, 1).value = 'Revenue Base (Historical)';
+    aSheet.getCell(aRow, 1).value = 'Revenue (Year 1 Historical)';
     aSheet.getCell(aRow, 2).value = engineRevenues[0] ?? assumptions.revenueBase;
-    styleRow(aSheet.getRow(aRow), { input: true, numFmt: NUM_FMT });
-    aRow++;
-
-    // Revenue Base (Projection) — the user's projection anchor (drives first projected year)
-    aRows['revenueBaseProjection'] = aRow;
-    aSheet.getCell(aRow, 1).value = 'Revenue Base (Projection)';
-    aSheet.getCell(aRow, 2).value = assumptions.revenueBase;
     styleRow(aSheet.getRow(aRow), { input: true, numFmt: NUM_FMT });
     aRow++;
 
@@ -592,18 +717,18 @@ export async function exportToExcel(
         isRow++;
     }
 
-    // Revenue: Year 0 = revenueBase, all subsequent = chain from prior year * (1 + growth)
-    // This matches the engine: revenue = previousRevenue * (1 + growthRate)
+    // Revenue: Historical years = locked engine values; Projected = chain from prior × (1 + growth)
+    // Historical revenue must never be formula-derived — they are known actuals.
     isRows['revenue'] = isRow;
     isSheet.getCell(isRow, 1).value = 'Revenue';
     for (let i = 0; i < nYears; i++) {
         const cell = isSheet.getCell(isRow, i + 2);
         const result = results.incomeStatements[i]?.revenue ?? 0;
-        if (i === 0) {
-            // First historical year: = revenueBase
-            cell.value = { formula: `${aRef('revenueBase', 0)}`, result };
+        if (i < numHistorical) {
+            // Historical: locked engine value (no formula)
+            cell.value = result;
         } else {
-            // All other years (historical 1+ and ALL projected): chain from prior year
+            // Projected: chain from prior year × (1 + growth rate)
             const prevC = colLetter(i + 1);
             cell.value = { formula: `${prevC}${isRow}*(1+${aRef('revenueGrowthRate', i)})`, result };
         }
@@ -926,6 +1051,14 @@ export async function exportToExcel(
         bold: true,
     });
 
+    // Thin-Cap compliance memo (Law 30/2023)
+    addISRow('Disallowed Interest (Thin-Cap)', 'disallowedInterest', {
+        value: yr => results.incomeStatements[yr]?.disallowedInterest ?? 0,
+    });
+    addISRow('Adjusted Taxable Income', 'adjustedTaxableIncome', {
+        value: yr => results.incomeStatements[yr]?.adjustedTaxableIncome ?? results.incomeStatements[yr]?.ebt ?? 0,
+    });
+
     // SBC (for reference / CF use) — use combined array to cover all years
     addISRow('Stock-Based Compensation', 'sbc', {
         formula: (_c, yr) => `${aRef('stockBasedCompAmount', yr)}`,
@@ -1011,9 +1144,14 @@ export async function exportToExcel(
         value: yr => results.balanceSheets[yr]?.otherCurrentAssets ?? 0,
     });
 
+    // VAT Receivable (FIX-07: VAT on CapEx)
+    addBSRow('VAT Receivable', 'vatReceivable', {
+        value: yr => results.balanceSheets[yr]?.vatReceivable ?? 0,
+    });
+
     // Total Current Assets = sum
     addBSRow('Total Current Assets', 'totalCurrentAssets', {
-        formula: (c) => `SUM(${c}${bsRows['cash']}:${c}${bsRows['otherCurrentAssets']})`,
+        formula: (c) => `SUM(${c}${bsRows['cash']}:${c}${bsRows['vatReceivable']})`,
         value: yr => results.balanceSheets[yr]?.totalCurrentAssets ?? 0,
         bold: true,
     });
@@ -1121,8 +1259,13 @@ export async function exportToExcel(
         value: yr => results.balanceSheets[yr]?.otherCurrentLiabilities ?? 0,
     });
 
+    // VAT Payable (FIX-07: net VAT liability on revenue)
+    addBSRow('VAT Payable', 'vatPayable', {
+        value: yr => results.balanceSheets[yr]?.vatPayable ?? 0,
+    });
+
     addBSRow('Total Current Liabilities', 'totalCurrentLiabilities', {
-        formula: (c) => `SUM(${c}${bsRows['accountsPayable']}:${c}${bsRows['otherCurrentLiabilities']})`,
+        formula: (c) => `SUM(${c}${bsRows['accountsPayable']}:${c}${bsRows['vatPayable']})`,
         value: yr => results.balanceSheets[yr]?.totalCurrentLiabilities ?? 0,
         bold: true,
     });
@@ -1254,6 +1397,7 @@ export async function exportToExcel(
             + `-${c}${bsRows['inventory']}`
             + `-${c}${bsRows['prepaidExpenses']}`
             + `-${c}${bsRows['otherCurrentAssets']}`
+            + `-${c}${bsRows['vatReceivable']}`
             + `-${c}${bsRows['totalNonCurrentAssets']}`;
         cell.value = { formula, result: results.balanceSheets[i]?.cash ?? 0 };
         cell.numFmt = NUM_FMT;

@@ -58,7 +58,14 @@ export function calculateBalanceSheet(inputs: BalanceSheetInputs): BalanceSheet 
     const otherLongTermAssets = assumptions.otherLongTermAssets[yr] ?? prev.otherLongTermAssets;
 
     const totalNonCurrentAssets = netPPE + intangibles + goodwill + otherLongTermAssets;
-    const totalAssets = totalCurrentAssets + totalNonCurrentAssets;
+
+    // FIX-07: VAT Working Capital Loop
+    const enableVAT = assumptions.enableVAT ?? false;
+    const vatRate = assumptions.vatRate ?? 0.14;
+    const vatReceivable = enableVAT ? capex * vatRate : 0;  // input VAT on capital expenditures
+
+    const totalCurrentAssetsRaw = cash + accountsReceivable + inventory + prepaidExpenses + otherCurrentAssets + vatReceivable;
+    const totalAssets = totalCurrentAssetsRaw + totalNonCurrentAssets;
 
     // ── CURRENT LIABILITIES ─────────────────────────────
     const dpo = assumptions.dpo[yr] ?? 40;
@@ -71,8 +78,13 @@ export function calculateBalanceSheet(inputs: BalanceSheetInputs): BalanceSheet 
     const currentPortionLTD = assumptions.currentPortionLTD[yr] ?? prev.currentPortionLTD;
     const otherCurrentLiabilities = assumptions.otherCurrentLiabilities[yr] ?? prev.otherCurrentLiabilities;
 
+    // FIX-07: VAT payable = output VAT on revenue - input VAT (net position)
+    const vatPayable = enableVAT
+        ? Math.max(0, incomeStatement.revenue * vatRate - capex * vatRate)
+        : 0;
+
     const totalCurrentLiabilities = accountsPayable + accruedExpenses + shortTermDebt +
-        currentPortionLTD + deferredRevenue + otherCurrentLiabilities;
+        currentPortionLTD + deferredRevenue + otherCurrentLiabilities + vatPayable;
 
     // ── NON-CURRENT LIABILITIES ─────────────────────────
     const ltDebtIssuance = assumptions.longTermDebtIssuance[yr] ?? 0;
@@ -119,12 +131,12 @@ export function calculateBalanceSheet(inputs: BalanceSheetInputs): BalanceSheet 
     // ── BALANCING PLUG ──────────────────────────────────
     const rawImbalance = totalAssets - totalLiabilitiesEquity;
     let finalCash = cash;
-    let finalTotalCurrentAssets = totalCurrentAssets;
+    let finalTotalCurrentAssets = totalCurrentAssetsRaw;
     let finalTotalAssets = totalAssets;
 
     if (Math.abs(rawImbalance) > 0.001) {
         finalCash = cash - rawImbalance;
-        finalTotalCurrentAssets = finalCash + accountsReceivable + inventory + prepaidExpenses + otherCurrentAssets;
+        finalTotalCurrentAssets = finalCash + accountsReceivable + inventory + prepaidExpenses + otherCurrentAssets + vatReceivable;
         finalTotalAssets = finalTotalCurrentAssets + totalNonCurrentAssets;
     }
 
@@ -171,6 +183,8 @@ export function calculateBalanceSheet(inputs: BalanceSheetInputs): BalanceSheet 
         totalLiabilitiesEquity,
         isBalanced,
         balanceDifference,
+        vatReceivable: enableVAT ? vatReceivable : undefined,
+        vatPayable: enableVAT ? vatPayable : undefined,
     };
 }
 

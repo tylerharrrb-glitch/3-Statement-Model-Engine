@@ -97,7 +97,29 @@ export default function ValuationPage() {
 
             {/* EGX 30 Benchmarks */}
             <div style={card}>
-                <h3 style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-secondary)' }}>EGX 30 Benchmark Comparison (Q1 2026)</h3>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <h3 style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-secondary)', margin: 0 }}>EGX 30 Benchmark Comparison</h3>
+                        <span style={{
+                            fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 12,
+                            background: 'rgba(52, 211, 153, 0.12)', color: '#34d399',
+                            textTransform: 'uppercase', letterSpacing: '0.5px',
+                        }}>Q1 2026</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>
+                            Source: EGX 30 constituents · Bloomberg consensus · March 2026
+                        </span>
+                        <button
+                            onClick={() => console.log('[EGX Benchmarks] Manual refresh triggered — update EGX30_BENCHMARKS_Q1_2026 in valuation.ts')}
+                            style={{
+                                fontSize: 10, padding: '2px 8px', borderRadius: 4,
+                                background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)',
+                                color: 'var(--text-muted)', cursor: 'pointer',
+                            }}
+                        >🔄 Refresh</button>
+                    </div>
+                </div>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
                     <thead>
                         <tr style={{ borderBottom: '1px solid var(--border-color)' }}>

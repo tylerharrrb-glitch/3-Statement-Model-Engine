@@ -45,8 +45,7 @@ interface RowSpec {
 
 const ROW_SPECS: RowSpec[] = [
     // ── Income Statement Drivers ──
-    { key: 'revenueBase', label: 'Revenue Base (Historical)', fmt: NUM_FMT, section: '── Income Statement Drivers ──' },
-    { key: 'revenueBaseProjection', label: 'Revenue Base (Projection)', fmt: NUM_FMT },
+    { key: 'revenueBase', label: 'Revenue (Year 1 Historical)', fmt: NUM_FMT, section: '── Income Statement Drivers ──' },
     { key: 'revenueGrowthRate', label: 'Revenue Growth Rate', fmt: PCT_FMT },
     { key: 'cogsPercent', label: 'COGS % of Revenue', fmt: PCT_FMT },
     { key: 'sgaPercent', label: 'SG&A % of Revenue', fmt: PCT_FMT },
@@ -154,6 +153,10 @@ function buildAllArrays(
     numHistorical: number,
 ): Record<string, number[]> {
     const sd = (n: number, d: number) => d !== 0 ? n / d : 0;
+    // Rounding helpers to remove floating-point noise from exported values
+    const roundDay = (v: number) => Math.round(v * 100) / 100;      // 2dp for days
+    const roundPct = (v: number) => Math.round(v * 1000000) / 1000000; // 6dp for %
+    const roundMoney = (v: number) => Math.round(v);                  // whole numbers
 
     // Derive ALL values from engine results `r` (not raw assumption arrays).
     // This ensures the Scenarios tab always reflects engine-consistent data,
@@ -172,15 +175,13 @@ function buildAllArrays(
     // Revenue bases
     out['revenueBase'] = Array(nYears).fill(0);
     out['revenueBase'][0] = engineRevenues[0] ?? a.revenueBase;
-    out['revenueBaseProjection'] = Array(nYears).fill(0);
-    out['revenueBaseProjection'][0] = a.revenueBase;
 
     out['revenueGrowthRate'] = allRevenueGrowth;
-    out['cogsPercent'] = allIS.map(is => sd(is.cogs, is.revenue));
-    out['sgaPercent'] = allIS.map(is => sd(is.sgaExpense, is.revenue));
-    out['rdPercent'] = allIS.map(is => sd(is.rdExpense, is.revenue));
-    out['otherOpexPercent'] = allIS.map(is => sd(is.otherOpex, is.revenue));
-    out['taxRate'] = allIS.map(is => is.taxRate);
+    out['cogsPercent'] = allIS.map(is => roundPct(sd(is.cogs, is.revenue)));
+    out['sgaPercent'] = allIS.map(is => roundPct(sd(is.sgaExpense, is.revenue)));
+    out['rdPercent'] = allIS.map(is => roundPct(sd(is.rdExpense, is.revenue)));
+    out['otherOpexPercent'] = allIS.map(is => roundPct(sd(is.otherOpex, is.revenue)));
+    out['taxRate'] = allIS.map(is => roundPct(is.taxRate));
     out['otherIncomeExpense'] = allIS.map(is => is.otherIncomeExpense);
     out['sharesOutstanding'] = allIS.map(is => is.sharesOutstanding);
     out['stockBasedCompAmount'] = allIS.map((_, i) => {
@@ -193,17 +194,17 @@ function buildAllArrays(
     out['paidUpCapital'] = Array(nYears).fill(a.paidUpCapital ?? 10_000);
 
     // Working capital days: back-calculate from BS/IS for all periods
-    out['dso'] = allBS.map((bs, i) => sd(bs.accountsReceivable, allIS[i]?.revenue ?? 1) * 365);
-    out['dio'] = allBS.map((bs, i) => sd(bs.inventory, allIS[i]?.cogs ?? 1) * 365);
-    out['dpo'] = allBS.map((bs, i) => sd(bs.accountsPayable, allIS[i]?.cogs ?? 1) * 365);
-    out['prepaidPercent'] = allBS.map((bs, i) => sd(bs.prepaidExpenses, allIS[i]?.revenue ?? 1));
-    out['accruedExpPercent'] = allBS.map((bs, i) => sd(bs.accruedExpenses, allIS[i]?.revenue ?? 1));
-    out['deferredRevPercent'] = allBS.map((bs, i) => sd(bs.deferredRevenue, allIS[i]?.revenue ?? 1));
+    out['dso'] = allBS.map((bs, i) => roundDay(sd(bs.accountsReceivable, allIS[i]?.revenue ?? 1) * 365));
+    out['dio'] = allBS.map((bs, i) => roundDay(sd(bs.inventory, allIS[i]?.cogs ?? 1) * 365));
+    out['dpo'] = allBS.map((bs, i) => roundDay(sd(bs.accountsPayable, allIS[i]?.cogs ?? 1) * 365));
+    out['prepaidPercent'] = allBS.map((bs, i) => roundPct(sd(bs.prepaidExpenses, allIS[i]?.revenue ?? 1)));
+    out['accruedExpPercent'] = allBS.map((bs, i) => roundPct(sd(bs.accruedExpenses, allIS[i]?.revenue ?? 1)));
+    out['deferredRevPercent'] = allBS.map((bs, i) => roundPct(sd(bs.deferredRevenue, allIS[i]?.revenue ?? 1)));
 
     // CapEx % — back-compute from BS gross PPE changes
     out['capexPercent'] = allBS.map((bs, i) => {
         if (i === 0) return 0;
-        return sd(bs.grossPPE - allBS[i - 1].grossPPE, allIS[i]?.revenue ?? 1);
+        return roundPct(sd(bs.grossPPE - allBS[i - 1].grossPPE, allIS[i]?.revenue ?? 1));
     });
     // Depreciation Rate: use the assumption INPUT for projected years (10%),
     // NOT the back-calculated ratio (depreciation/grossPPE ≈ 9.4%).

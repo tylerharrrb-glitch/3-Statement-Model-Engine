@@ -30,113 +30,115 @@ function colLetter(col: number): string {
 
 /* ── fixed row map inside each calc sheet ─────────────── */
 // These constants define the row positions in the calc sheets.
+// Row 1 = title, Row 2 = iterative-calc warning banner (merged), Row 3 = spacer.
+// Data starts at row 4 to avoid collision with the merged warning row.
 const R = {
     // IS section
-    revenue: 2,
-    revenueGrowth: 3,
-    cogs: 4,
-    grossProfit: 5,
-    sga: 6,
-    rd: 7,
-    depreciation: 8,
-    amortization: 9,
-    otherOpex: 10,
-    sbc: 11,
-    totalOpex: 12,
-    ebit: 13,
-    interestIncome: 14,
-    interestExpense: 15,
-    otherIncomeExpense: 16,
-    ebt: 17,
-    tax: 18,
-    netIncome: 19,
+    revenue: 4,
+    revenueGrowth: 5,
+    cogs: 6,
+    grossProfit: 7,
+    sga: 8,
+    rd: 9,
+    depreciation: 10,
+    amortization: 11,
+    otherOpex: 12,
+    sbc: 13,
+    totalOpex: 14,
+    ebit: 15,
+    interestIncome: 16,
+    interestExpense: 17,
+    otherIncomeExpense: 18,
+    ebt: 19,
+    tax: 20,
+    netIncome: 21,
     // Profit Appropriation (Egyptian Law — correct order: EPD → LR → Distributable)
-    employeeProfitSharing: 20,    // = MAX(0, NI × 10%)
-    netIncomeAfterEPD: 21,        // = NI − EPD
-    legalReserveAddition: 22,     // = MIN(NI × 5%, cap - cumulative)
-    cumulativeLegalReserve: 23,   // = prior + addition
-    distributableProfit: 24,      // = NI − EPD − LR Addition
-    grossDividends: 25,           // = Distributable × payout ratio
-    dividendWHT: 26,              // = Gross Dividends × 10%
-    netDividends: 27,             // = Gross − WHT
-    additionToRE: 28,             // = Distributable − Gross Dividends
-    // spacer 29
-    eps: 30,                      // = NI After EPD / Shares
-    nopat: 31,                    // = EBIT × (1 − tax rate)
-    fcff: 32,                     // engine-computed FCFF
-    // BS section (row 34+)
-    cash: 34,
-    accountsReceivable: 35,
-    inventory: 36,
-    prepaid: 37,
-    otherCA: 38,
-    totalCA: 39,
-    // spacer 40
-    grossPPE: 41,
-    accumDep: 42,
-    netPPE: 43,
-    intangibles: 44,
-    goodwill: 45,
-    otherLTA: 46,
-    totalNCA: 47,
-    totalAssets: 48,
-    // spacer 49
-    accountsPayable: 50,
-    accruedExp: 51,
-    shortTermDebt: 52,
-    currentPortionLTD: 53,
-    deferredRevenue: 54,
-    otherCL: 55,
-    totalCL: 56,
-    // spacer 57
-    longTermDebt: 58,
-    deferredTaxLiab: 59,
-    otherLTL: 60,
-    totalNCL: 61,
-    totalLiabilities: 62,
-    // spacer 63
-    commonStock: 64,
-    apic: 65,
-    legalReserveEquity: 66,
-    retainedEarnings: 67,
-    treasuryStock: 68,
-    oci: 69,
-    totalEquity: 70,
-    // spacer 71
-    totalLE: 72,
-    balanceCheck: 73,
-    // CF section (row 75+)
-    cf_netIncome: 75,
-    cf_depreciation: 76,
-    cf_amortization: 77,
-    cf_sbc: 78,
-    cf_deferredTax: 79,
-    cf_changeAR: 80,
-    cf_changeInv: 81,
-    cf_changePrepaid: 82,
-    cf_changeAP: 83,
-    cf_changeAccrued: 84,
-    cf_changeDeferredRev: 85,
-    cf_totalWC: 86,
-    cf_cfo: 87,
-    // spacer 88
-    cf_capex: 89,
-    cf_acquisitions: 90,
-    cf_assetSales: 91,
-    cf_cfi: 92,
-    // spacer 93
-    cf_debtIssuance: 94,
-    cf_debtRepayment: 95,
-    cf_dividends: 96,
-    cf_epdPaid: 97,
-    cf_equityIssuance: 98,
-    cf_shareRepurchases: 99,
-    cf_cff: 100,
-    // spacer 101
-    cf_netChange: 102,
-    cf_beginCash: 103,
-    cf_endCash: 104,
-    cf_fcf: 105,
+    employeeProfitSharing: 22,    // = MAX(0, NI × 10%)
+    netIncomeAfterEPD: 23,        // = NI − EPD
+    legalReserveAddition: 24,     // = MIN(NI × 5%, cap - cumulative)
+    cumulativeLegalReserve: 25,   // = prior + addition
+    distributableProfit: 26,      // = NI − EPD − LR Addition
+    grossDividends: 27,           // = Distributable × payout ratio
+    dividendWHT: 28,              // = Gross Dividends × 10%
+    netDividends: 29,             // = Gross − WHT
+    additionToRE: 30,             // = Distributable − Gross Dividends
+    // spacer 31
+    eps: 32,                      // = NI After EPD / Shares
+    nopat: 33,                    // = EBIT × (1 − tax rate)
+    fcff: 34,                     // engine-computed FCFF
+    // BS section (row 36+)
+    cash: 36,
+    accountsReceivable: 37,
+    inventory: 38,
+    prepaid: 39,
+    otherCA: 40,
+    totalCA: 41,
+    // spacer 42
+    grossPPE: 43,
+    accumDep: 44,
+    netPPE: 45,
+    intangibles: 46,
+    goodwill: 47,
+    otherLTA: 48,
+    totalNCA: 49,
+    totalAssets: 50,
+    // spacer 51
+    accountsPayable: 52,
+    accruedExp: 53,
+    shortTermDebt: 54,
+    currentPortionLTD: 55,
+    deferredRevenue: 56,
+    otherCL: 57,
+    totalCL: 58,
+    // spacer 59
+    longTermDebt: 60,
+    deferredTaxLiab: 61,
+    otherLTL: 62,
+    totalNCL: 63,
+    totalLiabilities: 64,
+    // spacer 65
+    commonStock: 66,
+    apic: 67,
+    legalReserveEquity: 68,
+    retainedEarnings: 69,
+    treasuryStock: 70,
+    oci: 71,
+    totalEquity: 72,
+    // spacer 73
+    totalLE: 74,
+    balanceCheck: 75,
+    // CF section (row 77+)
+    cf_netIncome: 77,
+    cf_depreciation: 78,
+    cf_amortization: 79,
+    cf_sbc: 80,
+    cf_deferredTax: 81,
+    cf_changeAR: 82,
+    cf_changeInv: 83,
+    cf_changePrepaid: 84,
+    cf_changeAP: 85,
+    cf_changeAccrued: 86,
+    cf_changeDeferredRev: 87,
+    cf_totalWC: 88,
+    cf_cfo: 89,
+    // spacer 90
+    cf_capex: 91,
+    cf_acquisitions: 92,
+    cf_assetSales: 93,
+    cf_cfi: 94,
+    // spacer 95
+    cf_debtIssuance: 96,
+    cf_debtRepayment: 97,
+    cf_dividends: 98,
+    cf_epdPaid: 99,
+    cf_equityIssuance: 100,
+    cf_shareRepurchases: 101,
+    cf_cff: 102,
+    // spacer 103
+    cf_netChange: 104,
+    cf_beginCash: 105,
+    cf_endCash: 106,
+    cf_fcf: 107,
 } as const;
 
 /* ── scenario key → Scenarios tab row lookup ─────────── */
@@ -201,6 +203,27 @@ function buildOneCalcSheet(cfg: CalcSheetConfig): CalcSheetRowMap {
     ws.getCell(1, 1).font = { bold: true, size: 10 };
     for (let i = 0; i < nYears; i++) ws.getCell(1, i + 2).value = periods[i];
 
+    // ── Recalculation Guide Banner ──
+    // Values are pre-cached from the WOLF engine — correct as-is on open.
+    // This banner warns users about iterative calc only if they modify assumptions.
+    ws.mergeCells(2, 1, 2, nYears + 1);
+    const warnCell = ws.getCell(2, 1);
+    warnCell.value = [
+        '⚠ HOW TO RECALCULATE AFTER CHANGING ASSUMPTIONS:',
+        '1. File → Options → Formulas → Enable iterative calculation (Max Iterations=1000, Max Change=0.001)',
+        '2. Press Ctrl+Alt+F9 to force full recalculation',
+        '3. Values shown by default are pre-calculated by the WOLF engine and are correct as-is.',
+    ].join('  |  ');
+    warnCell.font = { bold: true, size: 9, color: { argb: 'FFCC0000' } };
+    warnCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFF3CD' } };
+    warnCell.alignment = { horizontal: 'left', vertical: 'middle', wrapText: true };
+    ws.getRow(2).height = 40;
+
+    // Shift row map: all rows below shift by 1 to accommodate the warning row
+    // NOTE: The R constants are used as-is since they represent the LOGICAL row,
+    // and the actual cell writes already reference R directly.
+    // The warning row is at physical row 2, data starts at row 3 (R values + 1).
+
     const NUM_FMT = '#,##0';
     const PCT_FMT = '0.00%';
 
@@ -254,7 +277,7 @@ function buildOneCalcSheet(cfg: CalcSheetConfig): CalcSheetRowMap {
     setL(R.eps, 'EPS');
     setL(R.nopat, 'NOPAT');
     setL(R.fcff, 'FCFF');
-    ws.getCell(33, 1).value = '── Balance Sheet ──';
+    ws.getCell(35, 1).value = '── Balance Sheet ──';
     setL(R.cash, 'Cash & Equivalents');
     setL(R.accountsReceivable, 'Accounts Receivable');
     setL(R.inventory, 'Inventory');
@@ -290,7 +313,7 @@ function buildOneCalcSheet(cfg: CalcSheetConfig): CalcSheetRowMap {
     setL(R.totalEquity, 'Total Equity');
     setL(R.totalLE, 'Total Liabilities + Equity');
     setL(R.balanceCheck, 'Balance Check (TA - TLE)');
-    ws.getCell(74, 1).value = '── Cash Flow ──';
+    ws.getCell(76, 1).value = '── Cash Flow ──';
     setL(R.cf_netIncome, 'Net Income');
     setL(R.cf_depreciation, '+ Depreciation');
     setL(R.cf_amortization, '+ Amortization');

@@ -344,13 +344,21 @@ export function exportToPDF(
             ['EBT', ...results.incomeStatements.map(s => fc(s.ebt))],
             ['Tax Expense', ...results.incomeStatements.map(s => fc(s.taxExpense))],
             ['Effective Tax Rate', ...results.incomeStatements.map(s => fp(s.taxRate))],
+            ['Disallowed Interest (Thin-Cap)', ...results.incomeStatements.map(s => fc(s.disallowedInterest ?? 0))],
             ['', ...periods.map(() => '')],
             ['Net Income', ...results.incomeStatements.map(s => fc(s.netIncome))],
             ['Net Margin', ...results.incomeStatements.map(s => fp(s.netMargin))],
             ['', ...periods.map(() => '')],
-            ['Employee Profit Sharing (Art. 47)', ...results.incomeStatements.map(s => fc(s.employeeProfitSharing))],
+            ['Employee Profit Sharing (Law 14/2025)', ...results.incomeStatements.map(s => fc(s.employeeProfitSharing))],
             ['Net Income After EPD', ...results.incomeStatements.map(s => fc(s.netIncomeAfterEPD))],
+            ['Legal Reserve Addition (5% NI)', ...results.incomeStatements.map(s => fc(s.legalReserveAddition))],
+            ['Distributable Profit', ...results.incomeStatements.map(s => fc(s.distributableProfit))],
+            ['Gross Dividends', ...results.incomeStatements.map(s => fc(s.grossDividends))],
+            ['Dividend WHT', ...results.incomeStatements.map(s => fc(s.dividendWHT))],
+            ['Net Dividends', ...results.incomeStatements.map(s => fc(s.netDividends))],
+            ['Addition to Retained Earnings', ...results.incomeStatements.map(s => fc(s.additionToRE))],
             ['EPS', ...results.incomeStatements.map(s => `${_currencySymbol}${s.eps.toFixed(2)}`)],
+            ['FCFF', ...results.incomeStatements.map(s => fc(s.fcff ?? 0))],
         ],
         headStyles: HEAD_STYLE,
         styles: { ...BODY_STYLE, fontSize: 6.5 },
@@ -363,7 +371,7 @@ export function exportToPDF(
             }
         },
         didParseCell: (data) => {
-            const boldRows = ['Revenue', 'Gross Profit', 'Total OpEx', 'EBIT', 'EBITDA', 'EBT', 'Net Income', 'Net Income After EPD'];
+            const boldRows = ['Revenue', 'Gross Profit', 'Total OpEx', 'EBIT', 'EBITDA', 'EBT', 'Net Income', 'Net Income After EPD', 'Distributable Profit', 'Addition to Retained Earnings'];
             const label = rowLabel(data);
             if (data.section === 'body' && boldRows.includes(label)) {
                 data.cell.styles.fontStyle = 'bold';
@@ -389,6 +397,7 @@ export function exportToPDF(
             ['Inventory', ...results.balanceSheets.map(s => fc(s.inventory))],
             ['Prepaid Expenses', ...results.balanceSheets.map(s => fc(s.prepaidExpenses))],
             ['Other Current Assets', ...results.balanceSheets.map(s => fc(s.otherCurrentAssets))],
+            ['VAT Receivable', ...results.balanceSheets.map(s => fc(s.vatReceivable ?? 0))],
             ['Total Current Assets', ...results.balanceSheets.map(s => fc(s.totalCurrentAssets))],
             ['', ...periods.map(() => '')],
             ['Net PP&E', ...results.balanceSheets.map(s => fc(s.netPPE))],
@@ -405,6 +414,7 @@ export function exportToPDF(
             ['Current Portion LTD', ...results.balanceSheets.map(s => fc(s.currentPortionLTD))],
             ['Deferred Revenue', ...results.balanceSheets.map(s => fc(s.deferredRevenue))],
             ['Other Current Liabilities', ...results.balanceSheets.map(s => fc(s.otherCurrentLiabilities))],
+            ['VAT Payable', ...results.balanceSheets.map(s => fc(s.vatPayable ?? 0))],
             ['Total Current Liabilities', ...results.balanceSheets.map(s => fc(s.totalCurrentLiabilities))],
             ['', ...periods.map(() => '')],
             ['Long-Term Debt', ...results.balanceSheets.map(s => fc(s.longTermDebt))],
@@ -416,6 +426,7 @@ export function exportToPDF(
             ['EQUITY', ...periods.map(() => '')],
             ['Common Stock', ...results.balanceSheets.map(s => fc(s.commonStock))],
             ['Additional Paid-in Capital', ...results.balanceSheets.map(s => fc(s.additionalPaidInCapital))],
+            ['Legal Reserve', ...results.balanceSheets.map(s => fc(s.legalReserve ?? 0))],
             ['Retained Earnings', ...results.balanceSheets.map(s => fc(s.retainedEarnings))],
             ['Treasury Stock', ...results.balanceSheets.map(s => fc(s.treasuryStock))],
             ['Other Comprehensive Income', ...results.balanceSheets.map(s => fc(s.otherComprehensiveIncome))],
@@ -829,7 +840,79 @@ export function exportToPDF(
     addPageNumber(doc);
 
     // ═══════════════════════════════════════════════════════
-    // PAGE 12: DISCLAIMER / NOTES
+    // PAGE 12: DCF VALUATION
+    // ═══════════════════════════════════════════════════════
+    if (results.dcfValuation) {
+        doc.addPage();
+        drawPageHeader(doc, 'DCF Valuation Summary', companyName);
+
+        const dcf = results.dcfValuation;
+        let dcfY = 24;
+        dcfY = drawSectionDivider(doc, dcfY, 'WACC COMPONENTS');
+
+        autoTable(doc, {
+            startY: dcfY,
+            head: [['Component', 'Value']],
+            body: [
+                ['Cost of Equity (Ke)', fp(dcf.costOfEquity)],
+                ['Cost of Debt (Kd, pre-tax)', fp(dcf.costOfDebt)],
+                ['Tax Rate', fp(lastIS.taxRate)],
+                ['Equity Weight', fp(dcf.equityWeight)],
+                ['Debt Weight', fp(dcf.debtWeight)],
+                ['WACC', fp(dcf.wacc)],
+            ],
+            headStyles: HEAD_STYLE,
+            styles: BODY_STYLE,
+            alternateRowStyles: ALT_STYLE,
+            columnStyles: { 0: { fontStyle: 'bold', cellWidth: 55 }, 1: { halign: 'right' as const, cellWidth: 30 } },
+        });
+
+        const dcfTableY = getAutoTableFinalY(doc) + 6;
+        drawSectionDivider(doc, dcfTableY, 'VALUATION OUTPUT');
+
+        autoTable(doc, {
+            startY: dcfTableY + 8,
+            head: [['Metric', 'Value']],
+            body: [
+                ['PV of Free Cash Flows', fc(dcf.discountedFCFs.reduce((a: number, b: number) => a + b, 0))],
+                ['Terminal Value (Gordon Growth)', fc(dcf.terminalValue)],
+                ['PV of Terminal Value', fc(dcf.pvTerminalValue)],
+                ['Enterprise Value', fc(dcf.enterpriseValue)],
+                ['(-) Net Debt', fc(dcf.netDebt)],
+                ['Equity Value', fc(dcf.equityValue)],
+                ['Shares Outstanding', fn(lastIS.sharesOutstanding)],
+                ['Implied Share Price', `${_currencySymbol}${dcf.impliedSharePrice.toFixed(2)}`],
+            ],
+            headStyles: HEAD_STYLE,
+            styles: BODY_STYLE,
+            alternateRowStyles: ALT_STYLE,
+            columnStyles: { 0: { fontStyle: 'bold', cellWidth: 55 }, 1: { halign: 'right' as const, cellWidth: 40 } },
+        });
+
+        if (dcf.fcfProjections && dcf.fcfProjections.length > 0) {
+            const fcfY = getAutoTableFinalY(doc) + 6;
+            drawSectionDivider(doc, fcfY, 'PROJECTED FREE CASH FLOWS');
+            const fcfPeriods = dcf.fcfProjections.map((_: number, i: number) => `Year ${i + 1}`);
+            autoTable(doc, {
+                startY: fcfY + 8,
+                head: [['', ...fcfPeriods]],
+                body: [
+                    ['FCF', ...dcf.fcfProjections.map((v: number) => fc(v))],
+                    ['Discount Factor', ...dcf.fcfProjections.map((_: number, i: number) => (1 / Math.pow(1 + dcf.wacc, i + 1)).toFixed(4))],
+                    ['PV of FCF', ...dcf.discountedFCFs.map((v: number) => fc(v))],
+                ],
+                headStyles: HEAD_STYLE,
+                styles: BODY_STYLE,
+                alternateRowStyles: ALT_STYLE,
+                columnStyles: { 0: { fontStyle: 'bold', cellWidth: 30 } },
+            });
+        }
+
+        addPageNumber(doc);
+    }
+
+    // ═══════════════════════════════════════════════════════
+    // PAGE 13: DISCLAIMER / NOTES
     // ═══════════════════════════════════════════════════════
     doc.addPage();
     drawPageHeader(doc, 'Notes & Disclaimers', companyName);
@@ -850,8 +933,9 @@ export function exportToPDF(
         '• Cash on the Balance Sheet is computed as the "plug" value ensuring Assets = Liabilities + Equity.',
         '• Depreciation is calculated as a percentage of Gross PP&E. CapEx is driven as a percentage of Revenue.',
         '• Working capital items (AR, Inventory, AP) are driven by efficiency ratios (DSO, DIO, DPO).',
-        '• The model includes 16 integration checks to verify internal consistency across all three statements.',
-        '• Employee Profit Sharing (10% EPD) is calculated per Egyptian Labor Law Article 47 and deducted from Net Income.',
+        '• The model includes 28 integration checks to verify internal consistency across all three statements.',
+        '• Employee Profit Sharing (10% EPD) is calculated per Egyptian Labor Law No. 14/2025 and deducted from Net Income.',
+        '• DCF valuation uses WACC derived from CBE policy rates (April 2026 MPC: discount 19.50%).',
     ];
     methodology.forEach(m => {
         doc.text(m, 14, dy, { maxWidth: pw - 28 });
@@ -887,11 +971,12 @@ export function exportToPDF(
     doc.setFontSize(8);
     doc.setTextColor(60, 60, 60);
     const compliance = [
-        '• Dividend Withholding Tax (WHT): 10% withheld at source per ETA regulations and disclosed in Cash Flow from Financing.',
-        '• VAT: 14% Value Added Tax applied per Law No. 67/2016. This model includes a VAT Schedule memo for compliance.',
-        '• ETA E-Invoicing: All invoices subject to ETA e-invoicing mandate (Resolution No. 619/2021). This model does not',
-        '  generate e-invoices but revenue projections should reconcile with ETA-submitted totals.',
-        '• Corporate Tax Rate: 22.5% per Egyptian Tax Law. Interest deductibility and thin-cap rules may apply.',
+        '• Dividend Withholding Tax (WHT): 5–10% withheld at source per Law 30/2023. Listed on EGX: 5%, unlisted: 10%.',
+        '• VAT: 14% Value Added Tax applied per Law No. 67/2016. VAT receivable/payable included in working capital.',
+        '• Thin Capitalisation: Law 30/2023 Art. 39 — D/E limit 3:1 (2024–2027), 2:1 (2028+). Interest disallowed above ceiling.',
+        '• ETA E-Invoicing: All invoices subject to ETA e-invoicing mandate (Resolution No. 619/2021).',
+        '• Corporate Tax Rate: 22.5% per Egyptian Tax Law. Interest deductibility subject to thin-cap and rate ceiling (2× CBE).',
+        '• EPD: Employee Profit Distribution at 10% per Labor Law No. 14/2025, with optional non-operating gains exclusion.',
     ];
     compliance.forEach(c => {
         doc.text(c, 14, dy, { maxWidth: pw - 28 });

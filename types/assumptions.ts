@@ -45,13 +45,22 @@ export interface AssumptionSet {
     // Tax & Employee Distribution
     taxRate: number[];
     taxRegime: 'standard' | 'oil' | 'strategic' | 'sme'; // default: 'standard'
-    employeeProfitSharingRate: number;  // EPD rate (Art. 47, Law 159/1981) — default 0.10
+    employeeProfitSharingRate: number;  // EPD rate (Law 14/2025) — default 0.10
     enableEmployeeProfitShare: boolean; // default: true
+    enableNonOperatingExclusion: boolean; // Law 14/2025: exclude non-operating gains from EPD base
     totalAnnualPayroll: number;         // EPD cap: EPD cannot exceed total annual payroll
 
     // Tax Loss Carryforward (Tax Law Art. 29)
     enableTaxLossCarryforward: boolean; // default: true
     taxLossCarryforwardYears: number;   // default: 5
+
+    // Thin Capitalization (Law No. 30 of 2023)
+    enableThinCapRule: boolean;         // default: true (always true for Egyptian entities)
+
+    // Formula-Driven Rate Schedule (FIX-04)
+    corporateCreditSpread: number;      // default: 0.02 (200bps)
+    useFormulaRates: boolean;           // default: false (manual rates by default)
+    cbeRateProjection: number[];        // default: [0.195, 0.175, 0.155, 0.140, 0.130]
 
     // Legal Reserve (Companies Law Art. 40)
     enableLegalReserve: boolean;        // default: true
@@ -207,9 +216,9 @@ export function getDefaultAssumptions(): AssumptionSet {
         depreciationRate: fill(0.10),
         amortizationAmount: fill(5_000),
 
-        cbeRate: 0.2725,
-        interestRateOnDebt: fill(0.22),
-        interestRateOnCash: fill(0.18),
+        cbeRate: 0.195,                       // CBE main operation / discount rate (April 2, 2026 MPC)
+        interestRateOnDebt: [0.22, 0.20, 0.18, 0.17, 0.16],  // CBE lending + 200bps spread, declining
+        interestRateOnCash: [0.19, 0.17, 0.15, 0.13, 0.12],  // CBE deposit rate, declining path
         legacyDebtRate: 0.045,
         shortTermDebtAmount: fill(50_000),
         longTermDebtIssuance: fill(0),
@@ -225,11 +234,20 @@ export function getDefaultAssumptions(): AssumptionSet {
         taxRegime: 'standard',
         employeeProfitSharingRate: 0.10,
         enableEmployeeProfitShare: true,
+        enableNonOperatingExclusion: false,  // Law 14/2025: toggle for non-operating gains exclusion
         totalAnnualPayroll: 0,           // 0 = no cap enforced
 
         // Tax Loss Carryforward
         enableTaxLossCarryforward: true,
         taxLossCarryforwardYears: 5,
+
+        // Thin Capitalization (Law 30/2023)
+        enableThinCapRule: true,
+
+        // Formula-Driven Rate Schedule
+        corporateCreditSpread: 0.02,     // 200bps
+        useFormulaRates: false,
+        cbeRateProjection: [0.195, 0.175, 0.155, 0.140, 0.130],
 
         // Legal Reserve
         enableLegalReserve: true,
@@ -284,7 +302,7 @@ export function getDefaultAssumptions(): AssumptionSet {
         fiscalYearPreset: 'egyptian-govt',
 
         // DCF Valuation defaults (Egyptian market)
-        riskFreeRate: 0.20,              // CBE T-Bill / risk-free rate proxy
+        riskFreeRate: 0.235,             // 12-month Egyptian T-bill average auction yield, Q1 2026
         terminalGrowthRate: 0.07,        // CBE target inflation ~7%
         equityRiskPremium: 0.105,        // Damodaran Egypt ERP (Jan 2025)
         beta: 1.0,
