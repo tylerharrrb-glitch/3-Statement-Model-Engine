@@ -196,10 +196,17 @@ export async function exportToExcel(
         // Country-level settings (tax rate, VAT, fiscal year, etc.) are global
         // and should be consistent across all scenarios. The Base Case's
         // `assumptions` parameter is the single source of truth for these.
+        // MUST match the GLOBAL_KEYS list in lib/store.ts calculateAllScenarios.
         const GLOBAL_KEYS: (keyof AssumptionSet)[] = [
-            'taxRate', 'vatRate', 'enableVAT', 'dividendWithholdingRate',
-            'useEgyptianRates', 'countryPreset', 'fiscalYearPreset', 'fiscalYearEnd',
+            'taxRate', 'taxRegime', 'vatRate', 'enableVAT', 'dividendWithholdingRate', 'dividendWithholdingTaxRate',
+            'isEGXListed', 'useEgyptianRates', 'countryPreset', 'fiscalYearPreset', 'fiscalYearEnd',
             'projectionYears', 'historicalYears',
+            'cbeRate', 'riskFreeRate', 'legacyDebtRate', 'employeeProfitSharingRate',
+            'enableEmployeeProfitShare', 'enableTaxLossCarryforward', 'taxLossCarryforwardYears',
+            'enableLegalReserve', 'legalReservePercent', 'paidUpCapital', 'legalReserveCap',
+            'initialLegalReserve', 'priorPeriodDividendsPaidFromRE',
+            'depreciationMethod', 'enableEndOfServiceBenefit',
+            'interestRateOnDebt', 'interestRateOnCash',
         ];
         for (const key of GLOBAL_KEYS) {
             if (assumptions[key] !== undefined) {
@@ -1447,33 +1454,26 @@ export async function exportToExcel(
     });
 
     // ════════════════════════════════════════════════════════
-    // Replace Scenarios tab COMPUTED + DASHBOARD rows with formulas
-    // referencing the calc sheets
+    // Replace Scenarios tab DASHBOARD rows with formulas
+    // referencing the calc sheets.
+    //
+    // IMPORTANT: Engine-Computed Values (keys ending with "Computed")
+    // are kept as STATIC engine values. The _Calc sheets use
+    // non-iterative formulas that cannot accurately resolve the
+    // circular IS↔BS dependencies (interest income ↔ cash,
+    // retained earnings ↔ dividends). The engine's iterative
+    // circular resolver (15+ iterations) produces correct values
+    // (e.g. 61,771 interest income) while single-pass _Calc
+    // formulas diverge (e.g. 39,387). Overwriting with formulas
+    // would cause Excel to show wrong values on recalculation.
     // ════════════════════════════════════════════════════════
     {
         const scenSheet = workbook.getWorksheet('Scenarios');
         if (scenSheet) {
             // Map: ROW_SPEC key → calc sheet row number
+            // Only Dashboard Output Metrics get formula overrides.
+            // Engine-Computed rows stay as static engine values.
             const COMPUTED_KEY_TO_CALC: Record<string, number> = {
-                // Engine-Computed Values (IS items)
-                'interestIncomeComputed': calcSheets.base?.rows.interestIncome ?? 0,
-                'interestExpenseComputed': calcSheets.base?.rows.interestExpense ?? 0,
-                'depreciationComputed': calcSheets.base?.rows.depreciation ?? 0,
-                // Engine-Computed Values (BS items)
-                'grossPPEComputed': calcSheets.base?.rows.grossPPE ?? 0,
-                'accumDepComputed': calcSheets.base?.rows.accumDep ?? 0,
-                'netPPEComputed': calcSheets.base?.rows.netPPE ?? 0,
-                'intangiblesComputed': calcSheets.base?.rows.intangibles ?? 0,
-                'ltdComputed': calcSheets.base?.rows.longTermDebt ?? 0,
-                'reComputed': calcSheets.base?.rows.retainedEarnings ?? 0,
-                'tsComputed': calcSheets.base?.rows.treasuryStock ?? 0,
-                'apicComputed': calcSheets.base?.rows.apic ?? 0,
-                // Engine-Computed CF items
-                'dividendsPaidComputed': calcSheets.base?.rows.cf_dividends ?? 0,
-                'equityIssuanceComputed': calcSheets.base?.rows.cf_equityIssuance ?? 0,
-                'shareRepurchasesComputed': calcSheets.base?.rows.cf_shareRepurchases ?? 0,
-                'acquisitionsComputed': calcSheets.base?.rows.cf_acquisitions ?? 0,
-                'assetSalesComputed': calcSheets.base?.rows.cf_assetSales ?? 0,
                 // Dashboard Output Metrics — keys use out_ prefix per ROW_SPECS
                 'out_revenue': calcSheets.base?.rows.revenue ?? 0,
                 'out_grossProfit': calcSheets.base?.rows.grossProfit ?? 0,
@@ -1501,11 +1501,11 @@ export async function exportToExcel(
                 'out_roa': 0,
             };
 
-            // Now that _Calc_* sheets compute interest income/expense independently
-            // (using avg-balance formulas instead of reading from Scenarios computed rows),
-            // ALL computed rows can safely reference _Calc_* sheets without circular loops.
-            const isComputedOrDashboard = (key: string) =>
-                key.startsWith('out_') || key.endsWith('Computed');
+            // Only Dashboard Output Metrics (out_*) get formula overrides.
+            // Engine-Computed rows (ending with "Computed") are kept as static
+            // engine values to guarantee accuracy.
+            const isDashboardOutput = (key: string) =>
+                key.startsWith('out_');
 
             // Scenario block info
             const SCENARIO_BLOCKS = [
@@ -1515,7 +1515,7 @@ export async function exportToExcel(
             ];
 
             for (const spec of ROW_SPECS) {
-                if (!isComputedOrDashboard(spec.key)) continue; // Skip input rows
+                if (!isDashboardOutput(spec.key)) continue; // Skip input + engine-computed rows
                 const calcRow = COMPUTED_KEY_TO_CALC[spec.key];
 
                 for (const block of SCENARIO_BLOCKS) {
