@@ -367,6 +367,11 @@ export async function exportToExcel(
         startYear: assumptions.startYear ?? 2024,
         historicalYears: numHistorical,
         projectionYears: nYears - numHistorical,
+        taxRate: assumptions.taxRate?.[0] ?? 0.225,
+        vatRate: assumptions.vatRate ?? 0.14,
+        dividendWithholdingTaxRate: assumptions.dividendWithholdingTaxRate ?? 0.10,
+        cbeRate: assumptions.cbeRate ?? 0.195,
+        riskFreeRate: assumptions.riskFreeRate ?? 0.235,
     });
 
     // ════════════════════════════════════════════════════════
@@ -2813,7 +2818,7 @@ export async function exportToExcel(
         styleRow(dcfSheet.getRow(dRow), { subheader: true });
         dRow++;
 
-        const riskFreeRate = assumptions.cbeRate ?? 0.2725;
+        const riskFreeRate = assumptions.riskFreeRate ?? 0.235;
         const erp = assumptions.equityRiskPremium ?? 0.07;
         const beta = assumptions.beta ?? 1.0;
         const lastIS = results.incomeStatements[results.incomeStatements.length - 1];
@@ -2838,7 +2843,7 @@ export async function exportToExcel(
             dRow++;
         };
 
-        addDCFInput('Risk-Free Rate (CBE)', 'rf', riskFreeRate);
+        addDCFInput('Risk-Free Rate (12M T-Bill)', 'rf', riskFreeRate);
         addDCFInput('Equity Risk Premium', 'erp', erp);
         addDCFInput('Beta (β)', 'beta', beta, '0.00');
         addDCFInput('Cost of Debt (pre-tax)', 'kd_pre', debtRate);
@@ -3249,11 +3254,15 @@ export async function exportToExcel(
         styleRow(cbeSheet.getRow(cRow), { subheader: true });
         cRow++;
 
+        const cbeDiscount = assumptions.cbeRate ?? 0.195;
+        const cbePct = (cbeDiscount * 100).toFixed(2);
+        const taxPct = ((assumptions.taxRate?.[0] ?? 0.225) * 100).toFixed(1);
+        const vatPct = ((assumptions.vatRate ?? 0.14) * 100).toFixed(0);
         const refs: [string, string][] = [
-            ['CBE Overnight Deposit Rate', '27.25% (Q1 2026)'],
-            ['Commercial Lending Rate', '29–30% (CBE + 2–3%)'],
-            ['Corporate Tax Rate (ETA)', '22.5%'],
-            ['Egyptian VAT Rate', '14%'],
+            ['CBE Discount Rate (Reference)', `${cbePct}% (MPC April 2, 2026)`],
+            ['Commercial Lending Rate', `CBE + 2–3% spread`],
+            ['Corporate Tax Rate (ETA)', `${taxPct}%`],
+            ['Egyptian VAT Rate', `${vatPct}%`],
         ];
         for (const [label, value] of refs) {
             cbeSheet.getCell(cRow, 1).value = label;

@@ -14,6 +14,7 @@ import { ScenarioType } from '@/types/scenario';
 import { HistoricalDataInput, getDefaultHistoricalData, convertToHistoricalInputs } from '@/types/historical';
 import { FinancialValidationAgent } from '@/lib/agents/validation-agent';
 import type { ValidationReport } from '@/lib/agents/validation-types';
+import { fetchLiveRates, getLastKnownRates, applyLiveRatesToAssumptions, type LiveRates } from '@/lib/services/liveRates';
 
 interface ModelStore extends ModelState {
     // Historical data (Feature 1: per-year format)
@@ -29,6 +30,10 @@ interface ModelStore extends ModelState {
     // AI Validation Agent state
     validationReport: ValidationReport | null;
     isValidating: boolean;
+
+    // Live rates state
+    liveRates: LiveRates | null;
+    lastRatesFetch: string | null;
 
     // Actions
     setCompanyInfo: (name: string, ticker: string, industry: string, currency: string, country?: string, fiscalYearEnd?: string, valuationDate?: string) => void;
@@ -52,6 +57,7 @@ interface ModelStore extends ModelState {
     dismissConflict: () => void;
     setSidebarOpen: (open: boolean) => void;
     runValidation: () => Promise<void>;
+    refreshLiveRates: () => Promise<void>;
 }
 
 const defaultScenarios = createDefaultScenarios();
@@ -86,6 +92,8 @@ export const useModelStore = create<ModelStore>()(
             sidebarOpen: false,
             validationReport: null,
             isValidating: false,
+            liveRates: null,
+            lastRatesFetch: null,
 
             // Actions
             setCompanyInfo: (name, ticker, industry, currency, country, fiscalYearEnd, valuationDate) => {
@@ -361,6 +369,31 @@ export const useModelStore = create<ModelStore>()(
                 } catch (error) {
                     console.error('[Store] Validation failed:', error);
                     set({ isValidating: false });
+                }
+            },
+
+            refreshLiveRates: async () => {
+                try {
+                    const rates = await fetchLiveRates();
+                    const state = get();
+                    set({ liveRates: rates, lastRatesFetch: rates.lastUpdated });
+
+                    // Apply rate updates to all scenarios' global settings
+                    const baseScenario = state.scenarios.find(s => s.type === 'base');
+                    if (baseScenario) {
+                        const updates = applyLiveRatesToAssumptions(baseScenario.assumptions, rates);
+                        const updatedScenarios = state.scenarios.map(scenario => ({
+                            ...scenario,
+                            assumptions: { ...scenario.assumptions, ...updates },
+                            results: null, // invalidate for recalculation
+                        }));
+                        set({ scenarios: updatedScenarios });
+                    }
+
+                    // Recalculate all scenarios with new rates
+                    get().calculateAllScenarios();
+                } catch (error) {
+                    console.warn('[Store] Failed to refresh live rates:', error);
                 }
             },
 
