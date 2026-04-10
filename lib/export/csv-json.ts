@@ -97,6 +97,26 @@ export function exportToCSV(results: ModelResults, companyName: string, currency
     ];
     sections.push(buildCsvRows(['Item', ...cfPeriods], cfRows));
 
+    // Key Ratios
+    sections.push('\n=== KEY RATIOS ===');
+    const ratPeriods = results.ratios.map((_, i) => results.incomeStatements[i]?.period ?? `Year ${i + 1}`);
+    const ratRows: [string, ...number[]][] = [
+        ['Gross Margin', ...results.ratios.map(r => r.grossMargin ?? 0)],
+        ['EBITDA Margin', ...results.ratios.map(r => r.ebitdaMargin ?? 0)],
+        ['Net Margin', ...results.ratios.map(r => r.netMargin ?? 0)],
+        ['ROE', ...results.ratios.map(r => r.roe ?? 0)],
+        ['ROA', ...results.ratios.map(r => r.roa ?? 0)],
+        ['ROIC', ...results.ratios.map(r => r.roic ?? 0)],
+        ['Current Ratio', ...results.ratios.map(r => r.currentRatio ?? 0)],
+        ['Debt/Equity', ...results.ratios.map(r => r.debtToEquity ?? 0)],
+        ['Interest Coverage', ...results.ratios.map(r => r.interestCoverage ?? 0)],
+        ['DSO', ...results.ratios.map(r => r.dso ?? 0)],
+        ['DIO', ...results.ratios.map(r => r.dio ?? 0)],
+        ['DPO', ...results.ratios.map(r => r.dpo ?? 0)],
+        ['EPS', ...results.incomeStatements.map(s => s.eps ?? 0)],
+    ];
+    sections.push(buildCsvRows(['Ratio', ...ratPeriods], ratRows));
+
     // DCF Valuation Summary
     if (results.dcfValuation) {
         sections.push('\n=== DCF VALUATION ===');
@@ -135,6 +155,7 @@ export interface JSONExportOptions {
     historicalInputs: HistoricalInputs;
     scenarios: Scenario[];
     results: ModelResults;
+    liveRates?: { cbeDepositRate: number; cbeLendingRate: number; cbeDiscountRate: number; tbillRate12m: number; usdEgpRate: number; eurEgpRate: number; lastUpdated: string; lastMPCDate: string; source: string } | null;
 }
 
 export function exportToJSON(opts: JSONExportOptions): void {
@@ -202,6 +223,9 @@ export function exportToJSON(opts: JSONExportOptions): void {
         // ── Validation ───────────────────────────────────────
         validationReport: results.validationReport ?? null,
         validationPassed: results.validationPassed ?? null,
+
+        // ── Live Market Rates ───────────────────────────────
+        liveRates: opts.liveRates ?? null,
     };
 
     const json = JSON.stringify(data, null, 2);

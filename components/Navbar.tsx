@@ -30,6 +30,7 @@ const moreItems: { id: ModelState['activeTab']; label: string }[] = [
     { id: 'historicaldata', label: 'Historical Data' },
     { id: 'import', label: 'Import Data' },
     { id: 'company-settings', label: 'Company Settings' },
+    { id: 'live-rates', label: 'Live Rates' },
 ];
 
 const allItems = [...primaryItems, ...moreItems];
@@ -41,6 +42,7 @@ export default function Navbar() {
         undo, redo, undoStack, redoStack,
         setCompanyInfo, industry, ticker,
         sidebarOpen, setSidebarOpen,
+        liveRates, refreshLiveRates,
     } = useModelStore();
 
     const [moreOpen, setMoreOpen] = useState(false);
@@ -68,14 +70,15 @@ export default function Navbar() {
             ?? state.scenarios.find(s => s.id === state.activeScenarioId);
         if (!baseScenario?.results) return;
         const { exportToExcel } = await import('@/lib/export/excel');
-        exportToExcel(baseScenario.results, baseScenario.assumptions, state.companyName, state.scenarios, state.historicalInputs);
+        exportToExcel(baseScenario.results, baseScenario.assumptions, state.companyName, state.scenarios, state.historicalInputs, state.liveRates);
     };
 
     const handleExportPDF = async () => {
         setExportOpen(false);
         if (!activeScenario?.results) return;
+        const state = useModelStore.getState();
         const { exportToPDF } = await import('@/lib/export/pdf');
-        exportToPDF(activeScenario.results, companyName, currency);
+        exportToPDF(activeScenario.results, companyName, currency, state.liveRates);
     };
 
     const handleExportCSV = async () => {
@@ -103,6 +106,7 @@ export default function Navbar() {
             historicalInputs: state.historicalInputs,
             scenarios: state.scenarios,
             results: activeScenario.results,
+            liveRates: state.liveRates,
         });
     };
 
@@ -203,6 +207,31 @@ export default function Navbar() {
 
                     {/* Right side actions */}
                     <div className="navbar-actions">
+                        {/* Live Rates Badge */}
+                        {liveRates && (
+                            <button
+                                className="btn-outline"
+                                style={{
+                                    padding: '4px 10px',
+                                    fontSize: '.68rem',
+                                    fontFamily: 'monospace',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 6,
+                                    cursor: 'pointer',
+                                    whiteSpace: 'nowrap',
+                                }}
+                                onClick={() => { refreshLiveRates(); }}
+                                title="Click to refresh live rates"
+                            >
+                                <span style={{ color: 'var(--accent)' }}>CBE {(liveRates.cbeDepositRate * 100).toFixed(1)}%</span>
+                                <span style={{ opacity: 0.5 }}>|</span>
+                                <span>USD/EGP {liveRates.usdEgpRate.toFixed(1)}</span>
+                                <span style={{ opacity: 0.5 }}>|</span>
+                                <span style={{ fontSize: '.62rem', opacity: 0.7 }}>⟳</span>
+                            </button>
+                        )}
+
                         {/* Undo/Redo */}
                         <button
                             className="btn-outline"

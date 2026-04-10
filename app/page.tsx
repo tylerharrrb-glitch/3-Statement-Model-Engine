@@ -25,6 +25,7 @@ import DCFPage from '@/components/DCFPage';
 import ValuationPage from '@/components/ValuationPage';
 import RatiosPage from '@/components/RatiosPage';
 import CBEMetricsPage from '@/components/CBEMetricsPage';
+import LiveRatesPanel from '@/components/LiveRatesPanel';
 import CBERateBanner from '@/components/CBERateBanner';
 import ErrorBanner from '@/components/ErrorBanner';
 import ConflictModal from '@/components/ConflictModal';
@@ -50,6 +51,7 @@ const SECTION_LABELS: Record<string, { num: string; label: string }> = {
     historicaldata: { num: '17', label: 'HISTORICAL DATA' },
     import: { num: '18', label: 'DATA IMPORT' },
     'company-settings': { num: '19', label: 'COMPANY SETTINGS' },
+    'live-rates': { num: '20', label: 'LIVE MARKET RATES' },
 };
 
 export default function Home() {
@@ -139,6 +141,7 @@ export default function Home() {
             case 'historicaldata': return <HistoricalDataInput />;
             case 'validation': return <ValidationPage />;
             case 'company-settings': return <CompanySettings />;
+            case 'live-rates': return <LiveRatesPanel />;
             default: return <Dashboard />;
         }
     };

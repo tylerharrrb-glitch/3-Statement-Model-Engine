@@ -112,6 +112,7 @@ export function exportToPDF(
     results: ModelResults,
     companyName: string,
     currency: string = 'USD',
+    liveRates?: { cbeDepositRate: number; cbeLendingRate: number; cbeDiscountRate: number; tbillRate12m: number; usdEgpRate: number; eurEgpRate: number; sarEgpRate: number; aedEgpRate: number; egyptianCPI: number; lastUpdated: string; lastMPCDate: string; source: string } | null,
 ): void {
     // Set the module-level currency symbol for all fc() calls
     const currCfg = CURRENCY_MAP[currency as SupportedCurrency] || CURRENCY_MAP.USD;
@@ -995,6 +996,57 @@ export function exportToPDF(
     doc.text(`Report Generated: ${new Date().toLocaleString()} | Export v1.0`, 20, dy + 26);
 
     addPageNumber(doc);
+
+    // ═══════════════════════════════════════════════════════
+    // PAGE: LIVE MARKET RATES (CBE + FX)
+    // ═══════════════════════════════════════════════════════
+    if (liveRates) {
+        doc.addPage();
+        drawPageHeader(doc, 'Live Market Rates', `Source: ${liveRates.source}`);
+        addPageNumber(doc);
+
+        let ry = 24;
+        ry = drawSectionDivider(doc, ry, 'CBE Monetary Policy Rates');
+
+        autoTable(doc, {
+            startY: ry + 2,
+            head: [['Rate', 'Value', 'Reference']],
+            body: [
+                ['CBE Deposit Rate (Overnight)', fp(liveRates.cbeDepositRate), `MPC: ${liveRates.lastMPCDate}`],
+                ['CBE Lending Rate (Overnight)', fp(liveRates.cbeLendingRate), `MPC: ${liveRates.lastMPCDate}`],
+                ['CBE Discount Rate', fp(liveRates.cbeDiscountRate), 'Reference rate for CBE Banking Metrics'],
+                ['12-Month T-Bill Yield', fp(liveRates.tbillRate12m), 'Risk-free rate proxy (DCF)'],
+                ['Egyptian CPI (Annual)', fp(liveRates.egyptianCPI), 'Inflation rate'],
+            ],
+            headStyles: HEAD_STYLE,
+            bodyStyles: BODY_STYLE,
+            alternateRowStyles: ALT_STYLE,
+            margin: { left: 14, right: 14 },
+        });
+
+        ry = getAutoTableFinalY(doc) + 6;
+        ry = drawSectionDivider(doc, ry, 'Exchange Rates (EGP)');
+
+        autoTable(doc, {
+            startY: ry + 2,
+            head: [['Currency Pair', 'Rate', 'Description']],
+            body: [
+                ['USD / EGP', liveRates.usdEgpRate.toFixed(2), 'US Dollar'],
+                ['EUR / EGP', liveRates.eurEgpRate.toFixed(2), 'Euro'],
+                ['SAR / EGP', liveRates.sarEgpRate.toFixed(2), 'Saudi Riyal'],
+                ['AED / EGP', liveRates.aedEgpRate.toFixed(2), 'UAE Dirham'],
+            ],
+            headStyles: HEAD_STYLE,
+            bodyStyles: BODY_STYLE,
+            alternateRowStyles: ALT_STYLE,
+            margin: { left: 14, right: 14 },
+        });
+
+        ry = getAutoTableFinalY(doc) + 8;
+        doc.setFontSize(7);
+        doc.setTextColor(...MED_GRAY);
+        doc.text(`Last Updated: ${liveRates.lastUpdated}`, 14, ry);
+    }
 
     // ═══════════════════════════════════════════════════════
     // SAVE

@@ -37,7 +37,7 @@ export interface ModelState {
 
     // UI State
     isDarkMode: boolean;
-    activeTab: 'dashboard' | 'model' | 'income' | 'balance' | 'cashflow' | 'scenarios' | 'sensitivity' | 'montecarlo' | 'import' | 'historicaldata' | 'working-capital' | 'depreciation' | 'debt-schedule' | 'validation' | 'company-settings' | 'dcf' | 'valuation' | 'ratios' | 'cbe-metrics';
+    activeTab: 'dashboard' | 'model' | 'income' | 'balance' | 'cashflow' | 'scenarios' | 'sensitivity' | 'montecarlo' | 'import' | 'historicaldata' | 'working-capital' | 'depreciation' | 'debt-schedule' | 'validation' | 'company-settings' | 'dcf' | 'valuation' | 'ratios' | 'cbe-metrics' | 'live-rates';
     isCalculating: boolean;
     lastSaved: string | null;
 

@@ -115,6 +115,7 @@ export async function exportToExcel(
     companyName: string,
     allScenarios?: Scenario[],
     historicalInputs?: HistoricalInputs,
+    liveRates?: { cbeDepositRate: number; cbeLendingRate: number; cbeDiscountRate: number; tbillRate12m: number; usdEgpRate: number; eurEgpRate: number; sarEgpRate: number; aedEgpRate: number; egyptianCPI: number; lastUpdated: string; lastMPCDate: string; source: string } | null,
 ): Promise<void> {
     const workbook = new ExcelJS.Workbook();
     workbook.creator = 'FinModel Engine';
@@ -372,6 +373,7 @@ export async function exportToExcel(
         dividendWithholdingTaxRate: assumptions.dividendWithholdingTaxRate ?? 0.10,
         cbeRate: assumptions.cbeRate ?? 0.195,
         riskFreeRate: assumptions.riskFreeRate ?? 0.235,
+        liveRates: liveRates ?? undefined,
     });
 
     // ════════════════════════════════════════════════════════
@@ -3205,8 +3207,8 @@ export async function exportToExcel(
                     // EBITDA-based DSCR per CBE Circular 11/2020
                     const ebitda = isData.ebitda ?? 0;
                     const intExp = isData.interestExpense ?? 0;
-                    // Scheduled principal = 20,000/year (from debt schedule)
-                    const scheduledPrincipal = 20_000;
+                    // Scheduled principal: use engine LTD repayment (from assumptions)
+                    const scheduledPrincipal = allLTDRepayment[yr] ?? 0;
                     const debtService = intExp + scheduledPrincipal;
                     if (debtService <= 0) return 0;
                     return ebitda / debtService;
@@ -3279,68 +3281,260 @@ export async function exportToExcel(
     }
 
     // ════════════════════════════════════════════════════════
-    // VAT SCHEDULE (Memo)
+    // VAT SCHEDULE (Live formulas referencing IS + BS)
     // ════════════════════════════════════════════════════════
     if (assumptions.enableVAT && (assumptions.vatRate ?? 0) > 0) {
         const vatSheet = workbook.addWorksheet('VAT Schedule');
         const vatRate = assumptions.vatRate ?? 0.14;
-        const periods = results.incomeStatements.length;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const histCount = results.incomeStatements.filter(is => (is as any).periodType === 'historical').length;
 
-        // Header
-        const vatHeaderRow = vatSheet.addRow(['VAT Schedule — Memo']);
-        vatHeaderRow.font = { name: 'Calibri', size: 14, bold: true, color: { argb: 'FFFFFFFF' } };
-        vatHeaderRow.fill = DARK_BG;
-        vatSheet.addRow([]); // blank
+        vatSheet.getColumn(1).width = 32;
+        for (let i = 0; i < nYears; i++) vatSheet.getColumn(i + 2).width = 16;
 
-        // Column headers
-        const vatColHeaders = ['', ...results.incomeStatements.map((is, i) =>
-            i < histCount ? `FY${assumptions.startYear - histCount + i}A` : `FY${assumptions.startYear + i - histCount}E`
-        )];
-        const vatColRow = vatSheet.addRow(vatColHeaders);
-        vatColRow.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FFFFFFFF' } };
-        vatColRow.fill = MED_BG;
-        vatColRow.eachCell((cell) => { cell.border = BORDERS; });
+        // Title
+        let vRow = 1;
+        vatSheet.mergeCells(vRow, 1, vRow, nYears + 1);
+        vatSheet.getCell(vRow, 1).value = companyName + ' — VAT Schedule';
+        vatSheet.getCell(vRow, 1).font = { name: 'Calibri', size: 14, bold: true, color: { argb: 'FFFFFFFF' } };
+        vatSheet.getCell(vRow, 1).fill = DARK_BG;
+        vatSheet.getCell(vRow, 1).alignment = { horizontal: 'center', vertical: 'middle' };
+        vRow++;
 
-        // VAT on Revenue (Output VAT)
-        const outputVAT = results.incomeStatements.map(is => is.revenue * vatRate);
-        const oRow = vatSheet.addRow(['VAT on Revenue (Output)', ...outputVAT]);
-        styleRow(oRow, { numFmt: NUM_FMT });
+        // Subtitle
+        vatSheet.getCell(vRow, 1).value = `VAT Rate: ${(vatRate * 100).toFixed(0)}% (Egyptian standard — Law 67/2016)`;
+        vatSheet.getCell(vRow, 1).font = { name: 'Calibri', size: 9, italic: true, color: { argb: 'FF888888' } };
+        vRow++;
 
-        // VAT on Purchases (Input VAT) — approximate as COGS × VAT rate
-        const inputVAT = results.incomeStatements.map(is => is.cogs * vatRate);
-        const iRow = vatSheet.addRow(['VAT on Purchases (Input)', ...inputVAT]);
-        styleRow(iRow, { numFmt: NUM_FMT });
+        // Period headers
+        vatSheet.getCell(vRow, 1).value = 'Item';
+        for (let i = 0; i < nYears; i++) vatSheet.getCell(vRow, i + 2).value = periods[i];
+        styleHeader(vatSheet);
+        vRow++;
 
-        // Net VAT Payable
-        const netVAT = outputVAT.map((o, idx) => o - inputVAT[idx]);
-        const nRow = vatSheet.addRow(['Net VAT Payable', ...netVAT]);
-        styleRow(nRow, { bold: true, numFmt: NUM_FMT });
+        // VAT Rate row (editable input)
+        const vatRateRow = vRow;
+        vatSheet.getCell(vRow, 1).value = 'VAT Rate';
+        for (let i = 0; i < nYears; i++) {
+            vatSheet.getCell(vRow, i + 2).value = vatRate;
+            vatSheet.getCell(vRow, i + 2).numFmt = PCT_FMT;
+            vatSheet.getCell(vRow, i + 2).fill = INPUT_BG;
+            vatSheet.getCell(vRow, i + 2).border = BORDERS;
+        }
+        vRow++;
 
-        vatSheet.addRow([]); // blank
-        const noteRow = vatSheet.addRow([`Note: VAT rate = ${(vatRate * 100).toFixed(0)}% (Egyptian standard). ETA e-invoicing compliance required.`]);
-        noteRow.font = { name: 'Calibri', size: 9, italic: true, color: { argb: 'FF888888' } };
+        // Output VAT = Revenue × VAT Rate (formula referencing IS)
+        const outputVATRow = vRow;
+        vatSheet.getCell(vRow, 1).value = 'VAT on Revenue (Output)';
+        for (let i = 0; i < nYears; i++) {
+            const c = colLetter(i + 2);
+            const result = (results.incomeStatements[i]?.revenue ?? 0) * vatRate;
+            vatSheet.getCell(vRow, i + 2).value = {
+                formula: `'Income Statement'!${c}${isRows['revenue']}*${c}${vatRateRow}`,
+                result,
+            };
+            vatSheet.getCell(vRow, i + 2).numFmt = NUM_FMT;
+            vatSheet.getCell(vRow, i + 2).border = BORDERS;
+        }
+        vRow++;
 
-        // Column widths
-        vatSheet.getColumn(1).width = 30;
-        for (let c = 2; c <= periods + 1; c++) vatSheet.getColumn(c).width = 16;
+        // Input VAT = COGS × VAT Rate (formula referencing IS)
+        const inputVATRow = vRow;
+        vatSheet.getCell(vRow, 1).value = 'VAT on Purchases (Input)';
+        for (let i = 0; i < nYears; i++) {
+            const c = colLetter(i + 2);
+            const result = (results.incomeStatements[i]?.cogs ?? 0) * vatRate;
+            vatSheet.getCell(vRow, i + 2).value = {
+                formula: `'Income Statement'!${c}${isRows['cogs']}*${c}${vatRateRow}`,
+                result,
+            };
+            vatSheet.getCell(vRow, i + 2).numFmt = NUM_FMT;
+            vatSheet.getCell(vRow, i + 2).border = BORDERS;
+        }
+        vRow++;
+
+        // CapEx VAT = Revenue × CapEx% × VAT Rate
+        const capexVATRow = vRow;
+        vatSheet.getCell(vRow, 1).value = 'VAT on CapEx (Input)';
+        for (let i = 0; i < nYears; i++) {
+            const c = colLetter(i + 2);
+            const capex = (results.incomeStatements[i]?.revenue ?? 0) * (allCapex[i] ?? 0);
+            const result = capex * vatRate;
+            vatSheet.getCell(vRow, i + 2).value = {
+                formula: `'Income Statement'!${c}${isRows['revenue']}*${aRef('capexPercent', i)}*${c}${vatRateRow}`,
+                result,
+            };
+            vatSheet.getCell(vRow, i + 2).numFmt = NUM_FMT;
+            vatSheet.getCell(vRow, i + 2).border = BORDERS;
+        }
+        vRow++;
+
+        // Total Input VAT = Purchases + CapEx
+        const totalInputVATRow = vRow;
+        vatSheet.getCell(vRow, 1).value = 'Total Input VAT';
+        vatSheet.getCell(vRow, 1).font = BOLD_FONT;
+        for (let i = 0; i < nYears; i++) {
+            const c = colLetter(i + 2);
+            vatSheet.getCell(vRow, i + 2).value = {
+                formula: `${c}${inputVATRow}+${c}${capexVATRow}`,
+                result: ((results.incomeStatements[i]?.cogs ?? 0) + (results.incomeStatements[i]?.revenue ?? 0) * (allCapex[i] ?? 0)) * vatRate,
+            };
+            vatSheet.getCell(vRow, i + 2).numFmt = NUM_FMT;
+            vatSheet.getCell(vRow, i + 2).border = BORDERS;
+        }
+        styleRow(vatSheet.getRow(vRow), { bold: true, numFmt: NUM_FMT });
+        vRow++;
+
+        vRow++; // spacer
+
+        // Net VAT Payable = Output - Total Input
+        const netVATRow = vRow;
+        vatSheet.getCell(vRow, 1).value = 'Net VAT Payable';
+        for (let i = 0; i < nYears; i++) {
+            const c = colLetter(i + 2);
+            const outputV = (results.incomeStatements[i]?.revenue ?? 0) * vatRate;
+            const inputV = ((results.incomeStatements[i]?.cogs ?? 0) + (results.incomeStatements[i]?.revenue ?? 0) * (allCapex[i] ?? 0)) * vatRate;
+            vatSheet.getCell(vRow, i + 2).value = {
+                formula: `${c}${outputVATRow}-${c}${totalInputVATRow}`,
+                result: outputV - inputV,
+            };
+            vatSheet.getCell(vRow, i + 2).numFmt = NUM_FMT;
+            vatSheet.getCell(vRow, i + 2).border = BORDERS;
+        }
+        styleRow(vatSheet.getRow(vRow), { bold: true, numFmt: NUM_FMT });
+        vRow++;
+
+        // Reconciliation with Balance Sheet
+        vRow++; // spacer
+        vatSheet.getCell(vRow, 1).value = '── BS Reconciliation ──';
+        styleRow(vatSheet.getRow(vRow), { subheader: true });
+        vRow++;
+
+        // VAT Receivable from BS
+        vatSheet.getCell(vRow, 1).value = 'BS: VAT Receivable';
+        for (let i = 0; i < nYears; i++) {
+            const c = colLetter(i + 2);
+            vatSheet.getCell(vRow, i + 2).value = {
+                formula: `'Balance Sheet'!${c}${bsRows['vatReceivable']}`,
+                result: results.balanceSheets[i]?.vatReceivable ?? 0,
+            };
+            vatSheet.getCell(vRow, i + 2).numFmt = NUM_FMT;
+            vatSheet.getCell(vRow, i + 2).border = BORDERS;
+        }
+        vRow++;
+
+        // VAT Payable from BS
+        vatSheet.getCell(vRow, 1).value = 'BS: VAT Payable';
+        for (let i = 0; i < nYears; i++) {
+            const c = colLetter(i + 2);
+            vatSheet.getCell(vRow, i + 2).value = {
+                formula: `'Balance Sheet'!${c}${bsRows['vatPayable']}`,
+                result: results.balanceSheets[i]?.vatPayable ?? 0,
+            };
+            vatSheet.getCell(vRow, i + 2).numFmt = NUM_FMT;
+            vatSheet.getCell(vRow, i + 2).border = BORDERS;
+        }
+        vRow++;
+
+        vRow++;
+        vatSheet.getCell(vRow, 1).value = 'Note: ETA e-invoicing compliance required for all B2B transactions.';
+        vatSheet.getCell(vRow, 1).font = { name: 'Calibri', size: 9, italic: true, color: { argb: 'FF888888' } };
 
         applyZebraAndNegatives(vatSheet);
+    }
+
+    // ════════════════════════════════════════════════════════
+    // LIVE RATES SHEET (CBE policy rates, FX, T-bill yields)
+    // ════════════════════════════════════════════════════════
+    if (liveRates) {
+        const lrSheet = workbook.addWorksheet('Live Rates');
+        lrSheet.getColumn(1).width = 32;
+        lrSheet.getColumn(2).width = 20;
+        lrSheet.getColumn(3).width = 30;
+
+        let lrRow = 1;
+        lrSheet.mergeCells(lrRow, 1, lrRow, 3);
+        lrSheet.getCell(lrRow, 1).value = 'Live Market Rates — Central Bank of Egypt';
+        lrSheet.getCell(lrRow, 1).font = { name: 'Calibri', size: 14, bold: true, color: { argb: 'FFFFFFFF' } };
+        lrSheet.getCell(lrRow, 1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFC0392B' } };
+        lrSheet.getCell(lrRow, 1).alignment = { horizontal: 'center', vertical: 'middle' };
+        lrRow++;
+
+        lrSheet.getCell(lrRow, 1).value = `Source: ${liveRates.source}`;
+        lrSheet.getCell(lrRow, 2).value = `Last Updated: ${liveRates.lastUpdated}`;
+        lrSheet.getCell(lrRow, 1).font = { name: 'Calibri', size: 9, italic: true, color: { argb: 'FF888888' } };
+        lrSheet.getCell(lrRow, 2).font = { name: 'Calibri', size: 9, italic: true, color: { argb: 'FF888888' } };
+        lrRow += 2;
+
+        // CBE Policy Rates
+        lrSheet.getCell(lrRow, 1).value = '── CBE Policy Rates ──';
+        lrSheet.getCell(lrRow, 1).font = { name: 'Calibri', size: 11, bold: true, color: { argb: 'FFFFFFFF' } };
+        lrSheet.getCell(lrRow, 1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1F3864' } };
+        lrSheet.getCell(lrRow, 2).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1F3864' } };
+        lrSheet.getCell(lrRow, 3).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1F3864' } };
+        lrRow++;
+
+        const addLRRow = (label: string, value: number, fmt: string, note: string = '') => {
+            lrSheet.getCell(lrRow, 1).value = label;
+            lrSheet.getCell(lrRow, 1).font = { name: 'Calibri', size: 10 };
+            lrSheet.getCell(lrRow, 2).value = value;
+            lrSheet.getCell(lrRow, 2).numFmt = fmt;
+            lrSheet.getCell(lrRow, 2).border = BORDERS;
+            if (note) {
+                lrSheet.getCell(lrRow, 3).value = note;
+                lrSheet.getCell(lrRow, 3).font = { name: 'Calibri', size: 9, italic: true, color: { argb: 'FF666666' } };
+            }
+            lrRow++;
+        };
+
+        addLRRow('CBE Deposit Rate (Overnight)', liveRates.cbeDepositRate, '0.00%', `MPC: ${liveRates.lastMPCDate}`);
+        addLRRow('CBE Lending Rate (Overnight)', liveRates.cbeLendingRate, '0.00%', `MPC: ${liveRates.lastMPCDate}`);
+        addLRRow('CBE Discount Rate', liveRates.cbeDiscountRate, '0.00%', 'Used for CBE Banking Metrics');
+        addLRRow('12-Month T-Bill Yield', liveRates.tbillRate12m, '0.00%', 'Risk-free rate proxy for DCF');
+        addLRRow('Egyptian CPI (Annual)', liveRates.egyptianCPI, '0.0%', 'Inflation rate');
+        lrRow++;
+
+        // FX Rates
+        lrSheet.getCell(lrRow, 1).value = '── Exchange Rates ──';
+        lrSheet.getCell(lrRow, 1).font = { name: 'Calibri', size: 11, bold: true, color: { argb: 'FFFFFFFF' } };
+        lrSheet.getCell(lrRow, 1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1F3864' } };
+        lrSheet.getCell(lrRow, 2).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1F3864' } };
+        lrSheet.getCell(lrRow, 3).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1F3864' } };
+        lrRow++;
+
+        addLRRow('USD / EGP', liveRates.usdEgpRate, '#,##0.00', 'US Dollar');
+        addLRRow('EUR / EGP', liveRates.eurEgpRate, '#,##0.00', 'Euro');
+        addLRRow('SAR / EGP', liveRates.sarEgpRate, '#,##0.00', 'Saudi Riyal');
+        addLRRow('AED / EGP', liveRates.aedEgpRate, '#,##0.00', 'UAE Dirham');
+        lrRow++;
+
+        // Model Integration
+        lrSheet.getCell(lrRow, 1).value = '── Model Integration ──';
+        lrSheet.getCell(lrRow, 1).font = { name: 'Calibri', size: 11, bold: true, color: { argb: 'FFFFFFFF' } };
+        lrSheet.getCell(lrRow, 1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1F3864' } };
+        lrSheet.getCell(lrRow, 2).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1F3864' } };
+        lrSheet.getCell(lrRow, 3).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1F3864' } };
+        lrRow++;
+
+        addLRRow('Risk-Free Rate (DCF)', assumptions.riskFreeRate ?? 0.235, '0.00%', '→ DCF Valuation tab');
+        addLRRow('CBE Rate (Assumptions)', assumptions.cbeRate ?? 0.195, '0.00%', '→ CBE Banking Metrics tab');
+        addLRRow('Interest on Debt', assumptions.interestRateOnDebt?.[0] ?? 0.22, '0.00%', '→ Debt Schedule tab');
+        addLRRow('Interest on Cash', assumptions.interestRateOnCash?.[0] ?? 0.18, '0.00%', '→ IS Interest Income');
+
+        applyZebraAndNegatives(lrSheet);
     }
 
     // ════════════════════════════════════════════════════════
     // TAB REORDERING & TAB COLORS
     // ════════════════════════════════════════════════════════
     const DESIRED_ORDER = [
-        'Dashboard', 'Company Info', 'Scenarios', 'Assumptions',
+        'Dashboard', 'Company Info', 'Live Rates', 'Scenarios', 'Assumptions',
         'Income Statement', 'Balance Sheet', 'Cash Flow Statement', 'Ratios',
         'Working Capital', 'Depreciation Schedule', 'Debt Schedule',
         'DCF Valuation', 'Valuation Multiples', 'CBE Banking Metrics',
         'VAT Schedule',
     ];
     const TAB_COLORS: Record<string, string> = {
-        'Dashboard': 'FF1F3864', 'Company Info': 'FF2E75B6', 'Scenarios': 'FF1A7A4A',
+        'Dashboard': 'FF1F3864', 'Company Info': 'FF2E75B6', 'Live Rates': 'FFC0392B',
+        'Scenarios': 'FF1A7A4A',
         'Assumptions': 'FF7F7F7F', 'Income Statement': 'FF4472C4', 'Balance Sheet': 'FF4472C4',
         'Cash Flow Statement': 'FF4472C4', 'Ratios': 'FF7030A0', 'Working Capital': 'FF8B4000',
         'Depreciation Schedule': 'FF8B4000', 'Debt Schedule': 'FF8B4000',
