@@ -164,6 +164,8 @@ export interface CashFlowStatement {
   changeInAP: number;
   changeInAccruedExp: number;
   changeInDeferredRev: number;
+  changeInVATReceivable: number;  // VAT input tax WC change
+  changeInVATPayable: number;     // VAT output tax WC change
   totalWorkingCapitalChange: number;
 
   cashFromOperations: number;

@@ -103,6 +103,8 @@ export function calculateCashFlow(inputs: CashFlowInputs): CashFlowStatement {
         changeInAP,
         changeInAccruedExp,
         changeInDeferredRev,
+        changeInVATReceivable,
+        changeInVATPayable,
         totalWorkingCapitalChange,
         cashFromOperations,
         capex,
@@ -206,6 +208,8 @@ export function buildHistoricalCashFlows(
             changeInAP,
             changeInAccruedExp,
             changeInDeferredRev,
+            changeInVATReceivable: 0,   // Historical — not retroactively modeled
+            changeInVATPayable: 0,      // Historical — not retroactively modeled
             totalWorkingCapitalChange,
             cashFromOperations,
             capex,

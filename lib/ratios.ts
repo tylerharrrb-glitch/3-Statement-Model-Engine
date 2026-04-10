@@ -88,9 +88,8 @@ export function calculateFinancialRatios(
     const netDebt = totalDebt - bs.cash;
     const netDebtToEbitda = is.ebitda !== 0 ? netDebt / is.ebitda : 0;
     // DSCR = EBITDA / (Interest Expense + Scheduled Principal)
-    // Scheduled principal = 20,000 per year (standard debt schedule repayment)
-    // null when no CF data (first historical period)
-    const scheduledPrincipal = 20_000;
+    // Use actual debt repayment from CF (absolute value, since CF stores it negative)
+    const scheduledPrincipal = cf ? Math.abs(cf.debtRepayment) : 0;
     const debtService = is.interestExpense + scheduledPrincipal;
     const dscr = !cf ? null : (debtService > 0 ? is.ebitda / debtService : null);
 

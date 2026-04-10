@@ -71,74 +71,78 @@ const R = {
     accountsReceivable: 37,
     inventory: 38,
     prepaid: 39,
-    otherCA: 40,
-    totalCA: 41,
-    // spacer 42
-    grossPPE: 43,
-    accumDep: 44,
-    netPPE: 45,
-    intangibles: 46,
-    goodwill: 47,
-    otherLTA: 48,
-    totalNCA: 49,
-    totalAssets: 50,
-    // spacer 51
-    accountsPayable: 52,
-    accruedExp: 53,
-    shortTermDebt: 54,
-    currentPortionLTD: 55,
-    deferredRevenue: 56,
-    otherCL: 57,
-    totalCL: 58,
-    // spacer 59
-    longTermDebt: 60,
-    deferredTaxLiab: 61,
-    otherLTL: 62,
-    totalNCL: 63,
-    totalLiabilities: 64,
-    // spacer 65
-    commonStock: 66,
-    apic: 67,
-    legalReserveEquity: 68,
-    retainedEarnings: 69,
-    treasuryStock: 70,
-    oci: 71,
-    totalEquity: 72,
-    // spacer 73
-    totalLE: 74,
-    balanceCheck: 75,
-    // CF section (row 77+)
-    cf_netIncome: 77,
-    cf_depreciation: 78,
-    cf_amortization: 79,
-    cf_sbc: 80,
-    cf_deferredTax: 81,
-    cf_changeAR: 82,
-    cf_changeInv: 83,
-    cf_changePrepaid: 84,
-    cf_changeAP: 85,
-    cf_changeAccrued: 86,
-    cf_changeDeferredRev: 87,
-    cf_totalWC: 88,
-    cf_cfo: 89,
-    // spacer 90
-    cf_capex: 91,
-    cf_acquisitions: 92,
-    cf_assetSales: 93,
-    cf_cfi: 94,
-    // spacer 95
-    cf_debtIssuance: 96,
-    cf_debtRepayment: 97,
-    cf_dividends: 98,
-    cf_epdPaid: 99,
-    cf_equityIssuance: 100,
-    cf_shareRepurchases: 101,
-    cf_cff: 102,
-    // spacer 103
-    cf_netChange: 104,
-    cf_beginCash: 105,
-    cf_endCash: 106,
-    cf_fcf: 107,
+    vatReceivable: 40,            // FIX: VAT input on CapEx
+    otherCA: 41,
+    totalCA: 42,
+    // spacer 43
+    grossPPE: 44,
+    accumDep: 45,
+    netPPE: 46,
+    intangibles: 47,
+    goodwill: 48,
+    otherLTA: 49,
+    totalNCA: 50,
+    totalAssets: 51,
+    // spacer 52
+    accountsPayable: 53,
+    accruedExp: 54,
+    shortTermDebt: 55,
+    currentPortionLTD: 56,
+    deferredRevenue: 57,
+    vatPayable: 58,               // FIX: VAT output - input (net)
+    otherCL: 59,
+    totalCL: 60,
+    // spacer 61
+    longTermDebt: 62,
+    deferredTaxLiab: 63,
+    otherLTL: 64,
+    totalNCL: 65,
+    totalLiabilities: 66,
+    // spacer 67
+    commonStock: 68,
+    apic: 69,
+    legalReserveEquity: 70,
+    retainedEarnings: 71,
+    treasuryStock: 72,
+    oci: 73,
+    totalEquity: 74,
+    // spacer 75
+    totalLE: 76,
+    balanceCheck: 77,
+    // CF section (row 79+)
+    cf_netIncome: 79,
+    cf_depreciation: 80,
+    cf_amortization: 81,
+    cf_sbc: 82,
+    cf_deferredTax: 83,
+    cf_changeAR: 84,
+    cf_changeInv: 85,
+    cf_changePrepaid: 86,
+    cf_changeAP: 87,
+    cf_changeAccrued: 88,
+    cf_changeDeferredRev: 89,
+    cf_changeVATRec: 90,          // FIX: VAT receivable WC change
+    cf_changeVATPay: 91,          // FIX: VAT payable WC change
+    cf_totalWC: 92,
+    cf_cfo: 93,
+    // spacer 94
+    cf_capex: 95,
+    cf_acquisitions: 96,
+    cf_assetSales: 97,
+    cf_cfi: 98,
+    // spacer 99
+    cf_debtIssuance: 100,
+    cf_debtRepayment: 101,
+    cf_dividends: 102,
+    cf_epdPaid: 103,
+    cf_equityIssuance: 104,
+    cf_shareRepurchases: 105,
+    cf_cff: 106,
+    // spacer 107
+    cf_netChange: 108,
+    cf_beginCash: 109,
+    cf_endCash: 110,
+    cf_fcf: 111,
 } as const;
 
 /* ── scenario key → Scenarios tab row lookup ─────────── */
@@ -422,6 +426,7 @@ function buildOneCalcSheet(cfg: CalcSheetConfig): CalcSheetRowMap {
             setF(R.accountsReceivable, yr, bsRef(bsRows, 'accountsReceivable', yr), bsData?.accountsReceivable ?? 0);
             setF(R.inventory, yr, bsRef(bsRows, 'inventory', yr), bsData?.inventory ?? 0);
             setF(R.prepaid, yr, bsRef(bsRows, 'prepaidExpenses', yr), bsData?.prepaidExpenses ?? 0);
+            setF(R.vatReceivable, yr, bsRef(bsRows, 'vatReceivable', yr), bsData?.vatReceivable ?? 0);
             setF(R.otherCA, yr, bsRef(bsRows, 'otherCurrentAssets', yr), bsData?.otherCurrentAssets ?? 0);
             setF(R.totalCA, yr, `SUM(${c}${R.cash}:${c}${R.otherCA})`, bsData?.totalCurrentAssets ?? 0);
             setF(R.grossPPE, yr, bsRef(bsRows, 'grossPPE', yr), bsData?.grossPPE ?? 0);
@@ -439,6 +444,7 @@ function buildOneCalcSheet(cfg: CalcSheetConfig): CalcSheetRowMap {
             setF(R.shortTermDebt, yr, bsRef(bsRows, 'shortTermDebt', yr), bsData?.shortTermDebt ?? 0);
             setF(R.currentPortionLTD, yr, bsRef(bsRows, 'currentPortionLTD', yr), bsData?.currentPortionLTD ?? 0);
             setF(R.deferredRevenue, yr, bsRef(bsRows, 'deferredRevenue', yr), bsData?.deferredRevenue ?? 0);
+            setF(R.vatPayable, yr, bsRef(bsRows, 'vatPayable', yr), bsData?.vatPayable ?? 0);
             setF(R.otherCL, yr, bsRef(bsRows, 'otherCurrentLiabilities', yr), bsData?.otherCurrentLiabilities ?? 0);
             setF(R.totalCL, yr, `SUM(${c}${R.accountsPayable}:${c}${R.otherCL})`, bsData?.totalCurrentLiabilities ?? 0);
             setF(R.longTermDebt, yr, bsRef(bsRows, 'longTermDebt', yr), bsData?.longTermDebt ?? 0);
@@ -471,8 +477,10 @@ function buildOneCalcSheet(cfg: CalcSheetConfig): CalcSheetRowMap {
                 setF(R.cf_changeAP, yr, `${c}${R.accountsPayable}-${pc}${R.accountsPayable}`, cfData.changeInAP);
                 setF(R.cf_changeAccrued, yr, `${c}${R.accruedExp}-${pc}${R.accruedExp}`, cfData.changeInAccruedExp);
                 setF(R.cf_changeDeferredRev, yr, `${c}${R.deferredRevenue}-${pc}${R.deferredRevenue}`, cfData.changeInDeferredRev);
+                setF(R.cf_changeVATRec, yr, `-(${c}${R.vatReceivable}-${pc}${R.vatReceivable})`, cfData.changeInVATReceivable ?? 0);
+                setF(R.cf_changeVATPay, yr, `${c}${R.vatPayable}-${pc}${R.vatPayable}`, cfData.changeInVATPayable ?? 0);
                 setF(R.cf_totalWC, yr,
-                    `SUM(${c}${R.cf_changeAR}:${c}${R.cf_changeDeferredRev})`,
+                    `SUM(${c}${R.cf_changeAR}:${c}${R.cf_changeVATPay})`,
                     cfData.totalWorkingCapitalChange);
                 setF(R.cf_cfo, yr,
                     `${c}${R.cf_netIncome}+${c}${R.cf_depreciation}+${c}${R.cf_amortization}+${c}${R.cf_sbc}+${c}${R.cf_deferredTax}+${c}${R.cf_totalWC}`,
@@ -639,6 +647,10 @@ function buildOneCalcSheet(cfg: CalcSheetConfig): CalcSheetRowMap {
             setF(R.prepaid, yr,
                 `${c}${R.revenue}*${sr('prepaidPercent')}`,
                 bsData?.prepaidExpenses ?? 0);
+            // VAT Receivable = CapEx * vatRate (input VAT on capital expenditures)
+            setF(R.vatReceivable, yr,
+                `IF(${sr('enableVAT')}=0,0,ABS(${c}${R.revenue}*${sr('capexPercent')})*${sr('vatRate')})`,
+                bsData?.vatReceivable ?? 0);
             // Other CA
             setF(R.otherCA, yr, sr('otherCurrentAssets'), bsData?.otherCurrentAssets ?? 0);
             // Total CA
@@ -685,6 +697,10 @@ function buildOneCalcSheet(cfg: CalcSheetConfig): CalcSheetRowMap {
             setF(R.deferredRevenue, yr,
                 `${c}${R.revenue}*${sr('deferredRevPercent')}`,
                 bsData?.deferredRevenue ?? 0);
+            // VAT Payable = MAX(0, Revenue * vatRate - CapEx * vatRate) (net output - input VAT)
+            setF(R.vatPayable, yr,
+                `IF(${sr('enableVAT')}=0,0,MAX(0,${c}${R.revenue}*${sr('vatRate')}-ABS(${c}${R.revenue}*${sr('capexPercent')})*${sr('vatRate')}))`,
+                bsData?.vatPayable ?? 0);
             // Other CL
             setF(R.otherCL, yr, sr('otherCurrentLiabilities'), bsData?.otherCurrentLiabilities ?? 0);
             // Total CL
@@ -745,8 +761,10 @@ function buildOneCalcSheet(cfg: CalcSheetConfig): CalcSheetRowMap {
             setF(R.cf_changeAP, yr, `${c}${R.accountsPayable}-${pc}${R.accountsPayable}`, cfData?.changeInAP ?? 0);
             setF(R.cf_changeAccrued, yr, `${c}${R.accruedExp}-${pc}${R.accruedExp}`, cfData?.changeInAccruedExp ?? 0);
             setF(R.cf_changeDeferredRev, yr, `${c}${R.deferredRevenue}-${pc}${R.deferredRevenue}`, cfData?.changeInDeferredRev ?? 0);
+            setF(R.cf_changeVATRec, yr, `-(${c}${R.vatReceivable}-${pc}${R.vatReceivable})`, cfData?.changeInVATReceivable ?? 0);
+            setF(R.cf_changeVATPay, yr, `${c}${R.vatPayable}-${pc}${R.vatPayable}`, cfData?.changeInVATPayable ?? 0);
             setF(R.cf_totalWC, yr,
-                `SUM(${c}${R.cf_changeAR}:${c}${R.cf_changeDeferredRev})`,
+                `SUM(${c}${R.cf_changeAR}:${c}${R.cf_changeVATPay})`,
                 cfData?.totalWorkingCapitalChange ?? 0);
             // CFO
             setF(R.cf_cfo, yr,

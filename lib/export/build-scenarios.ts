@@ -82,6 +82,10 @@ const ROW_SPECS: RowSpec[] = [
     { key: 'shareRepurchaseAmount', label: 'Share Repurchase Amount', fmt: NUM_FMT },
     { key: 'equityIssuance', label: 'Equity Issuance', fmt: NUM_FMT },
 
+    // ── VAT Settings ──
+    { key: 'enableVAT', label: 'Enable VAT', fmt: '0', section: '── VAT Settings ──' },
+    { key: 'vatRate', label: 'VAT Rate', fmt: PCT_FMT },
+
     // ── BS / Equity Direct Values ──
     { key: 'goodwill', label: 'Goodwill', fmt: NUM_FMT, section: '── BS / Equity Direct Values ──' },
     { key: 'otherCurrentAssets', label: 'Other Current Assets', fmt: NUM_FMT },
@@ -181,7 +185,20 @@ function buildAllArrays(
     out['sgaPercent'] = allIS.map(is => roundPct(sd(is.sgaExpense, is.revenue)));
     out['rdPercent'] = allIS.map(is => roundPct(sd(is.rdExpense, is.revenue)));
     out['otherOpexPercent'] = allIS.map(is => roundPct(sd(is.otherOpex, is.revenue)));
-    out['taxRate'] = allIS.map(is => roundPct(is.taxRate));
+    // Use the ASSUMPTION statutory tax rate for all periods (not the effective rate).
+    // Historical IS computes effective rate = taxExpense/EBT which may differ from
+    // the statutory 22.5%. Projected years use the assumption rate directly.
+    out['taxRate'] = Array.from({ length: nYears }, (_, i) => {
+        if (i < numHistorical) {
+            // Historical: use assumption rate (statutory rate, e.g. 22.5%)
+            const rate = Array.isArray(a.taxRate) ? (a.taxRate[0] ?? 0.225) : (a.taxRate ?? 0.225);
+            return rate;
+        }
+        // Projected: use per-year assumption rate
+        const projIdx = i - numHistorical;
+        const rate = Array.isArray(a.taxRate) ? (a.taxRate[projIdx] ?? 0.225) : (a.taxRate ?? 0.225);
+        return rate;
+    });
     out['otherIncomeExpense'] = allIS.map(is => is.otherIncomeExpense);
     out['sharesOutstanding'] = allIS.map(is => is.sharesOutstanding);
     out['stockBasedCompAmount'] = allIS.map((_, i) => {
@@ -276,6 +293,11 @@ function buildAllArrays(
         if (cfIdx >= 0 && cfIdx < r.cashFlowStatements.length) return r.cashFlowStatements[cfIdx].equityIssuance;
         return 0;
     });
+
+    // VAT settings — constant across all periods
+    out['enableVAT'] = Array(nYears).fill(a.enableVAT ? 1 : 0);
+    out['vatRate'] = Array(nYears).fill(a.vatRate ?? 0.14);
+    // capexPercent is already defined above in out['capexPercent']
 
     // BS direct values — derive from engine results for all periods
     out['goodwill'] = allBS.map(bs => bs.goodwill);

@@ -263,7 +263,15 @@ export async function exportToExcel(
     const allSgaPercent = allIS.map(is => safeDiv(is.sgaExpense, is.revenue));
     const allRdPercent = allIS.map(is => safeDiv(is.rdExpense, is.revenue));
     const allOtherOpexPct = allIS.map(is => safeDiv(is.otherOpex, is.revenue));
-    const allTaxRate = allIS.map(is => is.taxRate);
+    // Use statutory assumption rate for ALL periods (not back-computed effective rate).
+    // Egypt's statutory CIT = 22.5%; the effective rate from historical data may differ.
+    const allTaxRate = Array.from({ length: nYears }, (_, i) => {
+        if (i < numHistorical) {
+            return Array.isArray(assumptions.taxRate) ? (assumptions.taxRate[0] ?? 0.225) : 0.225;
+        }
+        const projIdx = i - numHistorical;
+        return Array.isArray(assumptions.taxRate) ? (assumptions.taxRate[projIdx] ?? 0.225) : 0.225;
+    });
     const allOtherIncome = allIS.map(is => is.otherIncomeExpense);
     const allShares = allIS.map(is => is.sharesOutstanding);
     // SBC: derive from IS or CF engine results
@@ -1735,10 +1743,25 @@ export async function exportToExcel(
         },
         value: j => results.cashFlowStatements[j]?.changeInDeferredRev ?? 0,
     });
+    // VAT Working Capital Changes
+    addCFRow('Change in VAT Receivable', 'changeInVATReceivable', {
+        formula: (_cfCol, isCol, isYr) => {
+            const priorIsCol = colLetter(isYr + 1);
+            return `-('Balance Sheet'!${isCol}${bsRows['vatReceivable']}-'Balance Sheet'!${priorIsCol}${bsRows['vatReceivable']})`;
+        },
+        value: j => results.cashFlowStatements[j]?.changeInVATReceivable ?? 0,
+    });
+    addCFRow('Change in VAT Payable', 'changeInVATPayable', {
+        formula: (_cfCol, isCol, isYr) => {
+            const priorIsCol = colLetter(isYr + 1);
+            return `'Balance Sheet'!${isCol}${bsRows['vatPayable']}-'Balance Sheet'!${priorIsCol}${bsRows['vatPayable']}`;
+        },
+        value: j => results.cashFlowStatements[j]?.changeInVATPayable ?? 0,
+    });
 
-    // Total WC Change
+    // Total WC Change (includes all WC items + VAT)
     addCFRow('Total WC Change', 'totalWorkingCapitalChange', {
-        formula: (cfCol) => `SUM(${cfCol}${cfRows['changeInAR']}:${cfCol}${cfRows['changeInDeferredRev']})`,
+        formula: (cfCol) => `SUM(${cfCol}${cfRows['changeInAR']}:${cfCol}${cfRows['changeInVATPayable']})`,
         value: j => results.cashFlowStatements[j]?.totalWorkingCapitalChange ?? 0,
     });
 
