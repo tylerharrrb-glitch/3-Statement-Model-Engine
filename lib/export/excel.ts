@@ -1169,10 +1169,22 @@ export async function exportToExcel(
     });
 
     // VAT Receivable (FIX-07: VAT on CapEx)
-    addBSRow('VAT Receivable', 'vatReceivable', {
-        formula: (c, yr) => `IF(${aRef('enableVAT', yr)}=0,0,ABS('Income Statement'!${c}${isRows['revenue']}*${aRef('capexPercent', yr)})*${aRef('vatRate', yr)})`,
-        value: yr => results.balanceSheets[yr]?.vatReceivable ?? 0,
-    });
+    // VAT Receivable: historical = engine actuals; projected = live formula
+    bsRows['vatReceivable'] = bsRow;
+    bsSheet.getCell(bsRow, 1).value = 'VAT Receivable';
+    for (let i = 0; i < nYears; i++) {
+        const c = colLetter(i + 2);
+        const cell = bsSheet.getCell(bsRow, i + 2);
+        const raw = results.balanceSheets[i]?.vatReceivable ?? 0;
+        if (i < numHistorical) {
+            cell.value = Number(raw) || 0;
+        } else {
+            cell.value = { formula: `IF(${aRef('enableVAT', i)}=0,0,ABS('Income Statement'!${c}${isRows['revenue']}*${aRef('capexPercent', i)})*${aRef('vatRate', i)})`, result: Number(raw) || 0 };
+        }
+        cell.numFmt = NUM_FMT;
+    }
+    styleRow(bsSheet.getRow(bsRow), {});
+    bsRow++;
 
     // Total Current Assets = sum
     addBSRow('Total Current Assets', 'totalCurrentAssets', {
@@ -1285,10 +1297,22 @@ export async function exportToExcel(
     });
 
     // VAT Payable (FIX-07: net VAT liability on revenue)
-    addBSRow('VAT Payable', 'vatPayable', {
-        formula: (c, yr) => `IF(${aRef('enableVAT', yr)}=0,0,MAX(0,'Income Statement'!${c}${isRows['revenue']}*${aRef('vatRate', yr)}-ABS('Income Statement'!${c}${isRows['revenue']}*${aRef('capexPercent', yr)})*${aRef('vatRate', yr)}))`,
-        value: yr => results.balanceSheets[yr]?.vatPayable ?? 0,
-    });
+    // VAT Payable: historical = engine actuals; projected = live formula
+    bsRows['vatPayable'] = bsRow;
+    bsSheet.getCell(bsRow, 1).value = 'VAT Payable';
+    for (let i = 0; i < nYears; i++) {
+        const c = colLetter(i + 2);
+        const cell = bsSheet.getCell(bsRow, i + 2);
+        const raw = results.balanceSheets[i]?.vatPayable ?? 0;
+        if (i < numHistorical) {
+            cell.value = Number(raw) || 0;
+        } else {
+            cell.value = { formula: `IF(${aRef('enableVAT', i)}=0,0,MAX(0,'Income Statement'!${c}${isRows['revenue']}*${aRef('vatRate', i)}-ABS('Income Statement'!${c}${isRows['revenue']}*${aRef('capexPercent', i)})*${aRef('vatRate', i)}))`, result: Number(raw) || 0 };
+        }
+        cell.numFmt = NUM_FMT;
+    }
+    styleRow(bsSheet.getRow(bsRow), {});
+    bsRow++;
 
     addBSRow('Total Current Liabilities', 'totalCurrentLiabilities', {
         formula: (c) => `SUM(${c}${bsRows['accountsPayable']}:${c}${bsRows['vatPayable']})`,
