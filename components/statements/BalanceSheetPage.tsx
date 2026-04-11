@@ -111,7 +111,7 @@ export default function BalanceSheetPage() {
                                         <td>{row.label}</td>
                                         {statements.map((s, idx) => (
                                             <td key={s.period} className={colClass(idx, s)}>
-                                                {formatCurrency(s[row.key] as number, currency)}
+                                                {formatCurrency((s[row.key] as number) ?? 0, currency)}
                                             </td>
                                         ))}
                                     </tr>
