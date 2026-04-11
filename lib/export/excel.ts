@@ -1168,6 +1168,7 @@ export async function exportToExcel(
 
     // VAT Receivable (FIX-07: VAT on CapEx)
     addBSRow('VAT Receivable', 'vatReceivable', {
+        formula: (c, yr) => `IF(${aRef('enableVAT', yr)}=0,0,ABS('Income Statement'!${c}${isRows['revenue']}*${aRef('capexPercent', yr)})*${aRef('vatRate', yr)})`,
         value: yr => results.balanceSheets[yr]?.vatReceivable ?? 0,
     });
 
@@ -1283,6 +1284,7 @@ export async function exportToExcel(
 
     // VAT Payable (FIX-07: net VAT liability on revenue)
     addBSRow('VAT Payable', 'vatPayable', {
+        formula: (c, yr) => `IF(${aRef('enableVAT', yr)}=0,0,MAX(0,'Income Statement'!${c}${isRows['revenue']}*${aRef('vatRate', yr)}-ABS('Income Statement'!${c}${isRows['revenue']}*${aRef('capexPercent', yr)})*${aRef('vatRate', yr)}))`,
         value: yr => results.balanceSheets[yr]?.vatPayable ?? 0,
     });
 
