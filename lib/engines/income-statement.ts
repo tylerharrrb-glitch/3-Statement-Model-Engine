@@ -402,7 +402,9 @@ export function buildHistoricalIncomeStatements(
         const interestExpense = data.interestExpense[i];
         const otherIncomeExpense = data.otherIncomeExpense[i];
         const ebt = ebit + interestIncome - interestExpense + otherIncomeExpense;
-        const taxExpense = data.taxExpense[i];
+        // Formula-driven: use statutory rate × EBT when available, fall back to raw input
+        const statRate = statutoryTaxRate?.[i] ?? statutoryTaxRate?.[0];
+        const taxExpense = statRate != null ? Math.max(0, ebt) * statRate : data.taxExpense[i];
         const netIncome = ebt - taxExpense;
         const sharesOutstanding = data.sharesOutstanding[i];
 
@@ -431,7 +433,7 @@ export function buildHistoricalIncomeStatements(
             interestExpense,
             otherIncomeExpense,
             ebt,
-            taxRate: statutoryTaxRate?.[0] ?? (ebt !== 0 ? taxExpense / ebt : 0),
+            taxRate: statutoryTaxRate?.[i] ?? statutoryTaxRate?.[0] ?? (ebt !== 0 ? taxExpense / ebt : 0),
             taxExpense,
             netIncome,
             netMargin: revenue !== 0 ? netIncome / revenue : 0,
@@ -452,7 +454,7 @@ export function buildHistoricalIncomeStatements(
                 ? retainedEarnings[i] - retainedEarnings[i - 1]  // actual RE change
                 : netIncome,  // fallback: assume all NI flows to RE
             // Memo
-            nopat: ebit * (1 - (ebt !== 0 ? taxExpense / ebt : 0.225)),
+            nopat: ebit * (1 - (statutoryTaxRate?.[i] ?? statutoryTaxRate?.[0] ?? (ebt !== 0 ? taxExpense / ebt : 0.225))),
             fcff: 0, // historical FCFF not computed here
             sharesOutstanding,
             eps: sharesOutstanding !== 0 ? netIncome / sharesOutstanding : 0,

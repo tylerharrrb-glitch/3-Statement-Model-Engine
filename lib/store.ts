@@ -672,9 +672,16 @@ export const useModelStore = create<ModelStore>()(
                     }
                 }
 
+                // ── v9: Force recalc — historical IS now formula-driven (tax = EBT × statutory rate) ──
+                if (persisted?.scenarios && Array.isArray(persisted.scenarios)) {
+                    for (const s of persisted.scenarios) {
+                        s.results = null;
+                    }
+                }
+
                 return persisted;
             },
-            version: 8, // v8: CBE rate correction + declining rate arrays (April 2026 MPC)
+            version: 9, // v9: formula-driven historical tax expense + NOPAT
         },
     ),
 );
