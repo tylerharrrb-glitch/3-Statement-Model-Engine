@@ -383,6 +383,7 @@ export function buildHistoricalIncomeStatements(
         sharesOutstanding: number[];
     },
     retainedEarnings?: number[],  // Fix 8: optional BS RE array for actual additionToRE
+    statutoryTaxRate?: number[],  // Statutory rate for display (e.g. 22.5% Egypt CIT)
 ): IncomeStatement[] {
     return periods.map((period, i) => {
         const revenue = data.revenue[i];
@@ -430,7 +431,7 @@ export function buildHistoricalIncomeStatements(
             interestExpense,
             otherIncomeExpense,
             ebt,
-            taxRate: ebt !== 0 ? taxExpense / ebt : 0,
+            taxRate: statutoryTaxRate?.[0] ?? (ebt !== 0 ? taxExpense / ebt : 0),
             taxExpense,
             netIncome,
             netMargin: revenue !== 0 ? netIncome / revenue : 0,

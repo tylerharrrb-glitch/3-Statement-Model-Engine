@@ -379,7 +379,7 @@ export function getDefaultHistoricalInputs(): HistoricalInputs {
         interestIncome: [2_500, 3_000],
         interestExpense: [14_000, 13_000],
         otherIncomeExpense: [0, 0],
-        taxExpense: [27_375, 31_250],
+        taxExpense: [24_413, 27_900],  // EBT × 22.5% Egypt CIT
         sharesOutstanding: [100_000, 100_000],
         cash,
         accountsReceivable,

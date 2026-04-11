@@ -25,6 +25,7 @@ export default function CashFlowPage() {
                 { label: 'Δ Accounts Receivable', key: 'changeInAR' }, { label: 'Δ Inventory', key: 'changeInInventory' },
                 { label: 'Δ Prepaid Expenses', key: 'changeInPrepaid' }, { label: 'Δ Accounts Payable', key: 'changeInAP' },
                 { label: 'Δ Accrued Expenses', key: 'changeInAccruedExp' }, { label: 'Δ Deferred Revenue', key: 'changeInDeferredRev' },
+                { label: 'Δ VAT Receivable', key: 'changeInVATReceivable' }, { label: 'Δ VAT Payable', key: 'changeInVATPayable' },
                 { label: 'Total WC Change', key: 'totalWorkingCapitalChange', bold: true },
                 { label: 'Cash from Operations', key: 'cashFromOperations', bold: true },
             ]

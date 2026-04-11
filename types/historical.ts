@@ -166,7 +166,7 @@ export function getDefaultHistoricalData(): HistoricalDataInput[] {
       interestIncome: 2_500,
       interestExpense: 14_000,
       otherIncomeExpense: 0,
-      taxExpense: 27_375,
+      taxExpense: 24_413,  // EBT 108,500 × 22.5% Egypt CIT
       sharesOutstanding: 100_000,
       cash: 175_000,
       accountsReceivable: 104_795,
@@ -205,7 +205,7 @@ export function getDefaultHistoricalData(): HistoricalDataInput[] {
       interestIncome: 3_000,
       interestExpense: 13_000,
       otherIncomeExpense: 0,
-      taxExpense: 31_250,
+      taxExpense: 27_900,  // EBT 124,000 × 22.5% Egypt CIT
       sharesOutstanding: 100_000,
       cash: 200_000,
       accountsReceivable: 117_123,

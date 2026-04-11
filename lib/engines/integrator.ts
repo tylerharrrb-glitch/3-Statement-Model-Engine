@@ -32,6 +32,7 @@ export function runFullModel(
         correctedPeriods,
         historicalInputs,
         historicalInputs.retainedEarnings,  // Fix 8: actual RE for additionToRE
+        assumptions.taxRate,                 // Statutory tax rate for display
     );
 
     const historicalBS = buildHistoricalBalanceSheets(

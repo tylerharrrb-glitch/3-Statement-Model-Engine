@@ -148,8 +148,11 @@ export function buildHistoricalCashFlows(
         const changeInAP = curr.accountsPayable - prev.accountsPayable;
         const changeInAccruedExp = curr.accruedExpenses - prev.accruedExpenses;
         const changeInDeferredRev = curr.deferredRevenue - prev.deferredRevenue;
+        const changeInVATReceivable = -((curr.vatReceivable ?? 0) - (prev.vatReceivable ?? 0));
+        const changeInVATPayable = (curr.vatPayable ?? 0) - (prev.vatPayable ?? 0);
         const totalWorkingCapitalChange = changeInAR + changeInInventory + changeInPrepaid +
-            changeInAP + changeInAccruedExp + changeInDeferredRev;
+            changeInAP + changeInAccruedExp + changeInDeferredRev +
+            changeInVATReceivable + changeInVATPayable;
 
         // SBC: use the IS depreciation/amortization for non-cash adjustments,
         // and estimate SBC from the equity change not explained by NI, dividends, etc.
@@ -208,8 +211,8 @@ export function buildHistoricalCashFlows(
             changeInAP,
             changeInAccruedExp,
             changeInDeferredRev,
-            changeInVATReceivable: 0,   // Historical — not retroactively modeled
-            changeInVATPayable: 0,      // Historical — not retroactively modeled
+            changeInVATReceivable,
+            changeInVATPayable,
             totalWorkingCapitalChange,
             cashFromOperations,
             capex,

@@ -18,6 +18,7 @@ export default function BalanceSheetPage() {
                 { label: 'Cash', key: 'cash' }, { label: 'Accounts Receivable', key: 'accountsReceivable' },
                 { label: 'Inventory', key: 'inventory' }, { label: 'Prepaid Expenses', key: 'prepaidExpenses' },
                 { label: 'Other Current Assets', key: 'otherCurrentAssets' },
+                { label: 'VAT Receivable', key: 'vatReceivable' },
                 { label: 'Total Current Assets', key: 'totalCurrentAssets', bold: true },
             ]
         },
@@ -35,6 +36,7 @@ export default function BalanceSheetPage() {
                 { label: 'Accounts Payable', key: 'accountsPayable' }, { label: 'Accrued Expenses', key: 'accruedExpenses' },
                 { label: 'Short-Term Debt', key: 'shortTermDebt' }, { label: 'Current Portion LTD', key: 'currentPortionLTD' },
                 { label: 'Deferred Revenue', key: 'deferredRevenue' }, { label: 'Other Current Liabilities', key: 'otherCurrentLiabilities' },
+                { label: 'VAT Payable', key: 'vatPayable' },
                 { label: 'Total Current Liabilities', key: 'totalCurrentLiabilities', bold: true },
             ]
         },
