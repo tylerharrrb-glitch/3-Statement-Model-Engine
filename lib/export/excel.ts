@@ -584,6 +584,8 @@ export async function exportToExcel(
     addAssumptionRow('R&D % of Revenue', 'rdPercent', allRdPercent, PCT_FMT);
     addAssumptionRow('Other OpEx % of Revenue', 'otherOpexPercent', allOtherOpexPct, PCT_FMT);
     addAssumptionRow('Tax Rate', 'taxRate', allTaxRate, PCT_FMT);
+    addAssumptionRow('VAT Enabled (1=Yes)', 'enableVAT', Array(nYears).fill(assumptions.enableVAT ? 1 : 0), '0');
+    addAssumptionRow('VAT Rate', 'vatRate', Array(nYears).fill(assumptions.vatRate ?? 0.14), PCT_FMT);
     addAssumptionRow('Other Income / Expense', 'otherIncomeExpense', allOtherIncome, NUM_FMT);
     addAssumptionRow('Shares Outstanding', 'sharesOutstanding', allShares, '#,##0');
     addAssumptionRow('Stock-Based Comp Amount', 'stockBasedCompAmount', allSBC, NUM_FMT);
