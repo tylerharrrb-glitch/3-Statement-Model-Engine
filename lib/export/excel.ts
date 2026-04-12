@@ -305,22 +305,16 @@ export async function exportToExcel(
     const allAmort = allIS.map(is => is.amortization);
 
     // Pad interest rate arrays to nYears (they may only have projectionYears entries)
-    // Historical periods: back-compute effective rate from actuals (interestExpense / totalDebt)
-    // Projected periods: use the per-year assumption schedule
-    const allInterestRate = Array.from({ length: nYears }, (_, i) => {
-        if (i < numHistorical) {
-            const totalDebt = (allBS[i]?.shortTermDebt ?? 0) + (allBS[i]?.longTermDebt ?? 0) + (allBS[i]?.currentPortionLTD ?? 0);
-            return totalDebt > 0 ? safeDiv(allIS[i]?.interestExpense ?? 0, totalDebt) : 0;
-        }
-        return assumptions.interestRateOnDebt[i - numHistorical] ?? assumptions.interestRateOnDebt[assumptions.interestRateOnDebt.length - 1] ?? 0.22;
-    });
-    const allInterestIncRate = Array.from({ length: nYears }, (_, i) => {
-        if (i < numHistorical) {
-            const cash = allBS[i]?.cash ?? 0;
-            return cash > 0 ? safeDiv(allIS[i]?.interestIncome ?? 0, cash) : 0;
-        }
-        return assumptions.interestRateOnCash[i - numHistorical] ?? assumptions.interestRateOnCash[assumptions.interestRateOnCash.length - 1] ?? 0.18;
-    });
+    const allInterestRate = Array.from({ length: nYears }, (_, i) =>
+        i < numHistorical
+            ? (assumptions.interestRateOnDebt[0] ?? 0.22)
+            : (assumptions.interestRateOnDebt[i - numHistorical] ?? assumptions.interestRateOnDebt[assumptions.interestRateOnDebt.length - 1] ?? 0.22)
+    );
+    const allInterestIncRate = Array.from({ length: nYears }, (_, i) =>
+        i < numHistorical
+            ? (assumptions.interestRateOnCash[0] ?? 0.18)
+            : (assumptions.interestRateOnCash[i - numHistorical] ?? assumptions.interestRateOnCash[assumptions.interestRateOnCash.length - 1] ?? 0.18)
+    );
     const allSTDebt = allBS.map(bs => bs.shortTermDebt);
     // LTD Issuance/Repayment — back-compute from BS LTD changes
     const allLTDIssuance = allBS.map((bs, i) => {
