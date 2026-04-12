@@ -24,6 +24,8 @@ export default function CBERateBanner() {
                 riskFreeRate: 0.235,
                 interestRateOnDebt: [0.22, 0.20, 0.18, 0.17, 0.16],
                 interestRateOnCash: [0.19, 0.17, 0.15, 0.13, 0.12],
+                historicalInterestRateOnDebt: [0.295, 0.245],
+                historicalInterestRateOnCash: [0.255, 0.215],
             },
             results: null,
         }));

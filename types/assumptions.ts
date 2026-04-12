@@ -28,8 +28,10 @@ export interface AssumptionSet {
 
     // Debt & Financing — per-year rates (Egyptian market: CBE-linked)
     cbeRate: number;                    // CBE overnight rate (master input)
-    interestRateOnDebt: number[];       // Per projected year, e.g. [0.22, 0.22, 0.20, 0.18, 0.18]
-    interestRateOnCash: number[];       // Per projected year, e.g. [0.22, 0.20, 0.18, 0.16, 0.15]
+    interestRateOnDebt: number[];       // Per projected year, e.g. [0.22, 0.20, 0.18, 0.17, 0.16]
+    interestRateOnCash: number[];       // Per projected year, e.g. [0.19, 0.17, 0.15, 0.13, 0.12]
+    historicalInterestRateOnDebt: number[];  // Per historical year, e.g. [0.295, 0.245] for 2024, 2025
+    historicalInterestRateOnCash: number[];  // Per historical year, e.g. [0.255, 0.215] for 2024, 2025
     legacyDebtRate: number;             // Rate on existing historical debt tranches
     shortTermDebtAmount: number[];
     longTermDebtIssuance: number[];
@@ -217,8 +219,11 @@ export function getDefaultAssumptions(): AssumptionSet {
         amortizationAmount: fill(5_000),
 
         cbeRate: 0.195,                       // CBE main operation / discount rate (April 2, 2026 MPC)
-        interestRateOnDebt: [0.22, 0.20, 0.18, 0.17, 0.16],  // CBE lending + 200bps spread, declining
+        interestRateOnDebt: [0.22, 0.20, 0.18, 0.17, 0.16],  // CBE lending + 250bps spread, declining
         interestRateOnCash: [0.19, 0.17, 0.15, 0.13, 0.12],  // CBE deposit rate, declining path
+        // Historical rates: period-appropriate CBE policy rate + typical corporate spread
+        historicalInterestRateOnDebt: [0.295, 0.245],  // 2024: CBE 27.25%+spread, 2025: CBE blended ~23%+spread
+        historicalInterestRateOnCash: [0.255, 0.215],  // 2024: CBE deposit corridor, 2025: declining
         legacyDebtRate: 0.045,
         shortTermDebtAmount: fill(50_000),
         longTermDebtIssuance: fill(0),

@@ -207,6 +207,7 @@ export async function exportToExcel(
             'initialLegalReserve', 'priorPeriodDividendsPaidFromRE',
             'depreciationMethod', 'enableEndOfServiceBenefit',
             'interestRateOnDebt', 'interestRateOnCash',
+            'historicalInterestRateOnDebt', 'historicalInterestRateOnCash',
         ];
         for (const key of GLOBAL_KEYS) {
             if (assumptions[key] !== undefined) {
@@ -304,15 +305,17 @@ export async function exportToExcel(
     const allDepRate = allIS.map((is, i) => safeDiv(is.depreciation, allBS[i]?.grossPPE ?? 1));
     const allAmort = allIS.map(is => is.amortization);
 
-    // Pad interest rate arrays to nYears (they may only have projectionYears entries)
+    // Period-indexed interest rate schedule:
+    // Historical years use historicalInterestRateOnDebt (CBE + spread for that period)
+    // Projected years use interestRateOnDebt (forward assumption, user-editable)
     const allInterestRate = Array.from({ length: nYears }, (_, i) =>
         i < numHistorical
-            ? (assumptions.interestRateOnDebt[0] ?? 0.22)
+            ? (assumptions.historicalInterestRateOnDebt?.[i] ?? assumptions.interestRateOnDebt[0] ?? 0.22)
             : (assumptions.interestRateOnDebt[i - numHistorical] ?? assumptions.interestRateOnDebt[assumptions.interestRateOnDebt.length - 1] ?? 0.22)
     );
     const allInterestIncRate = Array.from({ length: nYears }, (_, i) =>
         i < numHistorical
-            ? (assumptions.interestRateOnCash[0] ?? 0.18)
+            ? (assumptions.historicalInterestRateOnCash?.[i] ?? assumptions.interestRateOnCash[0] ?? 0.18)
             : (assumptions.interestRateOnCash[i - numHistorical] ?? assumptions.interestRateOnCash[assumptions.interestRateOnCash.length - 1] ?? 0.18)
     );
     const allSTDebt = allBS.map(bs => bs.shortTermDebt);

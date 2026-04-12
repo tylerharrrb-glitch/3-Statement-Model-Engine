@@ -280,6 +280,7 @@ export const useModelStore = create<ModelStore>()(
                     'initialLegalReserve', 'priorPeriodDividendsPaidFromRE',
                     'depreciationMethod', 'enableEndOfServiceBenefit',
                     'interestRateOnDebt', 'interestRateOnCash',
+                    'historicalInterestRateOnDebt', 'historicalInterestRateOnCash',
                 ] as const;
 
                 // Compute each scenario INDEPENDENTLY — if one fails, others still succeed
@@ -497,6 +498,8 @@ export const useModelStore = create<ModelStore>()(
                         updatedAssumptions.cbeRate = 0.195;
                         updatedAssumptions.interestRateOnDebt = [0.22, 0.20, 0.18, 0.17, 0.16];
                         updatedAssumptions.interestRateOnCash = [0.19, 0.17, 0.15, 0.13, 0.12];
+                        updatedAssumptions.historicalInterestRateOnDebt = [0.295, 0.245];
+                        updatedAssumptions.historicalInterestRateOnCash = [0.255, 0.215];
                         updatedAssumptions.legacyDebtRate = 0.045;
                         updatedAssumptions.employeeProfitSharingRate = 0.10;
                     } else if (preset === 'us') {
@@ -679,9 +682,27 @@ export const useModelStore = create<ModelStore>()(
                     }
                 }
 
+                // ── v10: Period-indexed historical interest rates (CBE + corporate spread) ──
+                // Previously historical years in Excel showed the first projected rate (22%).
+                // Now each historical year gets a period-appropriate default rate.
+                if (persisted?.scenarios && Array.isArray(persisted.scenarios)) {
+                    for (const s of persisted.scenarios) {
+                        const a = s?.assumptions;
+                        if (!a) continue;
+                        if (!a.historicalInterestRateOnDebt) {
+                            // Default: 2024 CBE 27.25%+spread, 2025 CBE blended ~23%+spread
+                            a.historicalInterestRateOnDebt = [0.295, 0.245];
+                        }
+                        if (!a.historicalInterestRateOnCash) {
+                            a.historicalInterestRateOnCash = [0.255, 0.215];
+                        }
+                        s.results = null; // force recalc
+                    }
+                }
+
                 return persisted;
             },
-            version: 9, // v9: formula-driven historical tax expense + NOPAT
+            version: 10, // v10: period-indexed historical interest rates
         },
     ),
 );

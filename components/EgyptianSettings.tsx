@@ -207,6 +207,59 @@ export default function EgyptianSettings() {
                 <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
                     Interest Rate Schedule
                 </div>
+
+                {/* Historical Interest Rates */}
+                <div style={{ marginBottom: 12, padding: 10, background: 'var(--bg-primary)', borderRadius: 6 }}>
+                    <div style={{ fontSize: 11, fontWeight: 600, marginBottom: 6, color: 'var(--text-muted)' }}>
+                        Historical Rates (CBE + corporate spread)
+                    </div>
+                    <div style={{ display: 'flex', gap: 16 }}>
+                        {(a.historicalInterestRateOnDebt ?? [0.295, 0.245]).map((rate: number, i: number) => {
+                            const yr = a.startYear - a.historicalYears + i;
+                            return (
+                                <div key={i} style={{ textAlign: 'center' }}>
+                                    <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 2 }}>{yr} Debt</div>
+                                    <input
+                                        className="fin-input"
+                                        type="number"
+                                        step="0.5"
+                                        value={(rate * 100).toFixed(1)}
+                                        onChange={(e) => {
+                                            const arr = [...(a.historicalInterestRateOnDebt ?? [0.295, 0.245])];
+                                            arr[i] = parseFloat(e.target.value) / 100 || 0.22;
+                                            updateAssumption('historicalInterestRateOnDebt', arr);
+                                        }}
+                                        style={{ width: 60, textAlign: 'right', fontSize: 11 }}
+                                    />
+                                </div>
+                            );
+                        })}
+                        {(a.historicalInterestRateOnCash ?? [0.255, 0.215]).map((rate: number, i: number) => {
+                            const yr = a.startYear - a.historicalYears + i;
+                            return (
+                                <div key={`cash-${i}`} style={{ textAlign: 'center' }}>
+                                    <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 2 }}>{yr} Cash</div>
+                                    <input
+                                        className="fin-input"
+                                        type="number"
+                                        step="0.5"
+                                        value={(rate * 100).toFixed(1)}
+                                        onChange={(e) => {
+                                            const arr = [...(a.historicalInterestRateOnCash ?? [0.255, 0.215])];
+                                            arr[i] = parseFloat(e.target.value) / 100 || 0.18;
+                                            updateAssumption('historicalInterestRateOnCash', arr);
+                                        }}
+                                        style={{ width: 60, textAlign: 'right', fontSize: 11 }}
+                                    />
+                                </div>
+                            );
+                        })}
+                    </div>
+                    <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 4 }}>
+                        Override with your company&apos;s actual historical rates if different from CBE corridor defaults.
+                    </div>
+                </div>
+
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
                     <label style={{ fontSize: 13, minWidth: 180 }}>Formula-Driven Rates</label>
                     <input
