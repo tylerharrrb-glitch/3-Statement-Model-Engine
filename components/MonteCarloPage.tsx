@@ -130,7 +130,7 @@ export default function MonteCarloPage() {
                                 <Tooltip
                                     contentStyle={{ background: '#16161e', border: '1px solid #2a2a3e', borderRadius: 8, fontSize: 12 }}
                                     labelFormatter={v => formatCurrency(Number(v), currency)}
-                                    formatter={(count: number | undefined) => [count ?? 0, 'Frequency']}
+                                    formatter={(count) => [Number(count) ?? 0, 'Frequency']}
                                 />
                                 <ReferenceLine x={activeResult.statistics.mean} stroke="var(--accent-amber)" strokeDasharray="4 4" label={{ value: 'Mean', fill: 'var(--accent-amber)', fontSize: 10 }} />
                                 <Bar dataKey="count" fill="var(--accent-blue)" radius={[2, 2, 0, 0]} />
