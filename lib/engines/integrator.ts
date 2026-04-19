@@ -15,10 +15,105 @@ import { resolveCircularReferences, validateIntegration } from './circular-resol
 import { calculateFinancialRatios } from '@/lib/ratios';
 import { calculateDCF } from './dcf';
 
-export function runFullModel(
+/**
+ * Seed carry-forward assumption arrays from the last historical period.
+ * Fixes placeholder-default bug where `getDefaultAssumptions()` returns
+ * small numbers (e.g. commonStock 10_000, sharesOutstanding 100_000) that
+ * override real historical balances (e.g. 17B commonStock) because the
+ * balance-sheet engine reads `assumptions.X[yr] ?? prev.X` and the
+ * assumption array is always populated.
+ *
+ * Rule: if the first-year assumption value is materially smaller than the
+ * last historical value (<10% of it), treat the assumption as a placeholder
+ * and replace the entire array with the last historical value.
+ */
+function seedAssumptionsFromHistorical(
     assumptions: AssumptionSet,
     historicalInputs: HistoricalInputs,
+): AssumptionSet {
+    const n = historicalInputs.cash.length;
+    if (n === 0) return assumptions;
+    const last = n - 1;
+    const years = assumptions.projectionYears;
+    const fill = <T>(v: T): T[] => Array(years).fill(v);
+
+    const isPlaceholder = (arr: number[] | undefined, histVal: number): boolean => {
+        if (!arr || arr.length === 0) return true;
+        const first = arr[0] ?? 0;
+        // Treat as placeholder when historical is materially larger
+        return Math.abs(histVal) > 0 && Math.abs(first) < Math.abs(histVal) * 0.1;
+    };
+
+    const seeded: AssumptionSet = { ...assumptions };
+
+    // Balance-sheet stock items — carry last historical value forward
+    const carryFields: Array<{ key: keyof AssumptionSet; hist: number }> = [
+        { key: 'commonStock', hist: historicalInputs.commonStock[last] },
+        { key: 'apic', hist: historicalInputs.additionalPaidInCapital[last] },
+        { key: 'goodwill', hist: historicalInputs.goodwill[last] },
+        { key: 'otherLongTermAssets', hist: historicalInputs.otherLongTermAssets[last] },
+        { key: 'otherCurrentAssets', hist: historicalInputs.otherCurrentAssets[last] },
+        { key: 'otherCurrentLiabilities', hist: historicalInputs.otherCurrentLiabilities[last] },
+        { key: 'otherLongTermLiabilities', hist: historicalInputs.otherLongTermLiabilities[last] },
+        { key: 'deferredTaxLiabilities', hist: historicalInputs.deferredTaxLiabilities[last] },
+        { key: 'shortTermDebtAmount', hist: historicalInputs.shortTermDebt[last] },
+        { key: 'currentPortionLTD', hist: historicalInputs.currentPortionLTD[last] },
+        { key: 'oci', hist: historicalInputs.otherComprehensiveIncome[last] },
+    ];
+    for (const { key, hist } of carryFields) {
+        if (isPlaceholder(seeded[key] as number[] | undefined, hist)) {
+            (seeded as unknown as Record<string, unknown>)[key as string] = fill(hist);
+        }
+    }
+
+    // Shares outstanding — carry last historical forward
+    if (historicalInputs.sharesOutstanding && historicalInputs.sharesOutstanding.length > 0) {
+        const histShares = historicalInputs.sharesOutstanding[last] ?? 0;
+        if (isPlaceholder(seeded.sharesOutstanding, histShares)) {
+            seeded.sharesOutstanding = fill(histShares);
+        }
+    }
+
+    // Paid-up capital — default to opening common stock (for legal-reserve cap)
+    const histCommon = historicalInputs.commonStock[last] ?? 0;
+    if (Math.abs(histCommon) > 0 && Math.abs(seeded.paidUpCapital ?? 0) < Math.abs(histCommon) * 0.1) {
+        seeded.paidUpCapital = histCommon;
+    }
+
+    // Stock-based comp — default to 0 to prevent APIC drift from the 10k placeholder
+    if (seeded.stockBasedCompAmount && seeded.stockBasedCompAmount.every(v => v === 10_000)) {
+        seeded.stockBasedCompAmount = fill(0);
+    }
+
+    // Working-capital % drivers — seed from last historical ratios if placeholder
+    if (n >= 1) {
+        const rev = historicalInputs.revenue?.[last] ?? 0;
+        if (rev > 0) {
+            const prepaidRatio = (historicalInputs.prepaidExpenses[last] ?? 0) / rev;
+            const accruedRatio = (historicalInputs.accruedExpenses[last] ?? 0) / rev;
+            const defRevRatio = (historicalInputs.deferredRevenue[last] ?? 0) / rev;
+            // Replace only if default is suspiciously round (0.01/0.03/0.02) and historical differs
+            const closeTo = (a: number, b: number) => Math.abs(a - b) < 1e-6;
+            if (seeded.prepaidPercent?.every(v => closeTo(v, 0.01)) && !closeTo(prepaidRatio, 0.01)) {
+                seeded.prepaidPercent = fill(prepaidRatio);
+            }
+            if (seeded.accruedExpPercent?.every(v => closeTo(v, 0.03)) && !closeTo(accruedRatio, 0.03)) {
+                seeded.accruedExpPercent = fill(accruedRatio);
+            }
+            if (seeded.deferredRevPercent?.every(v => closeTo(v, 0.02)) && !closeTo(defRevRatio, 0.02)) {
+                seeded.deferredRevPercent = fill(defRevRatio);
+            }
+        }
+    }
+
+    return seeded;
+}
+
+export function runFullModel(
+    rawAssumptions: AssumptionSet,
+    historicalInputs: HistoricalInputs,
 ): ModelResults {
+    const assumptions = seedAssumptionsFromHistorical(rawAssumptions, historicalInputs);
     // ── SANITIZE HISTORICAL PERIOD LABELS ─────────────────
     // Ensure labels count BACK from projectionStartYear:
     // With startYear=2026 and 2 periods → ["2024", "2025"]

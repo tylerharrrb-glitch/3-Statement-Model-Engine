@@ -207,7 +207,12 @@ export default function CBEMetricsPage() {
     };
 
     // ── Model vs Market analysis ──────────────────────
-    const modelDebtRate = a?.interestRateOnDebt?.[0] ?? 0;
+    const _rates = a?.interestRateOnDebt ?? [];
+    const _py = a?.projectionYears ?? _rates.length;
+    const _slice = _rates.slice(0, _py);
+    const modelDebtRate = _slice.length > 0
+        ? _slice.reduce((x: number, y: number) => x + y, 0) / _slice.length
+        : 0;
     const debtRateWarning = modelDebtRate < 0.20;
     const impliedSpread = modelDebtRate - CBE_POLICY_RATE;
     const scenarioType = scenario?.type ?? 'base';

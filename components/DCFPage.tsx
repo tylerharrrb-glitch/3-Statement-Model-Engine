@@ -93,8 +93,12 @@ export default function DCFPage() {
 
             {/* Rate Warning */}
             {(() => {
-                const projIdx2 = (scenario.results?.incomeStatements.length ?? 0) - (scenario.results?.incomeStatements.filter((s: any) => s.periodType === 'historical').length ?? 0) - 1;
-                const modelDebtRate = scenario.assumptions.interestRateOnDebt?.[Math.max(0, projIdx2)] ?? 0.18;
+                const rates: number[] = scenario.assumptions.interestRateOnDebt ?? [];
+                const py = scenario.assumptions.projectionYears ?? rates.length;
+                const slice = rates.slice(0, py);
+                const modelDebtRate = slice.length > 0
+                    ? slice.reduce((a: number, b: number) => a + b, 0) / slice.length
+                    : 0.18;
                 const CBE_RATE = 0.195; // CBE discount rate (April 2, 2026 MPC)
                 if (modelDebtRate < 0.20) {
                     return (

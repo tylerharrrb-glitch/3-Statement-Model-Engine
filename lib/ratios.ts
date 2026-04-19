@@ -32,10 +32,10 @@ export function calculateFinancialRatios(
     const dio = is.cogs !== 0 ? (bs.inventory / is.cogs) * 365 : 0;
     const dpo = is.cogs !== 0 ? (bs.accountsPayable / is.cogs) * 365 : 0;
 
-    // ROE and ROA — use ending balances (matches UI)
-    const roe = bs.totalEquity !== 0 ? is.netIncome / bs.totalEquity : 0;
-    const roa = bs.totalAssets !== 0 ? is.netIncome / bs.totalAssets : 0;
-    const assetTurnover = bs.totalAssets !== 0 ? is.revenue / bs.totalAssets : 0;
+    // ROE and ROA — use AVERAGE balances (standard practice)
+    const roe = avgEquity !== 0 ? is.netIncome / avgEquity : 0;
+    const roa = avgTotalAssets !== 0 ? is.netIncome / avgTotalAssets : 0;
+    const assetTurnover = avgTotalAssets !== 0 ? is.revenue / avgTotalAssets : 0;
     const equityMultiplier = bs.totalEquity !== 0 ? bs.totalAssets / bs.totalEquity : 0;
 
     // ── DuPont Analysis (I2) ────────────────────────────
@@ -113,8 +113,10 @@ export function calculateFinancialRatios(
         netMargin: is.netMargin,
         roe,
         roa,
-        // ROIC uses Net IC (equity + debt − cash) to match UI
-        roic: (investedCapital - bs.cash) !== 0 ? nopat / (investedCapital - bs.cash) : 0,
+        // ROIC uses AVERAGE Net IC (equity + debt − cash) — standard practice
+        roic: (avgInvestedCapital - (bs.cash + previousBS.cash) / 2) !== 0
+            ? nopat / (avgInvestedCapital - (bs.cash + previousBS.cash) / 2)
+            : 0,
 
         // Liquidity
         currentRatio: bs.totalCurrentLiabilities !== 0

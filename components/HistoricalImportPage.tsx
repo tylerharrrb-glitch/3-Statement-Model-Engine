@@ -3,14 +3,32 @@
 import { useState, useRef } from 'react';
 import { useModelStore } from '@/lib/store';
 import { HistoricalInputs } from '@/types/assumptions';
+import { HistoricalDataInput } from '@/types/historical';
 
 type ImportStatus = 'idle' | 'parsing' | 'success' | 'error';
 
+// A preview payload — may be just historical inputs, or a full model export
+interface ImportPreview {
+    historicalInputs: HistoricalInputs;
+    assumptions?: unknown;           // AssumptionSet, loosely typed (may come from older exports)
+    scenarios?: unknown[];           // Scenario[]
+    companyInfo?: {
+        companyName?: string;
+        ticker?: string;
+        industry?: string;
+        currency?: string;
+        country?: string;
+        fiscalYearEnd?: string;
+        valuationDate?: string;
+    };
+    isFullModel: boolean;
+}
+
 export default function HistoricalImportPage() {
-    const { setHistoricalInputs, historicalInputs, calculateModel } = useModelStore();
+    const { setHistoricalInputs, historicalInputs, calculateAllScenarios } = useModelStore();
     const [status, setStatus] = useState<ImportStatus>('idle');
     const [error, setError] = useState('');
-    const [preview, setPreview] = useState<HistoricalInputs | null>(null);
+    const [preview, setPreview] = useState<ImportPreview | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -24,17 +42,20 @@ export default function HistoricalImportPage() {
         reader.onload = (event) => {
             try {
                 const text = event.target?.result as string;
-                let parsed: HistoricalInputs;
+                let parsed: ImportPreview;
 
                 if (file.name.endsWith('.json')) {
                     parsed = parseJSON(text);
                 } else if (file.name.endsWith('.csv')) {
-                    parsed = parseCSV(text);
+                    parsed = {
+                        historicalInputs: parseCSV(text),
+                        isFullModel: false,
+                    };
                 } else {
                     throw new Error('Unsupported file format. Use .json or .csv');
                 }
 
-                validateHistoricalInputs(parsed);
+                validateHistoricalInputs(parsed.historicalInputs);
                 setPreview(parsed);
                 setStatus('success');
             } catch (err) {
@@ -47,12 +68,84 @@ export default function HistoricalImportPage() {
             setStatus('error');
         };
         reader.readAsText(file);
+
+        // Clear input so re-uploading the same file still fires onChange
+        e.target.value = '';
     };
 
     const handleApply = () => {
         if (!preview) return;
-        setHistoricalInputs(preview);
-        calculateModel();
+
+        // Infer startYear from scenario assumptions (fall back to current active scenario)
+        // so we can repair duplicated/blank period labels (a known historical export bug
+        // produced ["2025","2025"] instead of ["2024","2025"]).
+        const state = useModelStore.getState();
+        const activeScenario = state.scenarios.find(s => s.id === state.activeScenarioId);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const firstImportedAssumptions = (preview.scenarios?.[0] as any)?.assumptions ?? preview.assumptions;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const inferredStartYear: number = (firstImportedAssumptions as any)?.startYear
+            ?? activeScenario?.assumptions?.startYear
+            ?? 2026;
+
+        const repairedInputs = repairPeriodLabels(preview.historicalInputs, inferredStartYear);
+
+        // 1. Rebuild per-year historical data so the UI (which reads historicalData)
+        //    actually reflects the imported numbers.
+        const perYear = convertFromHistoricalInputs(repairedInputs);
+
+        // 2. Build the state patch — full-model JSONs also replace scenarios & companyInfo.
+        const patch: Record<string, unknown> = {
+            historicalData: perYear,
+            historicalInputs: repairedInputs,
+        };
+
+        if (preview.isFullModel) {
+            if (preview.scenarios && Array.isArray(preview.scenarios) && preview.scenarios.length > 0) {
+                const now = new Date().toISOString();
+                patch.scenarios = preview.scenarios.map((raw, idx) => {
+                    const s = raw as Record<string, unknown>;
+                    return {
+                        id: (s.id as string) ?? `imported-${idx}-${now}`,
+                        name: (s.name as string) ?? `Imported ${idx + 1}`,
+                        type: (s.type as string) ?? 'custom',
+                        description: (s.description as string) ?? '',
+                        assumptions: s.assumptions,
+                        results: null, // force recompute
+                        createdAt: (s.createdAt as string) ?? now,
+                        updatedAt: now,
+                    };
+                });
+                const firstId = (patch.scenarios as Array<{ id: string }>)[0].id;
+                patch.activeScenarioId = firstId;
+            } else if (preview.assumptions) {
+                // No scenarios array → patch every scenario's assumptions with the import.
+                patch.scenarios = state.scenarios.map(s => ({
+                    ...s,
+                    assumptions: preview.assumptions as typeof s.assumptions,
+                    results: null,
+                    updatedAt: new Date().toISOString(),
+                }));
+            }
+
+            if (preview.companyInfo) {
+                const ci = preview.companyInfo;
+                if (ci.companyName !== undefined) patch.companyName = ci.companyName;
+                if (ci.ticker !== undefined) patch.ticker = ci.ticker;
+                if (ci.industry !== undefined) patch.industry = ci.industry;
+                if (ci.currency !== undefined) patch.currency = ci.currency;
+                if (ci.country !== undefined) patch.country = ci.country;
+                if (ci.fiscalYearEnd !== undefined) patch.fiscalYearEnd = ci.fiscalYearEnd;
+                if (ci.valuationDate !== undefined) patch.valuationDate = ci.valuationDate;
+            }
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        useModelStore.setState(patch as any);
+        void setHistoricalInputs;
+
+        // Recalculate ALL scenarios (not just active) so imported scenarios all refresh.
+        calculateAllScenarios();
         setStatus('idle');
         setPreview(null);
     };
@@ -85,7 +178,7 @@ export default function HistoricalImportPage() {
                 <ol style={{ paddingLeft: 20, lineHeight: 2, fontSize: 13, color: 'var(--text-secondary)' }}>
                     <li>Download the <strong>JSON template</strong> below to see the expected format</li>
                     <li>Fill in your historical financial data (3 periods recommended)</li>
-                    <li>Upload the file (.json or .csv)</li>
+                    <li>Upload the file (.json or .csv) — full-model JSON exports are also accepted</li>
                     <li>Review the preview, then click <strong>Apply</strong></li>
                 </ol>
                 <button
@@ -128,18 +221,23 @@ export default function HistoricalImportPage() {
             {preview && status === 'success' && (
                 <div className="metric-card" style={{ marginBottom: 20 }}>
                     <h3 style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--accent-emerald)' }}>
-                        ✓ Preview — {preview.periods.length} periods detected
+                        ✓ Preview — {preview.historicalInputs.periods.length} period(s) detected
+                        {preview.isFullModel && (
+                            <span style={{ marginLeft: 8, fontSize: 11, color: 'var(--accent-blue)' }}>
+                                · Full-model export (assumptions{preview.scenarios ? ` + ${(preview.scenarios as unknown[]).length} scenario(s)` : ''}{preview.companyInfo ? ' + company info' : ''})
+                            </span>
+                        )}
                     </h3>
                     <div style={{ overflowX: 'auto' }}>
                         <table className="fin-table">
                             <thead>
                                 <tr>
                                     <th>Item</th>
-                                    {preview.periods.map(p => <th key={p}>{p}</th>)}
+                                    {preview.historicalInputs.periods.map(p => <th key={p}>{p}</th>)}
                                 </tr>
                             </thead>
                             <tbody>
-                                {previewRows(preview).map((row, i) => (
+                                {previewRows(preview.historicalInputs).map((row, i) => (
                                     <tr key={i}>
                                         <td style={{ fontWeight: row.bold ? 700 : 400 }}>{row.label}</td>
                                         {row.values.map((v, j) => (
@@ -166,12 +264,32 @@ export default function HistoricalImportPage() {
 
 // ── Parsing helpers ──────────────────────────────────────────
 
-function parseJSON(text: string): HistoricalInputs {
+function parseJSON(text: string): ImportPreview {
     const data = JSON.parse(text);
-    if (!data.periods || !Array.isArray(data.periods)) {
-        throw new Error('JSON must have a "periods" array');
+
+    // Shape A: flat HistoricalInputs — has top-level "periods" array
+    if (data.periods && Array.isArray(data.periods)) {
+        return {
+            historicalInputs: data as HistoricalInputs,
+            isFullModel: false,
+        };
     }
-    return data as HistoricalInputs;
+
+    // Shape B: full-model export — has "historicalInputs" nested object
+    if (data.historicalInputs && Array.isArray(data.historicalInputs.periods)) {
+        return {
+            historicalInputs: data.historicalInputs as HistoricalInputs,
+            assumptions: data.assumptions,
+            scenarios: data.scenarios,
+            companyInfo: data.companyInfo,
+            isFullModel: true,
+        };
+    }
+
+    throw new Error(
+        'JSON must either (a) match the historical template (have a "periods" array at the top level), ' +
+        'or (b) be a full-model export with a "historicalInputs" object.'
+    );
 }
 
 function parseCSV(text: string): HistoricalInputs {
@@ -269,4 +387,140 @@ function camelCase(str: string): string {
 
 function arr(n: number, v: number): number[] {
     return Array(n).fill(v);
+}
+
+// ── Period-label sanitizer ─────────────────────────────────────
+// Some historical JSON exports (a known v6 migration bug) carry duplicated
+// labels like ["2025","2025"]. Rebuild labels by back-counting from the
+// projection start year so the UI shows e.g. "2024" and "2025" correctly.
+function repairPeriodLabels(h: HistoricalInputs, startYear: number): HistoricalInputs {
+    const n = h.periods.length;
+    const existing = h.periods.map(p => String(p));
+    const unique = new Set(existing);
+    const allNumeric = existing.every(p => /^\d{4}$/.test(p));
+    const strictlyIncreasing = existing.every((p, i) => i === 0 || parseInt(p, 10) > parseInt(existing[i - 1], 10));
+
+    // Keep the existing labels only when they're clean: unique, 4-digit, and increasing.
+    if (unique.size === n && allNumeric && strictlyIncreasing) {
+        return h;
+    }
+
+    const repaired = Array.from({ length: n }, (_, i) => String(startYear - n + i));
+    return { ...h, periods: repaired };
+}
+
+// ── Reverse converter: HistoricalInputs → HistoricalDataInput[] ──────
+// The per-year form UI reads historicalData; without this rebuild, the
+// imported values won't appear in the input form.
+function convertFromHistoricalInputs(h: HistoricalInputs): HistoricalDataInput[] {
+    return h.periods.map((period, i) => {
+        const get = (key: keyof HistoricalInputs, fallback = 0): number => {
+            const v = h[key];
+            return Array.isArray(v) ? ((v[i] as number) ?? fallback) : fallback;
+        };
+
+        const revenue = get('revenue');
+        const cogs = get('cogs');
+        const grossProfit = revenue - cogs;
+        const sgaExpense = get('sgaExpense');
+        const rdExpense = get('rdExpense');
+        const depreciation = get('depreciation');
+        const amortization = get('amortization');
+        const otherOpex = get('otherOpex');
+        const interestIncome = get('interestIncome');
+        const interestExpense = get('interestExpense');
+        const otherIncomeExpense = get('otherIncomeExpense');
+        const taxExpense = get('taxExpense');
+        const ebit = grossProfit - sgaExpense - rdExpense - depreciation - amortization - otherOpex;
+        const ebt = ebit + interestIncome - interestExpense + otherIncomeExpense;
+        const netIncome = ebt - taxExpense;
+
+        const cash = get('cash');
+        const accountsReceivable = get('accountsReceivable');
+        const inventory = get('inventory');
+        const prepaidExpenses = get('prepaidExpenses');
+        const otherCurrentAssets = get('otherCurrentAssets');
+        const grossPPE = get('grossPPE');
+        const accumulatedDepreciation = get('accumulatedDepreciation');
+        const netPPE = grossPPE - accumulatedDepreciation;
+        const intangibleAssets = get('intangibles');
+        const goodwill = get('goodwill');
+        const otherLTAssets = get('otherLongTermAssets');
+        const totalCurrentAssets = cash + accountsReceivable + inventory + prepaidExpenses + otherCurrentAssets;
+        const totalNonCurrentAssets = netPPE + intangibleAssets + goodwill + otherLTAssets;
+        const totalAssets = totalCurrentAssets + totalNonCurrentAssets;
+
+        const accountsPayable = get('accountsPayable');
+        const accruedExpenses = get('accruedExpenses');
+        const shortTermDebt = get('shortTermDebt');
+        const currentPortionLTD = get('currentPortionLTD');
+        const deferredRevenue = get('deferredRevenue');
+        const otherCurrentLiabilities = get('otherCurrentLiabilities');
+        const longTermDebt = get('longTermDebt');
+        const deferredTaxLiabilities = get('deferredTaxLiabilities');
+        const otherLTLiabilities = get('otherLongTermLiabilities');
+        const totalCurrentLiabilities = accountsPayable + accruedExpenses + shortTermDebt + currentPortionLTD + deferredRevenue + otherCurrentLiabilities;
+        const totalNonCurrentLiabilities = longTermDebt + deferredTaxLiabilities + otherLTLiabilities;
+        const totalLiabilities = totalCurrentLiabilities + totalNonCurrentLiabilities;
+
+        const commonStock = get('commonStock');
+        const additionalPaidInCapital = get('additionalPaidInCapital');
+        const retainedEarnings = get('retainedEarnings');
+        const treasuryStock = get('treasuryStock');
+        const otherComprehensiveIncome = get('otherComprehensiveIncome');
+        const totalEquity = commonStock + additionalPaidInCapital + retainedEarnings + treasuryStock + otherComprehensiveIncome;
+
+        const yearNum = parseInt(period.replace(/\D/g, ''), 10);
+
+        return {
+            year: Number.isFinite(yearNum) ? yearNum : i,
+            period,
+            revenue,
+            cogs,
+            grossProfit,
+            sgaExpense,
+            rdExpense,
+            depreciation,
+            amortization,
+            otherOpex,
+            interestIncome,
+            interestExpense,
+            otherIncomeExpense,
+            taxExpense,
+            netIncome,
+            sharesOutstanding: get('sharesOutstanding'),
+            cash,
+            accountsReceivable,
+            inventory,
+            prepaidExpenses,
+            otherCurrentAssets,
+            grossPPE,
+            accumulatedDepreciation,
+            netPPE,
+            intangibleAssets,
+            goodwill,
+            otherLTAssets,
+            totalCurrentAssets,
+            totalNonCurrentAssets,
+            totalAssets,
+            accountsPayable,
+            accruedExpenses,
+            shortTermDebt,
+            currentPortionLTD,
+            deferredRevenue,
+            otherCurrentLiabilities,
+            totalCurrentLiabilities,
+            longTermDebt,
+            deferredTaxLiabilities,
+            otherLTLiabilities,
+            totalNonCurrentLiabilities,
+            totalLiabilities,
+            commonStock,
+            additionalPaidInCapital,
+            retainedEarnings,
+            treasuryStock,
+            otherComprehensiveIncome,
+            totalEquity,
+        };
+    });
 }

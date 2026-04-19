@@ -32,8 +32,15 @@ export function calculateWACC(
     const costOfEquity = riskFreeRate + assumptions.beta * assumptions.equityRiskPremium;
 
     // Cost of Debt (after-tax): kd = rate × (1 - tax)
-    const projIdx = results.incomeStatements.length - results.balanceSheets.filter(b => b.periodType === 'historical').length - 1;
-    const debtRate = assumptions.interestRateOnDebt[Math.max(0, projIdx)] ?? assumptions.interestRateOnDebt[assumptions.interestRateOnDebt.length - 1] ?? 0.18;
+    // Use the AVERAGE of the projection-period debt rates rather than the
+    // terminal-year rate — the terminal rate is frequently stepped down,
+    // which under-prices debt if used alone and under-states WACC.
+    const projectionYears = assumptions.projectionYears ?? assumptions.interestRateOnDebt.length;
+    const rateSlice = assumptions.interestRateOnDebt.slice(0, projectionYears);
+    const avgDebtRate = rateSlice.length > 0
+        ? rateSlice.reduce((a, b) => a + b, 0) / rateSlice.length
+        : (assumptions.legacyDebtRate ?? 0.18);
+    const debtRate = avgDebtRate;
     const taxRate = lastIS.taxRate;
     const costOfDebt = debtRate * (1 - taxRate);
 

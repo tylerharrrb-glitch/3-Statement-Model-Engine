@@ -128,17 +128,11 @@ export function calculateBalanceSheet(inputs: BalanceSheetInputs): BalanceSheet 
 
     const totalLiabilitiesEquity = totalLiabilities + totalEquity;
 
-    // ── BALANCING PLUG ──────────────────────────────────
-    const rawImbalance = totalAssets - totalLiabilitiesEquity;
-    let finalCash = cash;
-    let finalTotalCurrentAssets = totalCurrentAssetsRaw;
-    let finalTotalAssets = totalAssets;
-
-    if (Math.abs(rawImbalance) > 0.001) {
-        finalCash = cash - rawImbalance;
-        finalTotalCurrentAssets = finalCash + accountsReceivable + inventory + prepaidExpenses + otherCurrentAssets + vatReceivable;
-        finalTotalAssets = finalTotalCurrentAssets + totalNonCurrentAssets;
-    }
+    // Cash is derived from CFS (beginningCash + netCashChange), not plugged.
+    // BS imbalance is reported honestly; iterative resolver drives it toward zero.
+    const finalCash = cash;
+    const finalTotalCurrentAssets = totalCurrentAssetsRaw;
+    const finalTotalAssets = totalAssets;
 
     const balanceDifference = finalTotalAssets - totalLiabilitiesEquity;
     const isBalanced = Math.abs(balanceDifference) < 0.01;
@@ -224,10 +218,13 @@ export function calculateInterestExpense(
 // Calculate interest income from beginning-of-period cash balance
 export function calculateInterestIncome(
     beginningCash: number,
-    _endingCash: number,
+    endingCash: number,
     interestIncomeRate: number,
 ): number {
-    return beginningCash * interestIncomeRate;
+    // Use average cash balance to avoid under/over-stating interest income
+    // when cash moves materially during the year.
+    const avgCash = (beginningCash + endingCash) / 2;
+    return avgCash * interestIncomeRate;
 }
 
 // Build historical balance sheets from raw data

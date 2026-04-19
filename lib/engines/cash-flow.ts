@@ -150,9 +150,15 @@ export function buildHistoricalCashFlows(
         const changeInDeferredRev = curr.deferredRevenue - prev.deferredRevenue;
         const changeInVATReceivable = -((curr.vatReceivable ?? 0) - (prev.vatReceivable ?? 0));
         const changeInVATPayable = (curr.vatPayable ?? 0) - (prev.vatPayable ?? 0);
+        // Historical reconciliation items: changes in "other" BS balances
+        const changeInOtherCurrentAssets = -(curr.otherCurrentAssets - prev.otherCurrentAssets);
+        const changeInOtherCurrentLiabilities = curr.otherCurrentLiabilities - prev.otherCurrentLiabilities;
+        const changeInOtherLongTermLiabilities = curr.otherLongTermLiabilities - prev.otherLongTermLiabilities;
+        const changeInDeferredTax = curr.deferredTaxLiabilities - prev.deferredTaxLiabilities;
         const totalWorkingCapitalChange = changeInAR + changeInInventory + changeInPrepaid +
             changeInAP + changeInAccruedExp + changeInDeferredRev +
-            changeInVATReceivable + changeInVATPayable;
+            changeInVATReceivable + changeInVATPayable +
+            changeInOtherCurrentAssets + changeInOtherCurrentLiabilities;
 
         // SBC: use the IS depreciation/amortization for non-cash adjustments,
         // and estimate SBC from the equity change not explained by NI, dividends, etc.
@@ -160,17 +166,24 @@ export function buildHistoricalCashFlows(
         const stockBasedComp = 0; // SBC is accounted for in equity issuance calc below
 
         const cashFromOperations = is.netIncome + is.depreciation + is.amortization +
-            stockBasedComp + totalWorkingCapitalChange;
+            stockBasedComp + changeInDeferredTax + changeInOtherLongTermLiabilities +
+            totalWorkingCapitalChange;
 
         // ── INVESTING ACTIVITIES ────────────────────────────
         const capex = -(curr.grossPPE - prev.grossPPE);
-        const cashFromInvesting = capex;
+        const changeInIntangiblesCF = -(curr.intangibles - (prev.intangibles - is.amortization));
+        const changeInGoodwill = -(curr.goodwill - prev.goodwill);
+        const changeInOtherLongTermAssets = -(curr.otherLongTermAssets - prev.otherLongTermAssets);
+        const cashFromInvesting = capex + changeInIntangiblesCF + changeInGoodwill + changeInOtherLongTermAssets;
 
         // ── FINANCING ACTIVITIES ────────────────────────────
-        // Debt: back-solve from BS
-        const debtChange = (curr.longTermDebt + curr.shortTermDebt) - (prev.longTermDebt + prev.shortTermDebt);
-        const debtIssuance = Math.max(0, debtChange);
-        const debtRepayment = -Math.max(0, -debtChange);
+        // Split STD and LTD (including current portion LTD) so historical STD repayments
+        // are captured explicitly rather than netted away against LTD issuances.
+        const stdChange = curr.shortTermDebt - prev.shortTermDebt;
+        const ltdChange = (curr.longTermDebt + curr.currentPortionLTD) -
+            (prev.longTermDebt + prev.currentPortionLTD);
+        const debtIssuance = Math.max(0, ltdChange) + Math.max(0, stdChange);
+        const debtRepayment = -Math.max(0, -ltdChange) - Math.max(0, -stdChange);
 
         // Dividends: back-solve from retained earnings changes
         // RE_curr = RE_prev + NI - Dividends  =>  Dividends = RE_prev + NI - RE_curr

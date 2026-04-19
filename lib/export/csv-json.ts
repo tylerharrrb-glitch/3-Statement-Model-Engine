@@ -265,17 +265,22 @@ export interface JSONExportOptions {
     assumptions: AssumptionSet;
     historicalInputs: HistoricalInputs;
     scenarios: Scenario[];
-    results: ModelResults;
+    /** Accepted for backwards compatibility — not written to the file. */
+    results?: ModelResults;
     liveRates?: { cbeDepositRate: number; cbeLendingRate: number; cbeDiscountRate: number; tbillRate12m: number; usdEgpRate: number; eurEgpRate: number; lastUpdated: string; lastMPCDate: string; source: string } | null;
 }
 
 export function exportToJSON(opts: JSONExportOptions): void {
-    const { results } = opts;
+    // Inputs-only export: historical data + assumptions (per scenario).
+    // Computed outputs (statements, ratios, DCF, validation) are NOT persisted
+    // — the engine regenerates them deterministically from inputs on import.
+    const numHist = opts.historicalInputs.periods.length;
+    const startYear = opts.assumptions.startYear ?? 2026;
 
     const data = {
         // ── Metadata ─────────────────────────────────────────
         exportDate: new Date().toISOString(),
-        engineVersion: '3SM-v9',  // v9: formula-driven historical tax, full VAT sync
+        engineVersion: '3SM-v10-inputs',
 
         // ── Company Info ─────────────────────────────────────
         companyInfo: {
@@ -288,22 +293,18 @@ export function exportToJSON(opts: JSONExportOptions): void {
             valuationDate: opts.valuationDate ?? '',
         },
 
-        // ── Active Scenario Assumptions ──────────────────────
-        assumptions: opts.assumptions,
-
         // ── Historical Inputs ────────────────────────────────
-        // Fix period labels: raw store may have duplicates like ['2025','2025'].
-        // Apply the same correction the engine integrator uses.
+        // Normalize period labels — raw store may have duplicates like
+        // ['2025','2025']; rebuild by back-counting from startYear so we
+        // always emit e.g. ['2024','2025'].
         historicalInputs: {
             ...opts.historicalInputs,
-            periods: opts.historicalInputs.periods.map((_, idx) => {
-                const numHist = opts.historicalInputs.periods.length;
-                const startYear = opts.assumptions.startYear ?? 2026;
-                return `${startYear - numHist + idx}`;
-            }),
+            periods: opts.historicalInputs.periods.map(
+                (_, idx) => `${startYear - numHist + idx}`,
+            ),
         },
 
-        // ── All Scenarios ────────────────────────────────────
+        // ── All Scenarios (assumptions only, no computed results) ────
         activeScenarioId: opts.activeScenarioId ?? '',
         scenarios: opts.scenarios.map(s => ({
             id: s.id,
@@ -311,29 +312,9 @@ export function exportToJSON(opts: JSONExportOptions): void {
             type: s.type,
             description: s.description,
             assumptions: s.assumptions,
-            results: s.results,
             createdAt: s.createdAt,
             updatedAt: s.updatedAt,
         })),
-
-        // ── Active Scenario Results (flat for convenience) ───
-        incomeStatements: results.incomeStatements,
-        balanceSheets: results.balanceSheets,
-        cashFlowStatements: results.cashFlowStatements,
-        ratios: results.ratios,
-        convergenceInfo: results.convergenceInfo,
-        integrationChecks: results.integrationChecks,
-
-        // ── Valuation ────────────────────────────────────────
-        dcfValuation: results.dcfValuation ?? null,
-        valuationMultiples: results.valuationMultiples ?? null,
-
-        // ── Validation ───────────────────────────────────────
-        validationReport: results.validationReport ?? null,
-        validationPassed: results.validationPassed ?? null,
-
-        // ── Live Market Rates ───────────────────────────────
-        liveRates: opts.liveRates ?? null,
     };
 
     const json = JSON.stringify(data, null, 2);
