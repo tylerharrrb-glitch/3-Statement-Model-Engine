@@ -1,0 +1,151 @@
+[1mdiff --git a/3Statement_Masterclass_Prompt.md b/3Statement_Masterclass_Prompt.md[m
+[1mdeleted file mode 100644[m
+[1mindex 496840c..0000000[m
+[1m--- a/3Statement_Masterclass_Prompt.md[m
+[1m+++ /dev/null[m
+[36m@@ -1,1124 +0,0 @@[m
+[31m-# WOLF 3-Statement Financial Model Engine[m
+[31m-## Masterclass Development Prompt for Google Antigravity[m
+[31m-### Claude Opus 4.6 (Thinking) — Complete Build & Rectification Guide[m
+[31m-[m
+[31m-> **Engine URL**: https://3-statement-model-engine.pages.dev/[m
+[31m-> **Stack**: Next.js 16 + React 19 + TypeScript 5 + Zustand 5[m
+[31m-> **Authority Date**: April 8, 2026[m
+[31m-> **Prepared by**: Ahmed Wael Metwally, Financial Officer, MCDR[m
+[31m-[m
+[31m----[m
+[31m-[m
+[31m-## PART 1 — AUDIT FINDINGS & VERIFIED ERRORS[m
+[31m-[m
+[31m-Before issuing any code, the agent must understand the **exact errors** found across the JSON export, PDF report, Excel file, and engine source. Every fix below was verified against live CBE data (April 2, 2026 MPC decision) and Egyptian law.[m
+[31m-[m
+[31m----[m
+[31m-[m
+[31m-### ERROR-01 ► CBE Rate Stale and Cascading WACC Distortion [CRITICAL][m
+[31m-[m
+[31m-**Location**: `lib/store.ts` default assumptions → `cbeRate`; `types/assumptions.ts` defaults; `lib/engines/dcf.ts`[m
+[31m-[m
+[31m-**Current value**: `cbeRate: 0.2725` (27.25%)[m
+[31m-[m
+[31m-**Verified correct value**: **19.50%** (CBE main operation / discount rate, held at April 2, 2026 MPC meeting — overnight deposit 19.00%, overnight lending 20.00%, discount/main operation 19.50%)[m
+[31m-[m
+[31m-**Cascade damage**:[m
+[31m-- CAPM Cost of Equity = 27.25% + β × 10.5% → severely overstated Ke (~37.75% vs correct ~30.5%)[m
+[31m-- WACC inflated to ~33% instead of ~25–27%[m
+[31m-- Terminal Value discounted at 33% shrinks Enterprise Value by 40–50%[m
+[31m-- Implied share price is materially understated, rendering all DCF decisions wrong[m
+[31m-[m
+[31m-**Fix required**: Update `cbeRate` default to `0.195`. Wire the DCF module to derive all rate inputs dynamically from `cbeRate`:[m
+[31m-```typescript[m
+[31m-// In dcf.ts — never hardcode; always derive[m
+[31m-const riskFreeRate = assumptions.riskFreeRate; // 12M T-bill yield[m
+[31m-const costOfDebtPreTax = assumptions.cbeRate + CORPORATE_SPREAD; // CBE lending + 50–150bps[m
+[31m-const maxDeductibleRate = assumptions.cbeRate * 2; // Thin-cap ceiling per Law 30/2023[m
+[31m-```[m
+[31m-[m
+[31m----[m
+[31m-[m
+[31m-### ERROR-02 ► Risk-Free Rate Incorrect [CRITICAL][m
+[31m-[m
+[31m-**Location**: `assumptions.riskFreeRate` default[m
+[31m-[m
+[31m-**Current value**: `0.20` (20.00%)[m
+[31m-[m
+[31m-**Verified correct value**: **~23.50%** (Latest 12-month Egyptian Treasury Bill auction yield as of Q1 2026; CBE data confirms average 23.5% at February 2026 auction)[m
+[31m-[m
+[31m-**Why this matters**: The risk-free rate is the anchor of CAPM. Using 20% understates the true cost of equity for an Egyptian-market company, producing an EV that is ~8–12% too high relative to local market benchmarks.[m
+[31m-[m
+[31m-**Fix required**: Update default `riskFreeRate` to `0.235`. Add a tooltip in the UI ("Source: CBE 12-month T-bill average auction yield") and allow the user to override it on the DCF page.[m
+[31m-[m
+[31m----[m
+[31m-[m
+[31m-### ERROR-03 ► Interest on Cash Rates Stale [MAJOR][m
+[31m-[m
+[31m-**Location**: `assumptions.interestRateOnCash` per-year array[m
+[31m-[m
+[31m-**Current value**: `[0.18, 0.18, 0.18, 0.18, 0.18]` — flat 18% for all 5 years[m
+[31m-[m
+[31m-**Verified issue**: CBE deposit rate is currently 19.00%. The engine's interest income is **below** current actual deposit rates (19%), AND it does not project the declining rate path the CBE has signaled.[m
+[31m-[m
+[31m-**Correct default path** (based on CBE easing cycle and current hold):[m
+[31m-```typescript[m
+[31m-interestRateOnCash: [0.19, 0.17, 0.15, 0.13, 0.12][m
+[31m-// 2026E: 19% (current deposit rate)[m
+[31m-// 2027E: 17% (2×1% expected cuts in H2 2026 if inflation hits target)[m
+[31m-// 2028E–2030E: gradual descent toward neutral ~12%[m
+[31m-```[m
+[31m-[m
+[31m----[m
+[31m-[m
+[31m-### ERROR-04 ► Interest on Debt Rates Need Formula-Driven CBE Spread [MAJOR][m
+[31m-[m
+[31m-**Location**: `assumptions.interestRateOnDebt` per-year array[m
+[31m-[m
+[31m-**Current value**: `[0.22, 0.22, 0.22, 0.22, 0.22]` — flat 22%[m
+[31m-[m
+[31m-**Issue**: Rate is not linked to `cbeRate`. As CBE cuts, corporate lending rates should decline. The correct approach is `CBE lending rate + credit spread`.[m
+[31m-[m
+[31m-**Correct default path**:[m
+[31m-```typescript[m
+[31m-interestRateOnDebt: [0.22, 0.20, 0.18, 0.17, 0.16][m
+[31m-// Y1: CBE lending (20%) + 200bps spread = 22%[m
+[31m-// Y2–Y5: declining as CBE eases[m
+[31m-```[m
+[31m-In the UI, expose a `corporateCreditSpread` input (default 200bps = 0.02) so the formula is:[m
+[31m-`interestRateOnDebt[yr] = projectedCBELendingRate[yr] + creditSpread`[m
+[31m-[m
+[31m----[m
+[31m-[m
+[31m-### ERROR-05 ► DCF Valuation Returns NULL — Critical Export Bug [CRITICAL][m
+[31m-[m
+[31m-**Location**: `lib/export/csv-json.ts`; `lib/engines/dcf.ts`[m
+[31m-[m
+[31m-**Evidence**: JSON export shows `"dcfValuation": null` even when the DCF page displays data in-browser.[m
+[31m-[m
+[31m-**Root cause (likely)**: The DCF engine is called separately from the main `runFullModel()` integrator and its results are not being serialized into the `ModelResults` object before export. The `dcfValuation` field in `ModelResults` type is populated after the circular resolver completes, but the export captures the store state before `runDCF()` is called.[m
+[31m-[m
+[31m-**Fix required**:[m
+[31m-1. In `lib/engines/integrator.ts` → `runFullModel()`, call `calculateDCF(results, assumptions)` at the end and attach to `ModelResults.dcfValuation`.[m
+[31m-2. In the Zustand store `calculateModel()` action, ensure `modelResults.dcfValuation` is set before triggering re-render.[m
+[31m-3. Verify JSON export serializes the full `modelResults` object including DCF.[m
+[31m-[m
+[31m----[m
+[31m-[m
+[31m-### ERROR-06 ► Thin Capitalization Rules NOT Implemented [CRITICAL — Compliance][m
+[31m-[m
+[31m-**Location**: `lib/engines/income-statement.ts` → tax calculation section[m
+[31m-[m
+[31m-**Law**: Egypt Income Tax Law as amended by **Law No. 30 of 2023**[m
+[31m-[m
+[31m-**Current behavior**: 100% of interest expense is deducted from EBT with no limit check.[m
+[31m-[m
+[31m-**Required behavior**: Interest deductibility must be capped based on the Debt/Equity ratio:[m
+[31m-- **2024–2027**: Max D/E = **3:1** (interest on excess debt is non-deductible)[m
+[31m-- **2028 onward**: Max D/E = **2:1**[m
+[31m-- **Rate ceiling**: Deductible interest rate must not exceed **2× CBE discount rate** at start of calendar year. With current CBE at 19.50%, ceiling = 39.00%[m
+[31m-[m
+[31m-**Implementation**:[m
+[31m-```typescript[m
+[31m-// In income-statement.ts calculateTax()[m
+[31m-function calculateDeductibleInterest([m
+[31m-  interestExpense: number,[m
+[31m-  totalDebt: number,[m
+[31m-  totalEquity: number,[m
+[31m-  cbeRate: number,[m
+[31m-  projectionYear: number // calendar year e.g. 2028[m
+[31m-): { deductible: number; disallowed: number } {[m
+[31m-  const deRatioLimit = projectionYear >= 2028 ? 2.0 : 3.0;[m
+[31m-  const rateLimit = cbeRate * 2;[m
+[31m-  [m
+[31m-  // 1. Rate-based cap[m
+[31m-  const effectiveRate = totalDebt > 0 ? interestExpense / totalDebt : 0;[m
+[31m-  const rateCap = Math.min(effectiveRate, rateLimit);[m
+[31m-  const rateLimitedInterest = totalDebt * rateCap;[m
+[31m-  [m
+[31m-  // 2. D/E ratio cap[m
+[31m-  const maxDeductibleDebt = totalEquity * deRatioLimit;[m
+[31m-  const excessDebt = Math.max(0, totalDebt - maxDeductibleDebt);[m
+[31m-  const deductibleDebt = totalDebt - excessDebt;[m
+[31m-  const deductibleInterest = deductibleDebt > 0[m
+[31m-    ? rateLimitedInterest * (deductibleDebt / totalDebt)[m
+[31m-    : 0;[

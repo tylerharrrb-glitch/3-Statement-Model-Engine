@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git checkout:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run:*)",
+      "Bash(npx tsc:*)",
+      "Bash(echo \"EXIT:$?\")",
+      "Bash(git *)",
+      "Bash(tee /tmp/tsc.log)",
+      "Read(//tmp/**)",
+      "Bash(npx next *)",
+      "Bash(npx --yes depcheck --skip-missing)"
+    ]
+  }
+}

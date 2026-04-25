@@ -1,0 +1,8 @@
+# Test and verification scripts (development only, not production code)
+scripts/
+*.mjs
+
+# Build outputs
+out/
+.next/
+node_modules/

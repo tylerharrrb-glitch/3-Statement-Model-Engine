@@ -43,7 +43,9 @@ export default function IncomeStatementPage() {
         }
     }, [editingCell]);
 
-    // Pagination removed — single-page IS with horizontal scroll.
+    // ── Pagination for mobile (FIX #14) ──
+    const [colPage, setColPage] = useState(0);
+    const COLS_PER_PAGE = 5;
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
     // Persist scroll position
@@ -64,8 +66,10 @@ export default function IncomeStatementPage() {
     const statements = results.incomeStatements;
     const lastHistIdx = statements.reduce((acc, s, i) => s.periodType === 'historical' ? i : acc, -1);
 
-    const visibleStatements = statements;
-    const visibleStartIdx = 0;
+    // Pagination
+    const totalPages = Math.ceil(statements.length / COLS_PER_PAGE);
+    const visibleStatements = statements.slice(colPage * COLS_PER_PAGE, (colPage + 1) * COLS_PER_PAGE);
+    const visibleStartIdx = colPage * COLS_PER_PAGE;
 
     type ISKey = keyof typeof statements[0];
     const rows: { label: string; key: ISKey; format: 'currency' | 'percent' | 'eps'; bold?: boolean; subheader?: boolean; separator?: boolean }[] = [
@@ -77,13 +81,7 @@ export default function IncomeStatementPage() {
         { label: '', key: 'revenue', format: 'currency', separator: true },
         { label: 'OPERATING EXPENSES', key: 'revenue', format: 'currency', subheader: true },
         { label: 'SG&A', key: 'sgaExpense', format: 'currency' },
-        // R&D row only when material in any period (Fix 9 — telecoms typically have no R&D line)
-        ...(statements.some(s => Math.abs((s.rdExpense ?? 0)) > 0.005)
-            ? [{ label: 'R&D', key: 'rdExpense' as ISKey, format: 'currency' as const }]
-            : []),
-        ...(statements.some(s => Math.abs(((s as { eosExpense?: number }).eosExpense ?? 0)) > 0.005)
-            ? [{ label: 'EOS Provision', key: 'eosExpense' as ISKey, format: 'currency' as const }]
-            : []),
+        { label: 'R&D', key: 'rdExpense', format: 'currency' },
         { label: 'Depreciation', key: 'depreciation', format: 'currency' },
         { label: 'Amortization', key: 'amortization', format: 'currency' },
         { label: 'Other OpEx', key: 'otherOpex', format: 'currency' },
@@ -212,6 +210,29 @@ export default function IncomeStatementPage() {
             <div className="card" style={{ marginBottom: 24 }}>
                 <RevenueChart data={statements} />
             </div>
+
+            {/* Pagination controls (FIX #14) */}
+            {totalPages > 1 && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, justifyContent: 'flex-end' }}>
+                    <button
+                        className="btn-secondary"
+                        disabled={colPage === 0}
+                        onClick={() => setColPage(p => p - 1)}
+                        aria-label="Previous columns"
+                        style={{ padding: '4px 10px', fontSize: 12 }}
+                    >← Prev</button>
+                    <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                        Page {colPage + 1} of {totalPages}
+                    </span>
+                    <button
+                        className="btn-secondary"
+                        disabled={colPage >= totalPages - 1}
+                        onClick={() => setColPage(p => p + 1)}
+                        aria-label="Next columns"
+                        style={{ padding: '4px 10px', fontSize: 12 }}
+                    >Next →</button>
+                </div>
+            )}
 
             <div className="table-card table-scroll-container" ref={scrollContainerRef} style={{ overflow: 'auto' }}>
                 <table className="fin-table" role="table" aria-label="Income Statement">
