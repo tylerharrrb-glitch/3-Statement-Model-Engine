@@ -488,8 +488,9 @@ function buildOneCalcSheet(cfg: CalcSheetConfig): CalcSheetRowMap {
                 setF(R.cf_capex, yr,
                     `-ABS(${c}${R.revenue}*${sRef('capexPercent', yr)})`,
                     cfData.capex);
-                setF(R.cf_acquisitions, yr, `${sRef('acquisitionsComputed', yr)}`, cfData.acquisitions);
-                setF(R.cf_assetSales, yr, `${sRef('assetSalesComputed', yr)}`, cfData.assetSales);
+                // Acquisitions / Asset Sales: no engine driver, always 0 (Fix 3)
+                setF(R.cf_acquisitions, yr, `0`, cfData.acquisitions);
+                setF(R.cf_assetSales, yr, `0`, cfData.assetSales);
                 setF(R.cf_cfi, yr,
                     `${c}${R.cf_capex}+${c}${R.cf_acquisitions}+${c}${R.cf_assetSales}`,
                     cfData.cashFromInvesting);
@@ -497,8 +498,11 @@ function buildOneCalcSheet(cfg: CalcSheetConfig): CalcSheetRowMap {
                 setF(R.cf_debtRepayment, yr, `-ABS(${sRef('longTermDebtRepayment', yr)})`, cfData.debtRepayment);
                 setF(R.cf_dividends, yr, `${sRef('dividendsPaidComputed', yr)}`, cfData.dividendsPaid);
                 setF(R.cf_epdPaid, yr, `-${c}${R.employeeProfitSharing}`, cfData.employeeProfitSharingPaid ?? 0);
-                setF(R.cf_equityIssuance, yr, `${sRef('equityIssuanceComputed', yr)}`, cfData.equityIssuance);
-                setF(R.cf_shareRepurchases, yr, `${sRef('shareRepurchasesComputed', yr)}`, cfData.shareRepurchases);
+                // Equity Issuance / Share Repurchases: removed back-solved Computed
+                // rows (Fix 3). Use the regular driver assumption rows; for historical
+                // periods these resolve via Scenarios sheet to engine values.
+                setF(R.cf_equityIssuance, yr, `${sRef('equityIssuance', yr)}`, cfData.equityIssuance);
+                setF(R.cf_shareRepurchases, yr, `-ABS(${sRef('shareRepurchaseAmount', yr)})`, cfData.shareRepurchases);
                 setF(R.cf_cff, yr,
                     `${c}${R.cf_debtIssuance}+${c}${R.cf_debtRepayment}+${c}${R.cf_dividends}+${c}${R.cf_epdPaid}+${c}${R.cf_equityIssuance}+${c}${R.cf_shareRepurchases}`,
                     cfData.cashFromFinancing);

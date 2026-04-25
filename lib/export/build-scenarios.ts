@@ -110,10 +110,9 @@ const ROW_SPECS: RowSpec[] = [
     { key: 'tsComputed', label: 'Treasury Stock (Computed)', fmt: NUM_FMT },
     { key: 'apicComputed', label: 'APIC (Computed)', fmt: NUM_FMT },
     { key: 'dividendsPaidComputed', label: 'Dividends Paid (Computed)', fmt: NUM_FMT },
-    { key: 'equityIssuanceComputed', label: 'Equity Issuance (Computed)', fmt: NUM_FMT },
-    { key: 'shareRepurchasesComputed', label: 'Share Repurchases (Computed)', fmt: NUM_FMT },
-    { key: 'acquisitionsComputed', label: 'Acquisitions (Computed)', fmt: NUM_FMT },
-    { key: 'assetSalesComputed', label: 'Asset Sales (Computed)', fmt: NUM_FMT },
+    // Removed (Fix 3): no engine driver exists for these — always 0.
+    //   equityIssuanceComputed, shareRepurchasesComputed,
+    //   acquisitionsComputed, assetSalesComputed
 
     // ── Dashboard Output Metrics ──
     // These store the full IS/BS/CF/Ratio output values so the Dashboard
@@ -325,10 +324,8 @@ function buildAllArrays(
 
     // CF-computed (padded with 0 at index 0)
     out['dividendsPaidComputed'] = [0, ...r.cashFlowStatements.map(cf => cf.dividendsPaid)];
-    out['equityIssuanceComputed'] = [0, ...r.cashFlowStatements.map(cf => cf.equityIssuance)];
-    out['shareRepurchasesComputed'] = [0, ...r.cashFlowStatements.map(cf => cf.shareRepurchases)];
-    out['acquisitionsComputed'] = [0, ...r.cashFlowStatements.map(cf => cf.acquisitions)];
-    out['assetSalesComputed'] = [0, ...r.cashFlowStatements.map(cf => cf.assetSales)];
+    // Removed (Fix 3): equityIssuanceComputed, shareRepurchasesComputed,
+    // acquisitionsComputed, assetSalesComputed — no engine driver exists.
 
     // Legal Reserve computed values
     out['legalReserveAddition'] = r.incomeStatements.map(is => is.legalReserveAddition ?? 0);

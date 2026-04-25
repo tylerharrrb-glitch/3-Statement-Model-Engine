@@ -236,6 +236,10 @@ export async function exportToExcel(
     // Use the guaranteed scenarios for the rest of the export
     allScenarios = guaranteedScenarios;
 
+    // hdRows: tracks Historical Data sheet row numbers so other sheets can
+    // formula-reference them. Populated when the Historical Data tab is built.
+    const hdRows: Record<string, number> = {};
+
     // ── Back-compute historical assumption values from results ──
     // So the Assumptions tab has values for ALL years and formulas work everywhere.
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -435,7 +439,9 @@ export async function exportToExcel(
         };
 
         // Value row helper (locked engine values — no formulas)
-        const hdVal = (label: string, values: number[], fmt: string = NUM_FMT) => {
+        // Optional `key` registers the row in hdRows for cross-sheet referencing.
+        const hdVal = (label: string, values: number[], fmt: string = NUM_FMT, key?: string) => {
+            if (key) hdRows[key] = hdRow;
             hdSheet.getCell(hdRow, 1).value = label;
             hdSheet.getCell(hdRow, 1).font = { size: 10 };
             for (let i = 0; i < numHistorical; i++) {
@@ -467,42 +473,59 @@ export async function exportToExcel(
 
         // ── Income Statement ──
         hdSection('INCOME STATEMENT');
-        const hdISRevRow = hdRow;
-        hdVal('Revenue', hIS.map(s => s.revenue));
-        const hdISCogsRow = hdRow;
-        hdVal('COGS', hIS.map(s => s.cogs));
-        hdVal('Gross Profit', hIS.map(s => s.grossProfit));
-        hdVal('SG&A', hIS.map(s => s.sgaExpense));
-        hdVal('R&D', hIS.map(s => s.rdExpense));
-        hdVal('Depreciation', hIS.map(s => s.depreciation));
-        hdVal('Amortization', hIS.map(s => s.amortization));
-        hdVal('Other OpEx', hIS.map(s => s.otherOpex));
-        hdVal('Total OpEx', hIS.map(s => s.totalOpex));
-        hdVal('EBIT', hIS.map(s => s.ebit));
-        hdVal('Interest Expense', hIS.map(s => s.interestExpense));
-        hdVal('Interest Income', hIS.map(s => s.interestIncome));
-        const hdISEbtRow = hdRow;
-        hdVal('EBT', hIS.map(s => s.ebt));
-        const hdISTaxRow = hdRow;
-        hdVal('Tax Expense', hIS.map(s => s.taxExpense));
-        hdVal('Net Income', hIS.map(s => s.netIncome));
+        const hdISRevRow = hdRow; hdVal('Revenue', hIS.map(s => s.revenue), NUM_FMT, 'revenue');
+        const hdISCogsRow = hdRow; hdVal('COGS', hIS.map(s => s.cogs), NUM_FMT, 'cogs');
+        hdVal('Gross Profit', hIS.map(s => s.grossProfit), NUM_FMT, 'grossProfit');
+        hdVal('SG&A', hIS.map(s => s.sgaExpense), NUM_FMT, 'sgaExpense');
+        hdVal('R&D', hIS.map(s => s.rdExpense), NUM_FMT, 'rdExpense');
+        hdVal('Depreciation', hIS.map(s => s.depreciation), NUM_FMT, 'depreciation');
+        hdVal('Amortization', hIS.map(s => s.amortization), NUM_FMT, 'amortization');
+        hdVal('Other OpEx', hIS.map(s => s.otherOpex), NUM_FMT, 'otherOpex');
+        hdVal('Total OpEx', hIS.map(s => s.totalOpex), NUM_FMT, 'totalOpex');
+        hdVal('EBIT', hIS.map(s => s.ebit), NUM_FMT, 'ebit');
+        hdVal('Interest Expense', hIS.map(s => s.interestExpense), NUM_FMT, 'interestExpense');
+        hdVal('Interest Income', hIS.map(s => s.interestIncome), NUM_FMT, 'interestIncome');
+        const hdISEbtRow = hdRow; hdVal('EBT', hIS.map(s => s.ebt), NUM_FMT, 'ebt');
+        const hdISTaxRow = hdRow; hdVal('Tax Expense', hIS.map(s => s.taxExpense), NUM_FMT, 'taxExpense');
+        hdVal('Net Income', hIS.map(s => s.netIncome), NUM_FMT, 'netIncome');
+        hdVal('Other Income / Expense', hIS.map(s => s.otherIncomeExpense), NUM_FMT, 'otherIncomeExpense');
+        hdVal('Shares Outstanding', hIS.map(s => s.sharesOutstanding), '#,##0', 'sharesOutstanding');
+        hdVal('Stock-Based Comp', hIS.map(s => s.stockBasedComp), NUM_FMT, 'stockBasedComp');
 
         hdRow++; // spacer
 
         // ── Balance Sheet ──
         hdSection('BALANCE SHEET');
-        hdVal('Cash & Equivalents', hBS.map(s => s.cash));
-        const hdBSArRow = hdRow;
-        hdVal('Accounts Receivable', hBS.map(s => s.accountsReceivable));
-        const hdBSInvRow = hdRow;
-        hdVal('Inventory', hBS.map(s => s.inventory));
-        hdVal('Net PP&E', hBS.map(s => s.netPPE));
-        hdVal('Total Assets', hBS.map(s => s.totalAssets));
-        const hdBSApRow = hdRow;
-        hdVal('Accounts Payable', hBS.map(s => s.accountsPayable));
-        hdVal('Long-Term Debt', hBS.map(s => s.longTermDebt));
-        hdVal('Total Equity', hBS.map(s => s.totalEquity));
-        hdVal('Total L+E', hBS.map(s => s.totalLiabilitiesEquity));
+        hdVal('Cash & Equivalents', hBS.map(s => s.cash), NUM_FMT, 'cash');
+        const hdBSArRow = hdRow; hdVal('Accounts Receivable', hBS.map(s => s.accountsReceivable), NUM_FMT, 'accountsReceivable');
+        const hdBSInvRow = hdRow; hdVal('Inventory', hBS.map(s => s.inventory), NUM_FMT, 'inventory');
+        hdVal('Prepaid Expenses', hBS.map(s => s.prepaidExpenses), NUM_FMT, 'prepaidExpenses');
+        hdVal('Other Current Assets', hBS.map(s => s.otherCurrentAssets), NUM_FMT, 'otherCurrentAssets');
+        const hdBSGrossPPERow = hdRow; hdVal('Gross PP&E', hBS.map(s => s.grossPPE), NUM_FMT, 'grossPPE');
+        hdVal('Accum. Depreciation', hBS.map(s => s.accumulatedDepreciation), NUM_FMT, 'accumulatedDepreciation');
+        hdVal('Net PP&E', hBS.map(s => s.netPPE), NUM_FMT, 'netPPE');
+        hdVal('Intangibles', hBS.map(s => s.intangibles), NUM_FMT, 'intangibles');
+        hdVal('Goodwill', hBS.map(s => s.goodwill), NUM_FMT, 'goodwill');
+        hdVal('Other LT Assets', hBS.map(s => s.otherLongTermAssets), NUM_FMT, 'otherLongTermAssets');
+        hdVal('Total Assets', hBS.map(s => s.totalAssets), NUM_FMT, 'totalAssets');
+        const hdBSApRow = hdRow; hdVal('Accounts Payable', hBS.map(s => s.accountsPayable), NUM_FMT, 'accountsPayable');
+        hdVal('Accrued Expenses', hBS.map(s => s.accruedExpenses), NUM_FMT, 'accruedExpenses');
+        hdVal('Short-Term Debt', hBS.map(s => s.shortTermDebt), NUM_FMT, 'shortTermDebt');
+        hdVal('Current Portion LTD', hBS.map(s => s.currentPortionLTD), NUM_FMT, 'currentPortionLTD');
+        hdVal('Deferred Revenue', hBS.map(s => s.deferredRevenue), NUM_FMT, 'deferredRevenue');
+        hdVal('Other Current Liabilities', hBS.map(s => s.otherCurrentLiabilities), NUM_FMT, 'otherCurrentLiabilities');
+        hdVal('Long-Term Debt', hBS.map(s => s.longTermDebt), NUM_FMT, 'longTermDebt');
+        hdVal('Deferred Tax Liabilities', hBS.map(s => s.deferredTaxLiabilities), NUM_FMT, 'deferredTaxLiabilities');
+        hdVal('Other LT Liabilities', hBS.map(s => s.otherLongTermLiabilities), NUM_FMT, 'otherLongTermLiabilities');
+        hdVal('Common Stock', hBS.map(s => s.commonStock), NUM_FMT, 'commonStock');
+        hdVal('APIC', hBS.map(s => s.additionalPaidInCapital), NUM_FMT, 'additionalPaidInCapital');
+        hdVal('Legal Reserve', hBS.map(s => s.legalReserve ?? 0), NUM_FMT, 'legalReserve');
+        hdVal('Retained Earnings', hBS.map(s => s.retainedEarnings), NUM_FMT, 'retainedEarnings');
+        hdVal('Treasury Stock', hBS.map(s => s.treasuryStock), NUM_FMT, 'treasuryStock');
+        hdVal('Other Comprehensive Income', hBS.map(s => s.otherComprehensiveIncome), NUM_FMT, 'otherComprehensiveIncome');
+        hdVal('EOS Provision', hBS.map(s => s.endOfServiceProvision ?? 0), NUM_FMT, 'endOfServiceProvision');
+        hdVal('Total Equity', hBS.map(s => s.totalEquity), NUM_FMT, 'totalEquity');
+        hdVal('Total L+E', hBS.map(s => s.totalLiabilitiesEquity), NUM_FMT, 'totalLiabilitiesEquity');
 
         hdRow++; // spacer
 
@@ -558,11 +581,66 @@ export async function exportToExcel(
     const aRows: Record<string, number> = {};
     let aRow = 2;
 
-    function addAssumptionRow(label: string, key: string, values: number[], fmt: string = NUM_FMT) {
+    // Historical Data formula reference: returns "='Historical Data'!{col}{row}" for
+    // a given hdRows key and historical year index. Used to make Assumptions sheet
+    // historical cells live formulas rather than hardcoded numbers.
+    const hdRef = (key: string, histYearIdx: number): string | null => {
+        const r = hdRows[key];
+        if (!r) return null;
+        const c = colLetter(histYearIdx + 2); // first historical year is column B in Historical Data
+        return `'Historical Data'!${c}${r}`;
+    };
+
+    /**
+     * addAssumptionRow — writes a row into the Assumptions sheet.
+     *
+     * For historical years, prefers a formula reference to the Historical Data sheet
+     * (when `historicalKey` resolves to an hdRows entry). For projected years (or when
+     * no historical link is available) it falls back to the numeric value from `values`.
+     *
+     * `historicalFormula` lets callers express a back-derivation (e.g. AR/Revenue*365)
+     * referencing Historical Data — used for driver rows where the raw value isn't a
+     * direct line on Historical Data.
+     */
+    function addAssumptionRow(
+        label: string,
+        key: string,
+        values: number[],
+        fmt: string = NUM_FMT,
+        opts: {
+            historicalKey?: string;
+            historicalFormula?: (histCol: string, histYr: number) => string | null;
+        } = {},
+    ) {
         aRows[key] = aRow;
         aSheet.getCell(aRow, 1).value = label;
         for (let i = 0; i < nYears; i++) {
-            aSheet.getCell(aRow, i + 2).value = values[i] ?? 0;
+            const cell = aSheet.getCell(aRow, i + 2);
+            const isHistorical = i < numHistorical;
+            let wroteFormula = false;
+            if (isHistorical) {
+                if (opts.historicalKey) {
+                    const ref = hdRef(opts.historicalKey, i);
+                    if (ref) {
+                        // ExcelJS formula strings should NOT include a leading "="
+                        cell.value = { formula: ref, result: values[i] ?? 0 };
+                        wroteFormula = true;
+                    }
+                }
+                if (!wroteFormula && opts.historicalFormula) {
+                    const f = opts.historicalFormula(colLetter(i + 2), i);
+                    if (f) {
+                        cell.value = {
+                            formula: f.startsWith('=') ? f.slice(1) : f,
+                            result: values[i] ?? 0,
+                        };
+                        wroteFormula = true;
+                    }
+                }
+            }
+            if (!wroteFormula) {
+                cell.value = values[i] ?? 0;
+            }
         }
         const row = aSheet.getRow(aRow);
         styleRow(row, { input: true, numFmt: fmt });
@@ -581,52 +659,120 @@ export async function exportToExcel(
     styleRow(aSheet.getRow(aRow), { input: true, numFmt: NUM_FMT });
     aRow++;
 
-    addAssumptionRow('Revenue Growth Rate', 'revenueGrowthRate', allRevenueGrowth, PCT_FMT);
-    addAssumptionRow('COGS % of Revenue', 'cogsPercent', allCogsPercent, PCT_FMT);
-    addAssumptionRow('SG&A % of Revenue', 'sgaPercent', allSgaPercent, PCT_FMT);
-    addAssumptionRow('R&D % of Revenue', 'rdPercent', allRdPercent, PCT_FMT);
-    addAssumptionRow('Other OpEx % of Revenue', 'otherOpexPercent', allOtherOpexPct, PCT_FMT);
-    addAssumptionRow('Tax Rate', 'taxRate', allTaxRate, PCT_FMT);
+    // Helpers for back-derivation formulas referencing Historical Data sheet.
+    // safeDiv(A,B) ≈ IF(B=0, 0, A/B) in Excel.
+    const hdSafeRatio = (numKey: string, denKey: string) =>
+        (c: string): string | null => {
+            const nr = hdRows[numKey], dr = hdRows[denKey];
+            if (!nr || !dr) return null;
+            return `IF('Historical Data'!${c}${dr}=0,0,'Historical Data'!${c}${nr}/'Historical Data'!${c}${dr})`;
+        };
+    const hdYoYGrowth = (key: string) =>
+        (c: string, yr: number): string | null => {
+            const r = hdRows[key];
+            if (!r || yr === 0) return null; // no prior period
+            const prev = colLetter(yr + 1); // previous column
+            return `IF('Historical Data'!${prev}${r}=0,0,('Historical Data'!${c}${r}-'Historical Data'!${prev}${r})/'Historical Data'!${prev}${r})`;
+        };
+    const hdDays = (numKey: string, denKey: string) =>
+        (c: string): string | null => {
+            const nr = hdRows[numKey], dr = hdRows[denKey];
+            if (!nr || !dr) return null;
+            return `IF('Historical Data'!${c}${dr}=0,0,'Historical Data'!${c}${nr}/'Historical Data'!${c}${dr}*365)`;
+        };
+
+    addAssumptionRow('Revenue Growth Rate', 'revenueGrowthRate', allRevenueGrowth, PCT_FMT,
+        { historicalFormula: hdYoYGrowth('revenue') });
+    addAssumptionRow('COGS % of Revenue', 'cogsPercent', allCogsPercent, PCT_FMT,
+        { historicalFormula: hdSafeRatio('cogs', 'revenue') });
+    addAssumptionRow('SG&A % of Revenue', 'sgaPercent', allSgaPercent, PCT_FMT,
+        { historicalFormula: hdSafeRatio('sgaExpense', 'revenue') });
+    addAssumptionRow('R&D % of Revenue', 'rdPercent', allRdPercent, PCT_FMT,
+        { historicalFormula: hdSafeRatio('rdExpense', 'revenue') });
+    addAssumptionRow('Other OpEx % of Revenue', 'otherOpexPercent', allOtherOpexPct, PCT_FMT,
+        { historicalFormula: hdSafeRatio('otherOpex', 'revenue') });
+    addAssumptionRow('Tax Rate', 'taxRate', allTaxRate, PCT_FMT,
+        { historicalFormula: hdSafeRatio('taxExpense', 'ebt') });
     addAssumptionRow('VAT Enabled (1=Yes)', 'enableVAT', Array(nYears).fill(assumptions.enableVAT ? 1 : 0), '0');
     addAssumptionRow('VAT Rate', 'vatRate', Array(nYears).fill(assumptions.vatRate ?? 0.14), PCT_FMT);
-    addAssumptionRow('Other Income / Expense', 'otherIncomeExpense', allOtherIncome, NUM_FMT);
-    addAssumptionRow('Shares Outstanding', 'sharesOutstanding', allShares, '#,##0');
-    addAssumptionRow('Stock-Based Comp Amount', 'stockBasedCompAmount', allSBC, NUM_FMT);
+    addAssumptionRow('Other Income / Expense', 'otherIncomeExpense', allOtherIncome, NUM_FMT,
+        { historicalKey: 'otherIncomeExpense' });
+    addAssumptionRow('Shares Outstanding', 'sharesOutstanding', allShares, '#,##0',
+        { historicalKey: 'sharesOutstanding' });
+    addAssumptionRow('Stock-Based Comp Amount', 'stockBasedCompAmount', allSBC, NUM_FMT,
+        { historicalKey: 'stockBasedComp' });
 
     // ── Balance Sheet / WC Drivers ──
     aSheet.getCell(aRow, 1).value = '── Balance Sheet / WC Drivers ──';
     styleRow(aSheet.getRow(aRow), { subheader: true });
     aRow++;
 
-    addAssumptionRow('DSO (Days)', 'dso', allDSO, '#,##0');
-    addAssumptionRow('DIO (Days)', 'dio', allDIO, '#,##0');
-    addAssumptionRow('DPO (Days)', 'dpo', allDPO, '#,##0');
-    addAssumptionRow('Prepaid % of Revenue', 'prepaidPercent', allPrepaid, PCT_FMT);
-    addAssumptionRow('Accrued Exp % of Revenue', 'accruedExpPercent', allAccrued, PCT_FMT);
-    addAssumptionRow('Deferred Rev % of Revenue', 'deferredRevPercent', allDefRev, PCT_FMT);
+    addAssumptionRow('DSO (Days)', 'dso', allDSO, '#,##0',
+        { historicalFormula: hdDays('accountsReceivable', 'revenue') });
+    addAssumptionRow('DIO (Days)', 'dio', allDIO, '#,##0',
+        { historicalFormula: hdDays('inventory', 'cogs') });
+    addAssumptionRow('DPO (Days)', 'dpo', allDPO, '#,##0',
+        { historicalFormula: hdDays('accountsPayable', 'cogs') });
+    addAssumptionRow('Prepaid % of Revenue', 'prepaidPercent', allPrepaid, PCT_FMT,
+        { historicalFormula: hdSafeRatio('prepaidExpenses', 'revenue') });
+    addAssumptionRow('Accrued Exp % of Revenue', 'accruedExpPercent', allAccrued, PCT_FMT,
+        { historicalFormula: hdSafeRatio('accruedExpenses', 'revenue') });
+    addAssumptionRow('Deferred Rev % of Revenue', 'deferredRevPercent', allDefRev, PCT_FMT,
+        { historicalFormula: hdSafeRatio('deferredRevenue', 'revenue') });
 
     // ── CapEx & D&A Drivers ──
     aSheet.getCell(aRow, 1).value = '── CapEx & Depreciation Drivers ──';
     styleRow(aSheet.getRow(aRow), { subheader: true });
     aRow++;
 
-    addAssumptionRow('CapEx % of Revenue', 'capexPercent', allCapex, PCT_FMT);
-    addAssumptionRow('Depreciation Rate (% Gross PPE)', 'depreciationRate', allDepRate, PCT_FMT);
-    addAssumptionRow('Amortization Amount', 'amortizationAmount', allAmort, NUM_FMT);
+    addAssumptionRow('CapEx % of Revenue', 'capexPercent', allCapex, PCT_FMT,
+        {
+            historicalFormula: (c, yr) => {
+                if (yr === 0) return null;
+                const r = hdRows['grossPPE'], rev = hdRows['revenue'];
+                if (!r || !rev) return null;
+                const prev = colLetter(yr + 1);
+                return `IF('Historical Data'!${c}${rev}=0,0,('Historical Data'!${c}${r}-'Historical Data'!${prev}${r})/'Historical Data'!${c}${rev})`;
+            },
+        });
+    addAssumptionRow('Depreciation Rate (% Gross PPE)', 'depreciationRate', allDepRate, PCT_FMT,
+        { historicalFormula: hdSafeRatio('depreciation', 'grossPPE') });
+    addAssumptionRow('Amortization Amount', 'amortizationAmount', allAmort, NUM_FMT,
+        { historicalKey: 'amortization' });
 
     // ── Debt & Financing Drivers ──
     aSheet.getCell(aRow, 1).value = '── Debt & Financing ──';
     styleRow(aSheet.getRow(aRow), { subheader: true });
     aRow++;
 
-    addAssumptionRow('Interest Rate (on Debt)', 'interestRate', allInterestRate, PCT_FMT);
-    addAssumptionRow('Interest Income Rate (on Cash)', 'interestIncomeRate', allInterestIncRate, PCT_FMT);
+    addAssumptionRow('Interest Rate (on Debt)', 'interestRate', allInterestRate, PCT_FMT,
+        {
+            historicalFormula: (c, yr) => {
+                if (yr === 0) return null;
+                const ie = hdRows['interestExpense'], ltd = hdRows['longTermDebt'];
+                if (!ie || !ltd) return null;
+                const prev = colLetter(yr + 1);
+                return `IF(AVERAGE('Historical Data'!${c}${ltd},'Historical Data'!${prev}${ltd})=0,0,'Historical Data'!${c}${ie}/AVERAGE('Historical Data'!${c}${ltd},'Historical Data'!${prev}${ltd}))`;
+            },
+        });
+    addAssumptionRow('Interest Income Rate (on Cash)', 'interestIncomeRate', allInterestIncRate, PCT_FMT,
+        {
+            historicalFormula: (c, yr) => {
+                if (yr === 0) return null;
+                const ii = hdRows['interestIncome'], cash = hdRows['cash'];
+                if (!ii || !cash) return null;
+                const prev = colLetter(yr + 1);
+                return `IF(AVERAGE('Historical Data'!${c}${cash},'Historical Data'!${prev}${cash})=0,0,'Historical Data'!${c}${ii}/AVERAGE('Historical Data'!${c}${cash},'Historical Data'!${prev}${cash}))`;
+            },
+        });
     addAssumptionRow('EPD Rate (Employee Profit Sharing)', 'employeeProfitSharingRate',
         Array(nYears).fill(assumptions.employeeProfitSharingRate ?? 0.10), PCT_FMT);
-    addAssumptionRow('Short-Term Debt', 'shortTermDebtAmount', allSTDebt, NUM_FMT);
+    addAssumptionRow('Short-Term Debt', 'shortTermDebtAmount', allSTDebt, NUM_FMT,
+        { historicalKey: 'shortTermDebt' });
     addAssumptionRow('LT Debt Issuance', 'longTermDebtIssuance', allLTDIssuance, NUM_FMT);
     addAssumptionRow('LT Debt Repayment', 'longTermDebtRepayment', allLTDRepayment, NUM_FMT);
-    addAssumptionRow('Current Portion LTD', 'currentPortionLTD', allCPLTD, NUM_FMT);
+    addAssumptionRow('Current Portion LTD', 'currentPortionLTD', allCPLTD, NUM_FMT,
+        { historicalKey: 'currentPortionLTD' });
     addAssumptionRow('Dividend Payout Ratio', 'dividendPayoutRatio', allDivPayout, PCT_FMT);
     addAssumptionRow('Share Repurchase Amount', 'shareRepurchaseAmount', allShareRepurch, NUM_FMT);
     addAssumptionRow('Legal Reserve %', 'legalReservePercent',
@@ -651,49 +797,75 @@ export async function exportToExcel(
     styleRow(aSheet.getRow(aRow), { subheader: true });
     aRow++;
 
-    addAssumptionRow('Goodwill', 'goodwill', allGoodwill, NUM_FMT);
-    addAssumptionRow('Other Current Assets', 'otherCurrentAssets', allOCA, NUM_FMT);
-    addAssumptionRow('Other Long-Term Assets', 'otherLongTermAssets', allOLTA, NUM_FMT);
-    addAssumptionRow('Other Current Liabilities', 'otherCurrentLiabilities', allOCL, NUM_FMT);
-    addAssumptionRow('Deferred Tax Liabilities', 'deferredTaxLiabilities', allDTL, NUM_FMT);
-    addAssumptionRow('Other LT Liabilities', 'otherLongTermLiabilities', allOLTL, NUM_FMT);
-    addAssumptionRow('Common Stock', 'commonStock', allCS, NUM_FMT);
-    addAssumptionRow('APIC', 'apic', allAPIC, NUM_FMT);
-    addAssumptionRow('Other Comprehensive Income', 'oci', allOCI, NUM_FMT);
+    addAssumptionRow('Goodwill', 'goodwill', allGoodwill, NUM_FMT,
+        { historicalKey: 'goodwill' });
+    addAssumptionRow('Other Current Assets', 'otherCurrentAssets', allOCA, NUM_FMT,
+        { historicalKey: 'otherCurrentAssets' });
+    addAssumptionRow('Other Long-Term Assets', 'otherLongTermAssets', allOLTA, NUM_FMT,
+        { historicalKey: 'otherLongTermAssets' });
+    addAssumptionRow('Other Current Liabilities', 'otherCurrentLiabilities', allOCL, NUM_FMT,
+        { historicalKey: 'otherCurrentLiabilities' });
+    addAssumptionRow('Deferred Tax Liabilities', 'deferredTaxLiabilities', allDTL, NUM_FMT,
+        { historicalKey: 'deferredTaxLiabilities' });
+    addAssumptionRow('Other LT Liabilities', 'otherLongTermLiabilities', allOLTL, NUM_FMT,
+        { historicalKey: 'otherLongTermLiabilities' });
+    addAssumptionRow('Common Stock', 'commonStock', allCS, NUM_FMT,
+        { historicalKey: 'commonStock' });
+    addAssumptionRow('APIC', 'apic', allAPIC, NUM_FMT,
+        { historicalKey: 'additionalPaidInCapital' });
+    addAssumptionRow('Other Comprehensive Income', 'oci', allOCI, NUM_FMT,
+        { historicalKey: 'otherComprehensiveIncome' });
 
     // ── Engine-Computed Values (circular/chain resolved) ──
     aSheet.getCell(aRow, 1).value = '── Engine-Computed Values ──';
     styleRow(aSheet.getRow(aRow), { subheader: true });
     aRow++;
 
-    addAssumptionRow('Interest Income (Computed)', 'interestIncomeComputed', allInterestIncome, NUM_FMT);
-    addAssumptionRow('Interest Expense (Computed)', 'interestExpenseComputed', allInterestExpense, NUM_FMT);
-    addAssumptionRow('Depreciation (Computed)', 'depreciationComputed', allDepreciation, NUM_FMT);
-    addAssumptionRow('Gross PP&E (Computed)', 'grossPPEComputed', allGrossPPE, NUM_FMT);
-    addAssumptionRow('Accum Depreciation (Computed)', 'accumDepComputed', allAccumDep, NUM_FMT);
-    addAssumptionRow('Net PP&E (Computed)', 'netPPEComputed', allNetPPE, NUM_FMT);
-    addAssumptionRow('Intangibles (Computed)', 'intangiblesComputed', allIntangibles, NUM_FMT);
-    addAssumptionRow('Long-Term Debt (Computed)', 'ltdComputed', allLTD, NUM_FMT);
-    addAssumptionRow('Retained Earnings (Computed)', 'reComputed', allRE, NUM_FMT);
-    addAssumptionRow('Treasury Stock (Computed)', 'tsComputed', allTS, NUM_FMT);
-    addAssumptionRow('APIC (Computed)', 'apicComputed', allAPICValues, NUM_FMT);
+    addAssumptionRow('Interest Income (Computed)', 'interestIncomeComputed', allInterestIncome, NUM_FMT,
+        { historicalKey: 'interestIncome' });
+    addAssumptionRow('Interest Expense (Computed)', 'interestExpenseComputed', allInterestExpense, NUM_FMT,
+        { historicalKey: 'interestExpense' });
+    addAssumptionRow('Depreciation (Computed)', 'depreciationComputed', allDepreciation, NUM_FMT,
+        { historicalKey: 'depreciation' });
+    addAssumptionRow('Gross PP&E (Computed)', 'grossPPEComputed', allGrossPPE, NUM_FMT,
+        { historicalKey: 'grossPPE' });
+    addAssumptionRow('Accum Depreciation (Computed)', 'accumDepComputed', allAccumDep, NUM_FMT,
+        { historicalKey: 'accumulatedDepreciation' });
+    addAssumptionRow('Net PP&E (Computed)', 'netPPEComputed', allNetPPE, NUM_FMT,
+        { historicalKey: 'netPPE' });
+    addAssumptionRow('Intangibles (Computed)', 'intangiblesComputed', allIntangibles, NUM_FMT,
+        { historicalKey: 'intangibles' });
+    addAssumptionRow('Long-Term Debt (Computed)', 'ltdComputed', allLTD, NUM_FMT,
+        { historicalKey: 'longTermDebt' });
+    addAssumptionRow('Retained Earnings (Computed)', 'reComputed', allRE, NUM_FMT,
+        { historicalKey: 'retainedEarnings' });
+    addAssumptionRow('Treasury Stock (Computed)', 'tsComputed', allTS, NUM_FMT,
+        { historicalKey: 'treasuryStock' });
+    addAssumptionRow('APIC (Computed)', 'apicComputed', allAPICValues, NUM_FMT,
+        { historicalKey: 'additionalPaidInCapital' });
     // Legal Reserve and EOS Provision computed values
     const allLegalReserve = allBS.map(bs => bs.legalReserve ?? 0);
-    addAssumptionRow('Legal Reserve (Computed)', 'legalReserveComputed', allLegalReserve, NUM_FMT);
+    addAssumptionRow('Legal Reserve (Computed)', 'legalReserveComputed', allLegalReserve, NUM_FMT,
+        { historicalKey: 'legalReserve' });
     const allEOSProvision = allBS.map(bs => bs.endOfServiceProvision ?? 0);
-    addAssumptionRow('EOS Provision (Computed)', 'eosProvisionComputed', allEOSProvision, NUM_FMT);
+    addAssumptionRow('EOS Provision (Computed)', 'eosProvisionComputed', allEOSProvision, NUM_FMT,
+        { historicalKey: 'endOfServiceProvision' });
 
-    // Engine-computed CF values (padded to nYears: index 0 = IS year 0 with no CF entry)
+    // Dividends Paid (computed): historical = NI − ΔRE; projected = engine state.
     const allDividendsPaidPadded = [0, ...results.cashFlowStatements.map(cf => cf.dividendsPaid)];
-    addAssumptionRow('Dividends Paid (Computed)', 'dividendsPaidComputed', allDividendsPaidPadded, NUM_FMT);
-    const allEquityIssuancePadded = [0, ...results.cashFlowStatements.map(cf => cf.equityIssuance)];
-    addAssumptionRow('Equity Issuance (Computed)', 'equityIssuanceComputed', allEquityIssuancePadded, NUM_FMT);
-    const allShareRepurchasesPadded = [0, ...results.cashFlowStatements.map(cf => cf.shareRepurchases)];
-    addAssumptionRow('Share Repurchases (Computed)', 'shareRepurchasesComputed', allShareRepurchasesPadded, NUM_FMT);
-    const allAcquisitionsPadded = [0, ...results.cashFlowStatements.map(cf => cf.acquisitions)];
-    addAssumptionRow('Acquisitions (Computed)', 'acquisitionsComputed', allAcquisitionsPadded, NUM_FMT);
-    const allAssetSalesPadded = [0, ...results.cashFlowStatements.map(cf => cf.assetSales)];
-    addAssumptionRow('Asset Sales (Computed)', 'assetSalesComputed', allAssetSalesPadded, NUM_FMT);
+    addAssumptionRow('Dividends Paid (Computed)', 'dividendsPaidComputed', allDividendsPaidPadded, NUM_FMT,
+        {
+            historicalFormula: (c, yr) => {
+                if (yr === 0) return null;
+                const ni = hdRows['netIncome'], re = hdRows['retainedEarnings'];
+                if (!ni || !re) return null;
+                const prev = colLetter(yr + 1);
+                return `'Historical Data'!${c}${ni}-('Historical Data'!${c}${re}-'Historical Data'!${prev}${re})`;
+            },
+        });
+    // Removed: Equity Issuance (Computed), Share Repurchases (Computed),
+    //          Acquisitions (Computed), Asset Sales (Computed).
+    // No engine driver exists for these; they were always 0. Per Fix 3.
 
     // Helper: get Assumptions cell reference like "Assumptions!B3"
     function aRef(key: string, yearIdx: number): string {
@@ -1818,12 +1990,14 @@ export async function exportToExcel(
         value: j => results.cashFlowStatements[j]?.capex ?? 0,
     });
 
+    // Acquisitions / Asset Sales: no engine driver — always 0 (Fix 3 deletes the
+    // back-derived "Computed" rows from Assumptions sheet).
     addCFRow('Acquisitions', 'acquisitions', {
-        formula: (_cfCol, _isCol, isYr) => `${aRef('acquisitionsComputed', isYr)}`,
+        formula: () => `0`,
         value: j => results.cashFlowStatements[j]?.acquisitions ?? 0,
     });
     addCFRow('Asset Sales', 'assetSales', {
-        formula: (_cfCol, _isCol, isYr) => `${aRef('assetSalesComputed', isYr)}`,
+        formula: () => `0`,
         value: j => results.cashFlowStatements[j]?.assetSales ?? 0,
     });
 
@@ -1873,22 +2047,32 @@ export async function exportToExcel(
         value: j => results.cashFlowStatements[j]?.dividendWHT ?? 0,
     });
 
-    // Equity Issuance: historical = engine back-solved (from APIC/CS changes), projected = assumption
+    // Equity Issuance: historical = ΔCS + ΔAPIC from Historical Data, projected = assumption
     addCFRow('Equity Issuance', 'equityIssuance', {
         formula: (_cfCol, _isCol, isYr) => {
             if (isYr < numHistorical) {
-                return `${aRef('equityIssuanceComputed', isYr)}`;
+                if (isYr === 0) return `0`;
+                const cs = hdRows['commonStock'], apic = hdRows['additionalPaidInCapital'];
+                if (!cs || !apic) return `0`;
+                const c = colLetter(isYr + 2);
+                const prev = colLetter(isYr + 1);
+                return `('Historical Data'!${c}${cs}-'Historical Data'!${prev}${cs})+('Historical Data'!${c}${apic}-'Historical Data'!${prev}${apic})`;
             }
             return `${aRef('equityIssuance', isYr)}`;
         },
         value: j => results.cashFlowStatements[j]?.equityIssuance ?? 0,
     });
 
-    // Share Repurchases: historical = engine back-solved (from TS changes), projected = -ABS(assumption)
+    // Share Repurchases: historical = -ABS(ΔTreasury) from Historical Data, projected = -ABS(assumption)
     addCFRow('Share Repurchases', 'shareRepurchases', {
         formula: (_cfCol, _isCol, isYr) => {
             if (isYr < numHistorical) {
-                return `${aRef('shareRepurchasesComputed', isYr)}`;
+                if (isYr === 0) return `0`;
+                const ts = hdRows['treasuryStock'];
+                if (!ts) return `0`;
+                const c = colLetter(isYr + 2);
+                const prev = colLetter(isYr + 1);
+                return `-ABS('Historical Data'!${c}${ts}-'Historical Data'!${prev}${ts})`;
             }
             return `-ABS(${aRef('shareRepurchaseAmount', isYr)})`;
         },
