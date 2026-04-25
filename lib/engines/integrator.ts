@@ -27,7 +27,7 @@ import { calculateDCF } from './dcf';
  * last historical value (<10% of it), treat the assumption as a placeholder
  * and replace the entire array with the last historical value.
  */
-function seedAssumptionsFromHistorical(
+export function seedAssumptionsFromHistorical(
     assumptions: AssumptionSet,
     historicalInputs: HistoricalInputs,
 ): AssumptionSet {

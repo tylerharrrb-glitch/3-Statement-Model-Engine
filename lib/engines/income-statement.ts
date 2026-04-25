@@ -193,7 +193,11 @@ export function calculateIncomeStatement(inputs: IncomeStatementInputs): IncomeS
     const amortization = assumptions.amortizationAmount[yr] ?? 0;
     const otherOpex = revenue * (assumptions.otherOpexPercent[yr] ?? 0.02);
     const stockBasedComp = assumptions.stockBasedCompAmount[yr] ?? 0;
-    const totalOpex = sgaExpense + rdExpense + depreciation + amortization + otherOpex + stockBasedComp;
+    // EOS provision expense (Art. 110, Fix 7) — only when EOS feature enabled
+    const eosExpense = (assumptions.enableEndOfServiceBenefit ?? false)
+        ? sgaExpense * (assumptions.eosProvisionPctOfSGA?.[yr] ?? 0.015)
+        : 0;
+    const totalOpex = sgaExpense + rdExpense + depreciation + amortization + otherOpex + stockBasedComp + eosExpense;
 
     // Operating Income
     const ebit = grossProfit - totalOpex;
@@ -291,7 +295,11 @@ export function calculateIncomeStatement(inputs: IncomeStatementInputs): IncomeS
     const fcff = nopat + depreciation + amortization - capex - changeInNWC;
 
     // Per Share — EPS uses NI After EPD (distributable to shareholders)
-    const sharesOutstanding = assumptions.sharesOutstanding[yr] ?? 100_000;
+    // Carry forward last assumption value rather than fall back to a placeholder literal.
+    const sharesOutstanding = assumptions.sharesOutstanding[yr]
+        ?? assumptions.sharesOutstanding[yr - 1]
+        ?? assumptions.sharesOutstanding[0]
+        ?? 0;
     const eps = sharesOutstanding !== 0 ? netIncomeAfterEPD / sharesOutstanding : 0;
 
     // VAT memo (Egyptian market)
@@ -318,6 +326,7 @@ export function calculateIncomeStatement(inputs: IncomeStatementInputs): IncomeS
         amortization,
         otherOpex,
         stockBasedComp,
+        eosExpense,
         totalOpex,
         ebit,
         ebitda,

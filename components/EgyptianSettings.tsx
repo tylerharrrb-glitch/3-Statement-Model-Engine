@@ -366,7 +366,7 @@ export default function EgyptianSettings() {
                         style={{ width: 100, textAlign: 'right' }}
                     />
                     <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
-                        Max: {((a.paidUpCapital ?? 10000) * (a.legalReserveCap ?? 0.50)).toLocaleString()} (50% of Issued Capital)
+                        Max: {((a.paidUpCapital || 0) * (a.legalReserveCap ?? 0.50)).toLocaleString()} (50% of Issued Capital)
                     </span>
                 </div>
                 <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 12, paddingLeft: 192 }}>

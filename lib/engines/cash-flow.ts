@@ -28,6 +28,9 @@ export function calculateCashFlow(inputs: CashFlowInputs): CashFlowStatement {
     const amortization = incomeStatement.amortization;
     const stockBasedComp = assumptions.stockBasedCompAmount[yr] ?? 0;
     const deferredTaxes = curr.deferredTaxLiabilities - prev.deferredTaxLiabilities;
+    const changeInOtherLTLiabilities = curr.otherLongTermLiabilities - prev.otherLongTermLiabilities;
+    const changeInOCI = curr.otherComprehensiveIncome - prev.otherComprehensiveIncome;
+    const endOfServiceProvisionAddition = (curr.endOfServiceProvision ?? 0) - (prev.endOfServiceProvision ?? 0);
 
     // Working Capital Changes (increase in asset = cash outflow = negative)
     const changeInAR = -(curr.accountsReceivable - prev.accountsReceivable);
@@ -46,20 +49,49 @@ export function calculateCashFlow(inputs: CashFlowInputs): CashFlowStatement {
         changeInVATReceivable + changeInVATPayable;
 
     const cashFromOperations = netIncome + depreciation + amortization +
-        stockBasedComp + deferredTaxes + totalWorkingCapitalChange;
+        stockBasedComp + deferredTaxes + changeInOtherLTLiabilities +
+        changeInOCI + endOfServiceProvisionAddition + totalWorkingCapitalChange;
 
     // ── INVESTING ACTIVITIES ────────────────────────────
     const capex = -(incomeStatement.revenue * (assumptions.capexPercent[yr] ?? 0.05));
+    // Intangibles CapEx (Fix 6) — drives BS. CF mirrors BS so they reconcile.
+    const intangiblesCapExPct = assumptions.intangiblesCapExPercent?.[yr] ?? 0;
+    const purchaseOfIntangibles = -(incomeStatement.revenue * intangiblesCapExPct);
+    // Other LT asset and goodwill changes — surface as separate lines (Fix 4)
+    const changeInOtherLongTermAssets = -(curr.otherLongTermAssets - prev.otherLongTermAssets);
+    const changeInGoodwill = -(curr.goodwill - prev.goodwill);
     const acquisitions = -(assumptions.acquisitions[yr] ?? 0);
     const assetSales = assumptions.assetSales[yr] ?? 0;
     const investmentPurchases = -(assumptions.investmentPurchases[yr] ?? 0);
     const investmentSales = assumptions.investmentSales[yr] ?? 0;
 
-    const cashFromInvesting = capex + acquisitions + assetSales + investmentPurchases + investmentSales;
+    const cashFromInvesting = capex + purchaseOfIntangibles + changeInOtherLongTermAssets +
+        changeInGoodwill + acquisitions + assetSales + investmentPurchases + investmentSales;
 
     // ── FINANCING ACTIVITIES ────────────────────────────
     const debtIssuance = assumptions.longTermDebtIssuance[yr] ?? 0;
-    const debtRepayment = -(assumptions.longTermDebtRepayment[yr] ?? 0);
+    // Mirror the BS engine's debt schedule (Fix 5) so CF and BS agree.
+    const debtMode = assumptions.debtScheduleMode ?? 'manual';
+    const projYears = assumptions.projectionYears ?? 1;
+    const amortYears = assumptions.amortizingTermYears ?? 10;
+    let scheduledRepayment: number;
+    switch (debtMode) {
+        case 'flat':
+        case 'interest-only':
+            scheduledRepayment = 0;
+            break;
+        case 'bullet':
+            scheduledRepayment = yr === projYears - 1 ? prev.longTermDebt : 0;
+            break;
+        case 'amortizing':
+            scheduledRepayment = amortYears > 0 ? prev.longTermDebt / amortYears : 0;
+            break;
+        case 'manual':
+        default:
+            scheduledRepayment = assumptions.longTermDebtRepayment[yr] ?? 0;
+            break;
+    }
+    const debtRepayment = -scheduledRepayment;
     const equityIssuance = assumptions.equityIssuance[yr] ?? 0;
 
     // Dividends: from IS profit appropriation waterfall
@@ -97,6 +129,9 @@ export function calculateCashFlow(inputs: CashFlowInputs): CashFlowStatement {
         amortization,
         stockBasedComp,
         deferredTaxes,
+        changeInOtherLTLiabilities,
+        changeInOCI,
+        endOfServiceProvisionAddition,
         changeInAR,
         changeInInventory,
         changeInPrepaid,
@@ -108,6 +143,9 @@ export function calculateCashFlow(inputs: CashFlowInputs): CashFlowStatement {
         totalWorkingCapitalChange,
         cashFromOperations,
         capex,
+        purchaseOfIntangibles,
+        changeInGoodwill,
+        changeInOtherLongTermAssets,
         acquisitions,
         assetSales,
         investmentPurchases,
@@ -153,8 +191,10 @@ export function buildHistoricalCashFlows(
         // Historical reconciliation items: changes in "other" BS balances
         const changeInOtherCurrentAssets = -(curr.otherCurrentAssets - prev.otherCurrentAssets);
         const changeInOtherCurrentLiabilities = curr.otherCurrentLiabilities - prev.otherCurrentLiabilities;
-        const changeInOtherLongTermLiabilities = curr.otherLongTermLiabilities - prev.otherLongTermLiabilities;
+        const changeInOtherLTLiabilities = curr.otherLongTermLiabilities - prev.otherLongTermLiabilities;
         const changeInDeferredTax = curr.deferredTaxLiabilities - prev.deferredTaxLiabilities;
+        const changeInOCI = curr.otherComprehensiveIncome - prev.otherComprehensiveIncome;
+        const endOfServiceProvisionAddition = (curr.endOfServiceProvision ?? 0) - (prev.endOfServiceProvision ?? 0);
         const totalWorkingCapitalChange = changeInAR + changeInInventory + changeInPrepaid +
             changeInAP + changeInAccruedExp + changeInDeferredRev +
             changeInVATReceivable + changeInVATPayable +
@@ -166,15 +206,16 @@ export function buildHistoricalCashFlows(
         const stockBasedComp = 0; // SBC is accounted for in equity issuance calc below
 
         const cashFromOperations = is.netIncome + is.depreciation + is.amortization +
-            stockBasedComp + changeInDeferredTax + changeInOtherLongTermLiabilities +
-            totalWorkingCapitalChange;
+            stockBasedComp + changeInDeferredTax + changeInOtherLTLiabilities +
+            changeInOCI + endOfServiceProvisionAddition + totalWorkingCapitalChange;
 
         // ── INVESTING ACTIVITIES ────────────────────────────
         const capex = -(curr.grossPPE - prev.grossPPE);
-        const changeInIntangiblesCF = -(curr.intangibles - (prev.intangibles - is.amortization));
+        // Purchase of intangibles = (curr - prev) + amortization → gross additions
+        const purchaseOfIntangibles = -((curr.intangibles + is.amortization) - prev.intangibles);
         const changeInGoodwill = -(curr.goodwill - prev.goodwill);
         const changeInOtherLongTermAssets = -(curr.otherLongTermAssets - prev.otherLongTermAssets);
-        const cashFromInvesting = capex + changeInIntangiblesCF + changeInGoodwill + changeInOtherLongTermAssets;
+        const cashFromInvesting = capex + purchaseOfIntangibles + changeInGoodwill + changeInOtherLongTermAssets;
 
         // ── FINANCING ACTIVITIES ────────────────────────────
         // Split STD and LTD (including current portion LTD) so historical STD repayments
@@ -217,7 +258,10 @@ export function buildHistoricalCashFlows(
             depreciation: is.depreciation,
             amortization: is.amortization,
             stockBasedComp,
-            deferredTaxes: 0,
+            deferredTaxes: changeInDeferredTax,
+            changeInOtherLTLiabilities,
+            changeInOCI,
+            endOfServiceProvisionAddition,
             changeInAR,
             changeInInventory,
             changeInPrepaid,
@@ -229,6 +273,9 @@ export function buildHistoricalCashFlows(
             totalWorkingCapitalChange,
             cashFromOperations,
             capex,
+            purchaseOfIntangibles,
+            changeInGoodwill,
+            changeInOtherLongTermAssets,
             acquisitions: 0,
             assetSales: 0,
             investmentPurchases: 0,

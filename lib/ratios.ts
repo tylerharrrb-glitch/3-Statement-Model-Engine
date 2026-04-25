@@ -17,15 +17,16 @@ export function calculateFinancialRatios(
     const avgInventory = (bs.inventory + previousBS.inventory) / 2;
     const avgAR = (bs.accountsReceivable + previousBS.accountsReceivable) / 2;
 
-    // Invested Capital = Total Equity + Total Interest-Bearing Debt
-    // Per EAS and standard practice — Cash is NOT netted; it's an operating asset
+    // Invested Capital — unified definition: Debt + Equity − Cash (net IC)
     const totalDebt = bs.shortTermDebt + bs.longTermDebt + bs.currentPortionLTD;
-    const investedCapital = bs.totalEquity + totalDebt;
     const prevTotalDebt = previousBS.shortTermDebt + previousBS.longTermDebt + previousBS.currentPortionLTD;
-    const avgInvestedCapital = (investedCapital + (previousBS.totalEquity + prevTotalDebt)) / 2;
+    const investedCapital = bs.totalEquity + totalDebt - bs.cash;
+    const prevInvestedCapital = previousBS.totalEquity + prevTotalDebt - previousBS.cash;
+    const avgInvestedCapital = (investedCapital + prevInvestedCapital) / 2;
 
-    // NOPAT = EBIT * (1 - tax rate)
-    const nopat = is.ebit * (1 - is.taxRate);
+    // NOPAT = EBIT × (1 − effectiveTaxRate). Effective rate from current-period IS.
+    const effectiveTaxRate = is.ebt > 0 ? is.taxExpense / is.ebt : is.taxRate;
+    const nopat = is.ebit * (1 - effectiveTaxRate);
 
     // Efficiency — compute locally so CCC can reference them
     const dso = is.revenue !== 0 ? (bs.accountsReceivable / is.revenue) * 365 : 0;
@@ -113,10 +114,8 @@ export function calculateFinancialRatios(
         netMargin: is.netMargin,
         roe,
         roa,
-        // ROIC uses AVERAGE Net IC (equity + debt − cash) — standard practice
-        roic: (avgInvestedCapital - (bs.cash + previousBS.cash) / 2) !== 0
-            ? nopat / (avgInvestedCapital - (bs.cash + previousBS.cash) / 2)
-            : 0,
+        // ROIC = NOPAT / avg(IC) where IC = Debt + Equity − Cash (single source of truth)
+        roic: avgInvestedCapital !== 0 ? nopat / avgInvestedCapital : 0,
 
         // Liquidity
         currentRatio: bs.totalCurrentLiabilities !== 0

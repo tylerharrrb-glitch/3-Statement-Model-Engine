@@ -41,7 +41,18 @@ export default function RatiosPage() {
                 { label: 'Net Margin', compute: yr => sd(is[yr]?.netIncome ?? 0, is[yr]?.revenue ?? 0), fmt: 'pct', threshold: { good: 0.05, direction: 'above' } },
                 { label: 'ROE', compute: yr => sd(is[yr]?.netIncome ?? 0, bs[yr]?.totalEquity ?? 0), fmt: 'pct', threshold: { good: 0.12, direction: 'above' } },
                 { label: 'ROA', compute: yr => sd(is[yr]?.netIncome ?? 0, bs[yr]?.totalAssets ?? 0), fmt: 'pct', threshold: { good: 0.05, direction: 'above' } },
-                { label: 'ROIC', compute: yr => sd(is[yr]?.ebit * (1 - is[yr]?.taxRate), bs[yr]?.totalEquity + totalDebt(yr) - bs[yr]?.cash), fmt: 'pct', threshold: { good: 0.1, direction: 'above' } },
+                { label: 'ROIC', compute: yr => {
+                    const ebt = is[yr]?.ebt ?? 0;
+                    const taxExp = is[yr]?.taxExpense ?? 0;
+                    const effRate = ebt > 0 ? taxExp / ebt : (is[yr]?.taxRate ?? 0);
+                    const nopat = (is[yr]?.ebit ?? 0) * (1 - effRate);
+                    const icCurr = (bs[yr]?.totalEquity ?? 0) + totalDebt(yr) - (bs[yr]?.cash ?? 0);
+                    const prev = bs[yr - 1];
+                    if (!prev) return sd(nopat, icCurr);
+                    const debtPrev = (prev.shortTermDebt ?? 0) + (prev.currentPortionLTD ?? 0) + (prev.longTermDebt ?? 0);
+                    const icPrev = (prev.totalEquity ?? 0) + debtPrev - (prev.cash ?? 0);
+                    return sd(nopat, (icCurr + icPrev) / 2);
+                }, fmt: 'pct', threshold: { good: 0.1, direction: 'above' } },
             ],
         },
         {

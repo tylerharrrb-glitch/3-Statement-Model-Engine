@@ -25,6 +25,8 @@ export interface AssumptionSet {
     capexPercent: number[];             // % of revenue
     depreciationRate: number[];         // % of gross PP&E
     amortizationAmount: number[];       // Absolute value
+    // Intangibles CapEx (Fix 6) — telecom-relevant: spectrum licenses, software
+    intangiblesCapExPercent?: number[]; // % of revenue, default 0.02 (2.0%)
 
     // Debt & Financing — per-year rates (Egyptian market: CBE-linked)
     cbeRate: number;                    // CBE overnight rate (master input)
@@ -37,6 +39,14 @@ export interface AssumptionSet {
     longTermDebtIssuance: number[];
     longTermDebtRepayment: number[];
     currentPortionLTD: number[];
+    // LT Debt Schedule Mode (Fix 5)
+    // 'manual' uses longTermDebtRepayment array as-is.
+    // 'flat' = no principal movement (carry-forward).
+    // 'bullet' = single principal payment in final year (or specified year).
+    // 'amortizing' = straight-line over amortizingTermYears.
+    // 'interest-only' = no principal repayments during projection.
+    debtScheduleMode?: 'manual' | 'flat' | 'bullet' | 'amortizing' | 'interest-only';
+    amortizingTermYears?: number;        // for 'amortizing' mode
 
     // Equity
     sharesOutstanding: number[];
@@ -91,10 +101,13 @@ export interface AssumptionSet {
         furniture: number;   // default: 0.10
     };
 
-    // End of Service Benefits (Labor Law + EAS 38)
+    // End of Service Benefits (Labor Law + EAS 38) / EOS Provision (Art. 110)
     enableEndOfServiceBenefit: boolean; // default: false (optional)
     averageMonthlyBasicSalary: number;  // EGP
     numberOfEmployees: number[];        // per projection year
+    // Egyptian Labor Law Art. 110 — EOS provision as % of SG&A (Fix 7)
+    eosProvisionPctOfSGA?: number[];    // default: fill(0.015) → 1.5% of SG&A
+    eosPaymentsEstimate?: number[];     // EGP cash outflow per year (default 0)
 
     // Other
     otherIncomeExpense: number[];
@@ -204,7 +217,7 @@ export function getDefaultAssumptions(): AssumptionSet {
 
         cogsPercent: fill(0.60),
         sgaPercent: fill(0.15),
-        rdPercent: fill(0.05),
+        rdPercent: fill(0),               // off by default — R&D atypical for telecom (Fix 9)
         otherOpexPercent: fill(0.02),
 
         dso: fill(45),
@@ -217,6 +230,7 @@ export function getDefaultAssumptions(): AssumptionSet {
         capexPercent: fill(0.05),
         depreciationRate: fill(0.10),
         amortizationAmount: fill(5_000),
+        intangiblesCapExPercent: fill(0.02),  // 2% of revenue (telecom default, Fix 6)
 
         cbeRate: 0.195,                       // CBE main operation / discount rate (April 2, 2026 MPC)
         interestRateOnDebt: [0.22, 0.20, 0.18, 0.17, 0.16],  // CBE lending + 250bps spread, declining
@@ -227,8 +241,10 @@ export function getDefaultAssumptions(): AssumptionSet {
         legacyDebtRate: 0.045,
         shortTermDebtAmount: fill(50_000),
         longTermDebtIssuance: fill(0),
-        longTermDebtRepayment: fill(20_000),
-        currentPortionLTD: fill(20_000),
+        longTermDebtRepayment: fill(0),    // 0 by default — user inputs real schedule (Fix 5)
+        currentPortionLTD: fill(0),
+        debtScheduleMode: 'flat',          // default: carry forward unchanged
+        amortizingTermYears: 10,           // default if 'amortizing' is selected
 
         sharesOutstanding: fill(100_000),
         dividendPayoutRatio: fill(0.30),
@@ -280,6 +296,8 @@ export function getDefaultAssumptions(): AssumptionSet {
         enableEndOfServiceBenefit: false,
         averageMonthlyBasicSalary: 5_000,
         numberOfEmployees: fill(50),
+        eosProvisionPctOfSGA: fill(0.015),  // 1.5% of SG&A (Egyptian Labor Law Art. 110)
+        eosPaymentsEstimate: fill(0),
 
         otherIncomeExpense: fill(0),
         goodwill: fill(100_000),

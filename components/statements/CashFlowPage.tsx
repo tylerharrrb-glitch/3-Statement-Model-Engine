@@ -12,12 +12,16 @@ export default function CashFlowPage() {
     const lastHistIdx = statements.reduce((acc, s, i) => s.periodType === 'historical' ? i : acc, -1);
 
     type CFKey = keyof typeof statements[0];
-    const sections: { title: string; rows: { label: string; key: CFKey; bold?: boolean }[] }[] = [
+    type CFRow = { label: string; key: CFKey; bold?: boolean; alwaysShow?: boolean };
+    const sections: { title: string; rows: CFRow[] }[] = [
         {
             title: 'OPERATING ACTIVITIES', rows: [
-                { label: 'Net Income', key: 'netIncome' }, { label: 'Depreciation', key: 'depreciation' },
+                { label: 'Net Income', key: 'netIncome', alwaysShow: true }, { label: 'Depreciation', key: 'depreciation' },
                 { label: 'Amortization', key: 'amortization' }, { label: 'Stock-Based Comp', key: 'stockBasedComp' },
                 { label: 'Deferred Taxes', key: 'deferredTaxes' },
+                { label: 'Δ Other LT Liabilities', key: 'changeInOtherLTLiabilities' },
+                { label: 'Δ OCI (non-cash)', key: 'changeInOCI' },
+                { label: 'EOS Provision Δ', key: 'endOfServiceProvisionAddition' },
             ]
         },
         {
@@ -26,15 +30,21 @@ export default function CashFlowPage() {
                 { label: 'Δ Prepaid Expenses', key: 'changeInPrepaid' }, { label: 'Δ Accounts Payable', key: 'changeInAP' },
                 { label: 'Δ Accrued Expenses', key: 'changeInAccruedExp' }, { label: 'Δ Deferred Revenue', key: 'changeInDeferredRev' },
                 { label: 'Δ VAT Receivable', key: 'changeInVATReceivable' }, { label: 'Δ VAT Payable', key: 'changeInVATPayable' },
-                { label: 'Total WC Change', key: 'totalWorkingCapitalChange', bold: true },
-                { label: 'Cash from Operations', key: 'cashFromOperations', bold: true },
+                { label: 'Total WC Change', key: 'totalWorkingCapitalChange', bold: true, alwaysShow: true },
+                { label: 'Cash from Operations', key: 'cashFromOperations', bold: true, alwaysShow: true },
             ]
         },
         {
             title: 'INVESTING ACTIVITIES', rows: [
-                { label: 'Capital Expenditures', key: 'capex' }, { label: 'Acquisitions', key: 'acquisitions' },
+                { label: 'Capital Expenditures', key: 'capex' },
+                { label: 'Purchase of Intangibles', key: 'purchaseOfIntangibles' },
+                { label: 'Δ Other LT Assets', key: 'changeInOtherLongTermAssets' },
+                { label: 'Δ Goodwill', key: 'changeInGoodwill' },
+                { label: 'Acquisitions', key: 'acquisitions' },
                 { label: 'Asset Sales', key: 'assetSales' },
-                { label: 'Cash from Investing', key: 'cashFromInvesting', bold: true },
+                { label: 'Investment Purchases', key: 'investmentPurchases' },
+                { label: 'Investment Sales', key: 'investmentSales' },
+                { label: 'Cash from Investing', key: 'cashFromInvesting', bold: true, alwaysShow: true },
             ]
         },
         {
@@ -45,17 +55,27 @@ export default function CashFlowPage() {
                 { label: 'EPD Paid', key: 'employeeProfitSharingPaid' },
                 { label: 'Equity Issuance', key: 'equityIssuance' },
                 { label: 'Share Repurchases', key: 'shareRepurchases' },
-                { label: 'Cash from Financing', key: 'cashFromFinancing', bold: true },
+                { label: 'Cash from Financing', key: 'cashFromFinancing', bold: true, alwaysShow: true },
             ]
         },
         {
             title: 'NET CASH FLOW', rows: [
-                { label: 'Net Change in Cash', key: 'netChangeInCash', bold: true },
-                { label: 'Beginning Cash', key: 'beginningCash' }, { label: 'Ending Cash', key: 'endingCash', bold: true },
+                { label: 'Net Change in Cash', key: 'netChangeInCash', bold: true, alwaysShow: true },
+                { label: 'Beginning Cash', key: 'beginningCash', alwaysShow: true },
+                { label: 'Ending Cash', key: 'endingCash', bold: true, alwaysShow: true },
             ]
         },
-        { title: '', rows: [{ label: 'Free Cash Flow', key: 'freeCashFlow', bold: true }] },
+        { title: '', rows: [{ label: 'Free Cash Flow', key: 'freeCashFlow', bold: true, alwaysShow: true }] },
     ];
+
+    // Hide rows that are 0 across ALL displayed periods (Fix 8) — keep totals/subtotals always visible.
+    const isRowVisible = (row: CFRow) => {
+        if (row.alwaysShow) return true;
+        return statements.some(s => {
+            const v = s[row.key] as number | undefined;
+            return typeof v === 'number' && Math.abs(v) > 0.005;
+        });
+    };
 
     function colClass(idx: number, s: typeof statements[0]): string {
         const base = s.periodType === 'historical' ? 'col-historical' : 'col-projected';
@@ -93,11 +113,11 @@ export default function CashFlowPage() {
                         {sections.map((section, si) => (
                             <React.Fragment key={si}>
                                 {section.title && <tr className="row-subheader"><td colSpan={statements.length + 1}>{section.title}</td></tr>}
-                                {section.rows.map((row, ri) => (
+                                {section.rows.filter(isRowVisible).map((row, ri) => (
                                     <tr key={ri} className={row.bold ? 'row-bold' : ''}>
                                         <td>{row.label}</td>
                                         {statements.map((s, idx) => {
-                                            const val = s[row.key] as number;
+                                            const val = (s[row.key] ?? 0) as number;
                                             return (
                                                 <td key={s.period} className={colClass(idx, s)} style={{ color: val < 0 ? '#f87171' : undefined }}>
                                                     {formatCurrency(val, currency)}

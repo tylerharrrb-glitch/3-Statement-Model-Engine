@@ -50,8 +50,9 @@ export function calculateBalanceSheet(inputs: BalanceSheetInputs): BalanceSheet 
     const accumulatedDepreciation = prev.accumulatedDepreciation + incomeStatement.depreciation;
     const netPPE = grossPPE - accumulatedDepreciation;
 
-    // Intangibles: Prior - Amortization
-    const intangibles = Math.max(0, prev.intangibles - incomeStatement.amortization);
+    // Intangibles: Prior + CapEx − Amortization (Fix 6)
+    const intangiblesCapEx = (assumptions.intangiblesCapExPercent?.[yr] ?? 0) * incomeStatement.revenue;
+    const intangibles = Math.max(0, prev.intangibles + intangiblesCapEx - incomeStatement.amortization);
 
     // Goodwill & Other — non-circular (S2: use revenue or absolute values, NOT totalAssets)
     const goodwill = assumptions.goodwill[yr] ?? prev.goodwill;
@@ -88,18 +89,37 @@ export function calculateBalanceSheet(inputs: BalanceSheetInputs): BalanceSheet 
 
     // ── NON-CURRENT LIABILITIES ─────────────────────────
     const ltDebtIssuance = assumptions.longTermDebtIssuance[yr] ?? 0;
-    const ltDebtRepayment = assumptions.longTermDebtRepayment[yr] ?? 0;
-    const longTermDebt = prev.longTermDebt + ltDebtIssuance - ltDebtRepayment;
+    // Real debt schedule (Fix 5) — computes principal repayment from selected mode.
+    const debtMode = assumptions.debtScheduleMode ?? 'manual';
+    const projYears = assumptions.projectionYears ?? 1;
+    const amortYears = assumptions.amortizingTermYears ?? 10;
+    let ltDebtRepayment: number;
+    switch (debtMode) {
+        case 'flat':
+        case 'interest-only':
+            ltDebtRepayment = 0;
+            break;
+        case 'bullet':
+            ltDebtRepayment = yr === projYears - 1 ? prev.longTermDebt : 0;
+            break;
+        case 'amortizing':
+            ltDebtRepayment = amortYears > 0 ? prev.longTermDebt / amortYears : 0;
+            break;
+        case 'manual':
+        default:
+            ltDebtRepayment = assumptions.longTermDebtRepayment[yr] ?? 0;
+            break;
+    }
+    const longTermDebt = Math.max(0, prev.longTermDebt + ltDebtIssuance - ltDebtRepayment);
 
     // DTL: non-circular — use absolute value from assumptions (S2 fix)
     const deferredTaxLiabilities = assumptions.deferredTaxLiabilities[yr] ?? prev.deferredTaxLiabilities;
     const otherLongTermLiabilities = assumptions.otherLongTermLiabilities[yr] ?? prev.otherLongTermLiabilities;
 
-    // End of Service Benefits Provision (S1)
-    const eosAddition = (assumptions.enableEndOfServiceBenefit ?? false)
-        ? ((assumptions.averageMonthlyBasicSalary ?? 0) / 2) * (assumptions.numberOfEmployees?.[yr] ?? 0)
-        : 0;
-    const endOfServiceProvision = (prev.endOfServiceProvision ?? 0) + eosAddition;
+    // End of Service Provision (Art. 110, Fix 7) — driven by IS expense.
+    const eosAddition = incomeStatement.eosExpense ?? 0;
+    const eosPayments = assumptions.eosPaymentsEstimate?.[yr] ?? 0;
+    const endOfServiceProvision = Math.max(0, (prev.endOfServiceProvision ?? 0) + eosAddition - eosPayments);
 
     const totalNonCurrentLiabilities = longTermDebt + deferredTaxLiabilities + otherLongTermLiabilities + endOfServiceProvision;
     const totalLiabilities = totalCurrentLiabilities + totalNonCurrentLiabilities;

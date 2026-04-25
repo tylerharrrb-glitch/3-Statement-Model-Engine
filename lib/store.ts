@@ -9,7 +9,7 @@ import { AssumptionSet, getDefaultAssumptions, getDefaultHistoricalInputs, Histo
 import type { ModelResults } from '@/types/financial';
 import { EGYPTIAN_TAX_DEFAULTS } from '@/lib/schedules/egyptian-depreciation';
 import { createDefaultScenarios, createScenario } from '@/lib/scenario-manager';
-import { runFullModel } from '@/lib/engines/integrator';
+import { runFullModel, seedAssumptionsFromHistorical } from '@/lib/engines/integrator';
 import { ScenarioType } from '@/types/scenario';
 import { HistoricalDataInput, getDefaultHistoricalData, convertToHistoricalInputs } from '@/types/historical';
 import { FinancialValidationAgent } from '@/lib/agents/validation-agent';
@@ -360,9 +360,16 @@ export const useModelStore = create<ModelStore>()(
                         blockExportOnCritical: true,
                     });
 
+                    // Seed assumptions from historical so paidUpCapital, commonStock, etc.
+                    // reach the validator at their effective values (not placeholders).
+                    const seededAssumptions = seedAssumptionsFromHistorical(
+                        scenario.assumptions,
+                        state.historicalInputs,
+                    );
+
                     const report = await agent.validate(
                         scenario.results,
-                        scenario.assumptions,
+                        seededAssumptions,
                         scenario.name
                     );
 

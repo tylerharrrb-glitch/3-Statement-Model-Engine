@@ -22,6 +22,7 @@ export interface IncomeStatement {
   amortization: number;
   otherOpex: number;
   stockBasedComp: number;
+  eosExpense?: number;             // End-of-service provision expense (Art. 110, Fix 7)
   totalOpex: number;
 
   // Operating Income
@@ -156,6 +157,9 @@ export interface CashFlowStatement {
   amortization: number;
   stockBasedComp: number;
   deferredTaxes: number;
+  changeInOtherLTLiabilities?: number;  // Δ in OLT liabilities (non-cash provisions etc.)
+  changeInOCI?: number;                 // Δ in OCI (non-cash equity revaluations)
+  endOfServiceProvisionAddition?: number; // EOS provision addition (non-cash, Art. 110)
 
   // Working Capital Changes
   changeInAR: number;
@@ -172,6 +176,9 @@ export interface CashFlowStatement {
 
   // INVESTING ACTIVITIES
   capex: number;
+  purchaseOfIntangibles?: number;       // CapEx-like outflow for spectrum/software (Fix 4 / Fix 6)
+  changeInGoodwill?: number;
+  changeInOtherLongTermAssets?: number; // Δ in other LT assets (separate line, Fix 4)
   acquisitions: number;
   assetSales: number;
   investmentPurchases: number;

@@ -81,7 +81,13 @@ export default function IncomeStatementPage() {
         { label: '', key: 'revenue', format: 'currency', separator: true },
         { label: 'OPERATING EXPENSES', key: 'revenue', format: 'currency', subheader: true },
         { label: 'SG&A', key: 'sgaExpense', format: 'currency' },
-        { label: 'R&D', key: 'rdExpense', format: 'currency' },
+        // R&D row only when material in any period (Fix 9 — telecoms typically have no R&D line)
+        ...(statements.some(s => Math.abs((s.rdExpense ?? 0)) > 0.005)
+            ? [{ label: 'R&D', key: 'rdExpense' as ISKey, format: 'currency' as const }]
+            : []),
+        ...(statements.some(s => Math.abs(((s as { eosExpense?: number }).eosExpense ?? 0)) > 0.005)
+            ? [{ label: 'EOS Provision', key: 'eosExpense' as ISKey, format: 'currency' as const }]
+            : []),
         { label: 'Depreciation', key: 'depreciation', format: 'currency' },
         { label: 'Amortization', key: 'amortization', format: 'currency' },
         { label: 'Other OpEx', key: 'otherOpex', format: 'currency' },

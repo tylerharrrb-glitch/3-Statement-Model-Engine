@@ -1621,10 +1621,13 @@ export async function exportToExcel(
                                     break;
                                 }
                                 case 'out_roic': {
+                                    // Unified ROIC = NOPAT / (Equity + Debt − Cash)
                                     const stDebtR = base.shortTermDebt ?? 0;
                                     const ltdR = base.longTermDebt ?? 0;
                                     const cpltdR = base.currentPortionLTD ?? 0;
-                                    formula = `IF('${cs}'!${c}${base.totalEquity}+'${cs}'!${c}${stDebtR}+'${cs}'!${c}${ltdR}+'${cs}'!${c}${cpltdR}=0,0,'${cs}'!${c}${base.nopat}/('${cs}'!${c}${base.totalEquity}+'${cs}'!${c}${stDebtR}+'${cs}'!${c}${ltdR}+'${cs}'!${c}${cpltdR}))`;
+                                    const cashR = base.cash ?? 0;
+                                    const ic = `('${cs}'!${c}${base.totalEquity}+'${cs}'!${c}${stDebtR}+'${cs}'!${c}${ltdR}+'${cs}'!${c}${cpltdR}-'${cs}'!${c}${cashR})`;
+                                    formula = `IF(${ic}=0,0,'${cs}'!${c}${base.nopat}/${ic})`;
                                     break;
                                 }
                                 default:
@@ -2074,9 +2077,20 @@ export async function exportToExcel(
         `IF('Balance Sheet'!${c}${bsRows['totalEquity']}=0,0,'Income Statement'!${c}${isRows['netIncome']}/'Balance Sheet'!${c}${bsRows['totalEquity']})`,
         'roe');
 
-    addRatioRow('ROIC (Net IC)', (c, yr) =>
-        `IF('Balance Sheet'!${c}${bsRows['totalEquity']}+'Balance Sheet'!${c}${bsRows['shortTermDebt']}+'Balance Sheet'!${c}${bsRows['longTermDebt']}+'Balance Sheet'!${c}${bsRows['currentPortionLTD']}-'Balance Sheet'!${c}${bsRows['cash']}=0,0,('Income Statement'!${c}${isRows['ebit']}*(1-${aRef('taxRate', yr)}))/('Balance Sheet'!${c}${bsRows['totalEquity']}+'Balance Sheet'!${c}${bsRows['shortTermDebt']}+'Balance Sheet'!${c}${bsRows['longTermDebt']}+'Balance Sheet'!${c}${bsRows['currentPortionLTD']}-'Balance Sheet'!${c}${bsRows['cash']}))`,
-        'roic');
+    // ROIC = NOPAT / (Equity + Debt − Cash). NOPAT uses effective tax rate (taxExpense/EBT).
+    addRatioRow('ROIC (Net IC)', (c) => {
+        const eq = `'Balance Sheet'!${c}${bsRows['totalEquity']}`;
+        const std = `'Balance Sheet'!${c}${bsRows['shortTermDebt']}`;
+        const ltd = `'Balance Sheet'!${c}${bsRows['longTermDebt']}`;
+        const cpltd = `'Balance Sheet'!${c}${bsRows['currentPortionLTD']}`;
+        const cash = `'Balance Sheet'!${c}${bsRows['cash']}`;
+        const ebit = `'Income Statement'!${c}${isRows['ebit']}`;
+        const ebt = `'Income Statement'!${c}${isRows['ebt']}`;
+        const taxExp = `'Income Statement'!${c}${isRows['taxExpense']}`;
+        const ic = `(${eq}+${std}+${ltd}+${cpltd}-${cash})`;
+        const effRate = `IF(${ebt}>0,${taxExp}/${ebt},0)`;
+        return `IF(${ic}=0,0,(${ebit}*(1-${effRate}))/${ic})`;
+    }, 'roic');
 
     // ── Liquidity ── (includes Quick Ratio, Cash Ratio — moved from Efficiency)
     ratioSheet.getCell(rRow, 1).value = '── Liquidity ──';

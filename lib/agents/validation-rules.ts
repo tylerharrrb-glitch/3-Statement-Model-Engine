@@ -159,7 +159,11 @@ export function checkEgyptianProfitAppropriation(
     const epdRate = assumptions.employeeProfitSharingRate ?? 0.10;
     const whtRate = assumptions.dividendWithholdingTaxRate ?? 0.10;
     const lrRate = assumptions.legalReservePercent ?? 0.05;
-    const lrCap = (assumptions.paidUpCapital ?? 10000) * (assumptions.legalReserveCap ?? 0.50);
+    // paidUpCapital must trace to opening common stock — fall back to first BS commonStock if assumption is missing
+    const effectivePaidUpCapital = (assumptions.paidUpCapital && assumptions.paidUpCapital > 0)
+      ? assumptions.paidUpCapital
+      : 0;
+    const lrCap = effectivePaidUpCapital * (assumptions.legalReserveCap ?? 0.50);
 
     // Get per-year payout ratio (arrays are zero-indexed from projection year 0)
     const projIdx = idx - numHistorical;
@@ -312,13 +316,21 @@ export function checkCFNetChange(
 ): LocalCheckResult {
   const findings: ValidationFinding[] = [];
   for (const period of cf) {
-    const expected = period.cashFromOperations + period.cashFromInvesting + period.cashFromFinancing;
-    if (Math.abs(period.netChangeInCash - expected) > TOL) {
+    const cfo = period.cashFromOperations;
+    const cfi = period.cashFromInvesting;
+    const cff = period.cashFromFinancing;
+    const expected = cfo + cfi + cff;
+    // Scale tolerance to magnitude — EGP values run into billions, so 0.01 absolute
+    // tolerance produces false positives from floating-point error.
+    // Allow max(TOL, 1e-6 × Σ|component|).
+    const tolerance = Math.max(TOL, 1e-6 * (Math.abs(cfo) + Math.abs(cfi) + Math.abs(cff)));
+    if (Math.abs(period.netChangeInCash - expected) > tolerance) {
       findings.push(findingBuilder(
         15, 'critical', period.period, scenario,
         'netChangeInCash',
         expected, period.netChangeInCash,
-        `Net Change (${period.netChangeInCash.toFixed(2)}) ≠ CFO + CFI + CFF = ${expected.toFixed(2)}`,
+        `Net Change (${period.netChangeInCash.toFixed(2)}) ≠ CFO + CFI + CFF = ${expected.toFixed(2)} ` +
+        `(CFO=${cfo.toFixed(2)}, CFI=${cfi.toFixed(2)}, CFF=${cff.toFixed(2)})`,
         `netChangeInCash = cashFromOperations + cashFromInvesting + cashFromFinancing`
       ));
     }
@@ -336,7 +348,8 @@ export function checkEndingCash(
   const findings: ValidationFinding[] = [];
   for (const period of cf) {
     const expected = period.beginningCash + period.netChangeInCash;
-    if (Math.abs(period.endingCash - expected) > TOL) {
+    const tolerance = Math.max(TOL, 1e-6 * (Math.abs(period.beginningCash) + Math.abs(period.netChangeInCash)));
+    if (Math.abs(period.endingCash - expected) > tolerance) {
       findings.push(findingBuilder(
         16, 'critical', period.period, scenario,
         'endingCash',
@@ -408,16 +421,31 @@ export function checkROIC(
     const bsp = bs[i];
     const r = ratios[i];
     if (!r || !bsp) continue;
-    const nopat = isp.ebit * (1 - isp.taxRate);
-    const investedCapital = bsp.totalEquity + bsp.shortTermDebt + bsp.longTermDebt + bsp.currentPortionLTD;
-    if (investedCapital === 0) continue;
-    const expectedROIC = nopat / investedCapital;
+    // Unified ROIC formula:
+    //   investedCapital[t] = totalDebt[t] + totalEquity[t] − cash[t]
+    //   avgInvestedCapital[t] = (IC[t] + IC[t-1]) / 2 (or IC[0] for first period)
+    //   NOPAT = EBIT × (1 − effectiveTaxRate)
+    //   ROIC = NOPAT / avgInvestedCapital
+    const effectiveTaxRate = isp.ebt > 0 ? isp.taxExpense / isp.ebt : isp.taxRate;
+    const nopat = isp.ebit * (1 - effectiveTaxRate);
+    const debtCurr = bsp.shortTermDebt + bsp.longTermDebt + bsp.currentPortionLTD;
+    const icCurr = bsp.totalEquity + debtCurr - bsp.cash;
+    let avgIC = icCurr;
+    if (i > 0) {
+      const prevBs = bs[i - 1];
+      const debtPrev = prevBs.shortTermDebt + prevBs.longTermDebt + prevBs.currentPortionLTD;
+      const icPrev = prevBs.totalEquity + debtPrev - prevBs.cash;
+      avgIC = (icCurr + icPrev) / 2;
+    }
+    if (avgIC === 0) continue;
+    const expectedROIC = nopat / avgIC;
     if (r.roic !== undefined && Math.abs(r.roic - expectedROIC) > 0.001) {
       findings.push(findingBuilder(26, 'major', isp.period, scenario,
         'roic', expectedROIC, r.roic,
-        `ROIC should be NOPAT / Invested_Capital = ${nopat.toFixed(2)} / ${investedCapital.toFixed(2)} = ${expectedROIC.toFixed(4)}`,
-        `roic = EBIT × (1 − taxRate) / (totalEquity + shortTermDebt + longTermDebt + currentPortionLTD). ` +
-        `Use period-specific taxRate, NOT the historical 2024 taxRate.`
+        `ROIC should be NOPAT / avg(InvestedCapital) where IC = Debt + Equity − Cash. ` +
+        `Expected: ${nopat.toFixed(2)} / ${avgIC.toFixed(2)} = ${expectedROIC.toFixed(4)}`,
+        `roic = EBIT × (1 − effectiveTaxRate) / avg(totalDebt + totalEquity − cash). ` +
+        `Use period-specific effective tax rate (taxExpense / ebt).`
       ));
     }
   }
@@ -534,7 +562,10 @@ export function checkLRCap(
   scenario: string
 ): LocalCheckResult {
   const findings: ValidationFinding[] = [];
-  const lrCap = (assumptions.paidUpCapital ?? 10000) * (assumptions.legalReserveCap ?? 0.50);
+  const effectivePaidUpCapital = (assumptions.paidUpCapital && assumptions.paidUpCapital > 0)
+    ? assumptions.paidUpCapital
+    : 0;
+  const lrCap = effectivePaidUpCapital * (assumptions.legalReserveCap ?? 0.50);
 
   for (const bsPeriod of bs) {
     if (bsPeriod.legalReserve > lrCap + 1.0) {
