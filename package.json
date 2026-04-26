@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "export:audit": "tsx scripts/run-export.ts"
   },
   "dependencies": {
     "@prisma/client": "^7.4.0",
@@ -40,6 +41,7 @@
     "prisma": "^7.4.0",
     "tailwindcss": "^4",
     "ts-jest": "^29.4.6",
+    "tsx": "^4.21.0",
     "typescript": "^5"
   }
 }
