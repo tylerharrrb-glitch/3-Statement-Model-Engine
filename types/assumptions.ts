@@ -230,7 +230,7 @@ export function getDefaultAssumptions(): AssumptionSet {
         capexPercent: fill(0.05),
         depreciationRate: fill(0.10),
         amortizationAmount: fill(5_000),
-        intangiblesCapExPercent: fill(0.02),  // 2% of revenue (telecom default, Fix 6)
+        intangiblesCapExPercent: fill(0),  // 0 = pure winddown (intangibles_t = prev - amort)
 
         cbeRate: 0.195,                       // CBE main operation / discount rate (April 2, 2026 MPC)
         interestRateOnDebt: [0.22, 0.20, 0.18, 0.17, 0.16],  // CBE lending + 250bps spread, declining
