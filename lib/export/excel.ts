@@ -1987,6 +1987,15 @@ export async function exportToExcel(
         value: j => results.cashFlowStatements[j]?.changeInOCI ?? 0,
     });
 
+    // Δ End of Service Provision — non-cash provision addition (Egyptian Labor Law Art. 110)
+    addCFRow('Δ End of Service Provision', 'endOfServiceProvisionAddition', {
+        formula: (_cfCol, _isCol, isYr) => {
+            if (isYr === 0) return '0';
+            return `${aRef('eosProvisionComputed', isYr)}-${aRef('eosProvisionComputed', isYr - 1)}`;
+        },
+        value: j => results.cashFlowStatements[j]?.endOfServiceProvisionAddition ?? 0,
+    });
+
     // Working capital changes — formulas using BS deltas
     cfSheet.getCell(cfRow, 1).value = 'Working Capital Changes';
     styleRow(cfSheet.getRow(cfRow), { subheader: true });
@@ -2058,9 +2067,9 @@ export async function exportToExcel(
         value: j => results.cashFlowStatements[j]?.totalWorkingCapitalChange ?? 0,
     });
 
-    // CFO = NI + D&A + SBC + DeferredTax + ΔOLT_Liab + ΔOCI + WC
+    // CFO = NI + D&A + SBC + DeferredTax + ΔOLT_Liab + ΔOCI + ΔEOS + WC
     addCFRow('Cash from Operations', 'cashFromOperations', {
-        formula: (cfCol) => `${cfCol}${cfRows['netIncome']}+${cfCol}${cfRows['depreciation']}+${cfCol}${cfRows['amortization']}+${cfCol}${cfRows['stockBasedComp']}+${cfCol}${cfRows['deferredTaxes']}+${cfCol}${cfRows['changeInOtherLTLiabilities']}+${cfCol}${cfRows['changeInOCI']}+${cfCol}${cfRows['totalWorkingCapitalChange']}`,
+        formula: (cfCol) => `${cfCol}${cfRows['netIncome']}+${cfCol}${cfRows['depreciation']}+${cfCol}${cfRows['amortization']}+${cfCol}${cfRows['stockBasedComp']}+${cfCol}${cfRows['deferredTaxes']}+${cfCol}${cfRows['changeInOtherLTLiabilities']}+${cfCol}${cfRows['changeInOCI']}+${cfCol}${cfRows['endOfServiceProvisionAddition']}+${cfCol}${cfRows['totalWorkingCapitalChange']}`,
         value: j => results.cashFlowStatements[j]?.cashFromOperations ?? 0,
         bold: true,
     });

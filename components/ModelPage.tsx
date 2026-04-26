@@ -26,10 +26,13 @@ const assumptionGroups: { title: string; items: AssumptionItem[] }[] = [
         ]
     },
     {
-        title: 'Working Capital (Days)', items: [
-            { label: 'DSO', path: 'dso', type: 'array' as const },
-            { label: 'DIO', path: 'dio', type: 'array' as const },
-            { label: 'DPO', path: 'dpo', type: 'array' as const },
+        title: 'Working Capital', items: [
+            { label: 'DSO (Days)', path: 'dso', type: 'array' as const },
+            { label: 'DIO (Days)', path: 'dio', type: 'array' as const },
+            { label: 'DPO (Days)', path: 'dpo', type: 'array' as const },
+            { label: 'Prepaid % of Rev', path: 'prepaidPercent', type: 'array' as const, pct: true },
+            { label: 'Accrued % of Rev', path: 'accruedExpPercent', type: 'array' as const, pct: true },
+            { label: 'Deferred Rev % of Rev', path: 'deferredRevPercent', type: 'array' as const, pct: true },
         ]
     },
     {
@@ -37,6 +40,7 @@ const assumptionGroups: { title: string; items: AssumptionItem[] }[] = [
             { label: 'CapEx % Rev', path: 'capexPercent', type: 'array' as const, pct: true },
             { label: 'Dep Rate %', path: 'depreciationRate', type: 'array' as const, pct: true },
             { label: 'Amort ($)', path: 'amortizationAmount', type: 'array' as const },
+            { label: 'Intangibles CapEx % Rev', path: 'intangiblesCapExPercent', type: 'array' as const, pct: true },
         ]
     },
     {
@@ -45,14 +49,8 @@ const assumptionGroups: { title: string; items: AssumptionItem[] }[] = [
             { label: 'Interest Rate (Cash)', path: 'interestRateOnCash', type: 'array' as const, pct: true },
             { label: 'Tax Rate', path: 'taxRate', type: 'array' as const, pct: true },
             { label: 'Dividend Payout', path: 'dividendPayoutRatio', type: 'array' as const, pct: true },
-        ]
-    },
-    {
-        title: 'DCF & Valuation', items: [
-            { label: 'CBE Rate', path: 'cbeRate', type: 'single' as const, pct: true },
-            { label: 'Terminal Growth', path: 'terminalGrowthRate', type: 'single' as const, pct: true },
-            { label: 'Equity Risk Premium', path: 'equityRiskPremium', type: 'single' as const, pct: true },
-            { label: 'Beta', path: 'beta', type: 'single' as const },
+            { label: 'Paid-Up Capital ($)', path: 'paidUpCapital', type: 'single' as const },
+            { label: 'EOS Provision % of SG&A', path: 'eosProvisionPctOfSGA', type: 'array' as const, pct: true },
         ]
     },
 ];

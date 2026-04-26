@@ -107,6 +107,8 @@ export default function IncomeStatementPage() {
         { label: 'Employee Profit Sharing', key: 'employeeProfitSharing', format: 'currency' },
         { label: 'Net Income After EPD', key: 'netIncomeAfterEPD', format: 'currency', bold: true },
         { label: 'Legal Reserve (5%)', key: 'legalReserveAddition', format: 'currency' },
+        // Cumulative Legal Reserve — sourced from BS engine state, surfaced here for visibility
+        { label: 'Cumulative Legal Reserve', key: '__cumulativeLegalReserve' as ISKey, format: 'currency' },
         { label: 'Distributable Profit', key: 'distributableProfit', format: 'currency', bold: true },
         { label: 'Gross Dividends', key: 'grossDividends', format: 'currency' },
         { label: 'Dividend WHT (10%)', key: 'dividendWHT', format: 'currency' },
@@ -246,7 +248,10 @@ export default function IncomeStatementPage() {
                                     <td className="sticky-col">{highlightLabel(row.label)}</td>
                                     {visibleStatements.map((s, si) => {
                                         const globalColIdx = visibleStartIdx + si;
-                                        const val = s[row.key] as number;
+                                        // Synthetic key __cumulativeLegalReserve — sourced from BS engine state
+                                        const val = (row.key as string) === '__cumulativeLegalReserve'
+                                            ? (results.balanceSheets[globalColIdx]?.legalReserve ?? 0)
+                                            : (s[row.key] as number);
                                         const isEditing = editingCell?.rowIdx === rowIdx && editingCell?.colIdx === globalColIdx;
                                         const isProjected = s.periodType === 'projected';
                                         const isEditable = isProjected && row.format === 'currency';

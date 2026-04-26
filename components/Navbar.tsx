@@ -20,17 +20,18 @@ const moreItems: { id: ModelState['activeTab']; label: string }[] = [
     { id: 'working-capital', label: 'Working Capital' },
     { id: 'depreciation', label: 'Depreciation' },
     { id: 'debt-schedule', label: 'Debt Schedule' },
-    { id: 'sensitivity', label: 'Sensitivity' },
-    { id: 'dcf', label: 'DCF Valuation' },
-    { id: 'valuation', label: 'Valuation Multiples' },
     { id: 'ratios', label: 'Financial Ratios' },
-    { id: 'cbe-metrics', label: 'CBE Banking Metrics' },
-    { id: 'montecarlo', label: 'Monte Carlo' },
     { id: 'validation', label: 'Validation' },
     { id: 'historicaldata', label: 'Historical Data' },
     { id: 'import', label: 'Import Data' },
     { id: 'company-settings', label: 'Company Settings' },
     { id: 'live-rates', label: 'Live Rates' },
+];
+
+// Cross-engine portfolio links (open in new tab) — Fix 8
+const engineLinks: { label: string; href: string }[] = [
+    { label: 'WOLF Valuation Engine', href: 'https://wolf-valuation-engine.pages.dev' },
+    { label: 'VALOR M&A Engine', href: 'https://valor-ma-engine.pages.dev' },
 ];
 
 const allItems = [...primaryItems, ...moreItems];
@@ -200,6 +201,33 @@ export default function Navbar() {
                                     >
                                         {item.label}
                                     </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Engines dropdown — sibling tools (DCF/M&A live there) */}
+                        <div className="nav-dropdown">
+                            <button className="nav-link" onClick={(e) => {
+                                const m = (e.currentTarget.nextSibling as HTMLElement | null);
+                                if (m) m.classList.toggle('show');
+                            }}>
+                                Engines ▾
+                            </button>
+                            <div className="nav-dropdown-menu">
+                                <button className="nav-dropdown-item active" disabled>
+                                    3-Statement Model (current)
+                                </button>
+                                {engineLinks.map(l => (
+                                    <a
+                                        key={l.href}
+                                        href={l.href}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="nav-dropdown-item"
+                                        style={{ display: 'block', textDecoration: 'none' }}
+                                    >
+                                        {l.label} ↗
+                                    </a>
                                 ))}
                             </div>
                         </div>

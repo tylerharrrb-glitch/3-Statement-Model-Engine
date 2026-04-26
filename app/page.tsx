@@ -11,8 +11,6 @@ import IncomeStatementPage from '@/components/statements/IncomeStatementPage';
 import BalanceSheetPage from '@/components/statements/BalanceSheetPage';
 import CashFlowPage from '@/components/statements/CashFlowPage';
 import ScenariosPage from '@/components/ScenariosPage';
-import SensitivityPage from '@/components/SensitivityPage';
-import MonteCarloPage from '@/components/MonteCarloPage';
 import HistoricalImportPage from '@/components/HistoricalImportPage';
 import HistoricalDataInput from '@/components/HistoricalDataInput';
 import ScenarioSelector from '@/components/ScenarioSelector';
@@ -21,16 +19,14 @@ import DepreciationPage from '@/components/schedules/DepreciationPage';
 import DebtSchedulePage from '@/components/schedules/DebtSchedulePage';
 import ValidationPage from '@/components/ValidationPage';
 import CompanySettings from '@/components/CompanySettings';
-import DCFPage from '@/components/DCFPage';
-import ValuationPage from '@/components/ValuationPage';
 import RatiosPage from '@/components/RatiosPage';
-import CBEMetricsPage from '@/components/CBEMetricsPage';
 import LiveRatesPanel from '@/components/LiveRatesPanel';
 import CBERateBanner from '@/components/CBERateBanner';
 import ErrorBanner from '@/components/ErrorBanner';
 import ConflictModal from '@/components/ConflictModal';
 
-// Section labels for each tab
+// Section labels for each tab — 3SM scope: pure 3-statement projection.
+// DCF/valuation/sensitivity/Monte-Carlo/CBE-metrics moved to sibling engines.
 const SECTION_LABELS: Record<string, { num: string; label: string }> = {
     dashboard: { num: '01', label: 'SUMMARY DASHBOARD' },
     model: { num: '02', label: 'ASSUMPTIONS' },
@@ -41,17 +37,12 @@ const SECTION_LABELS: Record<string, { num: string; label: string }> = {
     'working-capital': { num: '07', label: 'WORKING CAPITAL' },
     depreciation: { num: '08', label: 'DEPRECIATION SCHEDULE' },
     'debt-schedule': { num: '09', label: 'DEBT SCHEDULE' },
-    sensitivity: { num: '10', label: 'SENSITIVITY ANALYSIS' },
-    dcf: { num: '11', label: 'DCF VALUATION' },
-    valuation: { num: '12', label: 'VALUATION MULTIPLES' },
-    ratios: { num: '13', label: 'FINANCIAL RATIOS' },
-    'cbe-metrics': { num: '14', label: 'CBE BANKING METRICS' },
-    montecarlo: { num: '15', label: 'MONTE CARLO SIMULATION' },
-    validation: { num: '16', label: 'MODEL VALIDATION' },
-    historicaldata: { num: '17', label: 'HISTORICAL DATA' },
-    import: { num: '18', label: 'DATA IMPORT' },
-    'company-settings': { num: '19', label: 'COMPANY SETTINGS' },
-    'live-rates': { num: '20', label: 'LIVE MARKET RATES' },
+    ratios: { num: '10', label: 'FINANCIAL RATIOS' },
+    validation: { num: '11', label: 'MODEL VALIDATION' },
+    historicaldata: { num: '12', label: 'HISTORICAL DATA' },
+    import: { num: '13', label: 'DATA IMPORT' },
+    'company-settings': { num: '14', label: 'COMPANY SETTINGS' },
+    'live-rates': { num: '15', label: 'LIVE MARKET RATES' },
 };
 
 export default function Home() {
@@ -131,12 +122,7 @@ export default function Home() {
             case 'depreciation': return <DepreciationPage />;
             case 'debt-schedule': return <DebtSchedulePage />;
             case 'scenarios': return <ScenariosPage />;
-            case 'sensitivity': return <SensitivityPage />;
-            case 'dcf': return <DCFPage />;
-            case 'valuation': return <ValuationPage />;
             case 'ratios': return <RatiosPage />;
-            case 'cbe-metrics': return <CBEMetricsPage />;
-            case 'montecarlo': return <MonteCarloPage />;
             case 'import': return <HistoricalImportPage />;
             case 'historicaldata': return <HistoricalDataInput />;
             case 'validation': return <ValidationPage />;
