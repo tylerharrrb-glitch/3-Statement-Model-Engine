@@ -1,0 +1,82 @@
+{
+    "_meta": {
+        "company": "Telecom Egypt",
+        "currency": "EGP",
+        "unit": "1 EGP (not thousands)",
+        "periods": ["2024", "2025"],
+        "notes": "Approximate balanced fixture. BS plugs to a balanced position via the engine's retained earnings logic. CFO 2025 targets ~50.69B per audit spec; ΔCash 2025 targets +2B."
+    },
+    "historicalInputs": {
+        "periods": ["2024", "2025"],
+        "revenue": [81677000000, 106700000000],
+        "cogs": [34304340000, 44814000000],
+        "sgaExpense": [8167700000, 10670000000],
+        "rdExpense": [0, 0],
+        "depreciation": [9000000000, 10400000000],
+        "amortization": [2500000000, 2900000000],
+        "otherOpex": [1633540000, 2134000000],
+        "interestIncome": [5500000000, 6818000000],
+        "interestExpense": [11500000000, 13500000000],
+        "otherIncomeExpense": [0, 0],
+        "taxExpense": [4515975000, 6547500000],
+        "sharesOutstanding": [1707071600, 1707071600],
+        "cash": [18000000000, 20000000000],
+        "accountsReceivable": [13425000000, 17540000000],
+        "inventory": [1000000000, 1300000000],
+        "prepaidExpenses": [1500000000, 2000000000],
+        "otherCurrentAssets": [5000000000, 6000000000],
+        "grossPPE": [200000000000, 225000000000],
+        "accumulatedDepreciation": [120000000000, 130000000000],
+        "intangibles": [15000000000, 17100000000],
+        "goodwill": [5000000000, 5000000000],
+        "otherLongTermAssets": [35000000000, 38000000000],
+        "accountsPayable": [30000000000, 41615000000],
+        "accruedExpenses": [3000000000, 4000000000],
+        "shortTermDebt": [10000000000, 10000000000],
+        "currentPortionLTD": [8000000000, 8000000000],
+        "deferredRevenue": [2000000000, 2500000000],
+        "otherCurrentLiabilities": [5000000000, 5000000000],
+        "longTermDebt": [51750000000, 51750000000],
+        "deferredTaxLiabilities": [6000000000, 8000000000],
+        "otherLongTermLiabilities": [5000000000, 7640000000],
+        "commonStock": [17070716000, 17070716000],
+        "additionalPaidInCapital": [0, 0],
+        "retainedEarnings": [34064284000, 41324284000],
+        "treasuryStock": [0, 0],
+        "otherComprehensiveIncome": [2040000000, 5040000000]
+    },
+    "assumptions": {
+        "base": {
+            "revenueGrowthRate": [0.15, 0.12, 0.10, 0.08, 0.06],
+            "cogsPercent": [0.42, 0.42, 0.42, 0.42, 0.42],
+            "sgaPercent": [0.10, 0.10, 0.10, 0.10, 0.10],
+            "rdPercent": [0, 0, 0, 0, 0],
+            "otherOpexPercent": [0.02, 0.02, 0.02, 0.02, 0.02],
+            "capexPercent": [0.25, 0.25, 0.25, 0.25, 0.25],
+            "depreciationRate": [0.08, 0.08, 0.08, 0.08, 0.08],
+            "amortizationAmount": [2900000000, 2900000000, 2900000000, 2900000000, 2900000000],
+            "interestRateOnDebt": [0.22, 0.20, 0.18, 0.17, 0.16],
+            "interestRateOnCash": [0.19, 0.17, 0.15, 0.13, 0.12],
+            "taxRate": [0.225, 0.225, 0.225, 0.225, 0.225],
+            "dividendPayoutRatio": [0.30, 0.30, 0.30, 0.30, 0.30],
+            "vatRate": 0.14,
+            "enableVAT": true
+        },
+        "optimistic": {
+            "revenueGrowthRate": [0.18, 0.15, 0.12, 0.10, 0.08],
+            "cogsPercent": [0.40, 0.39, 0.38, 0.38, 0.37],
+            "sgaPercent": [0.09, 0.09, 0.08, 0.08, 0.08],
+            "rdPercent": [0, 0, 0, 0, 0],
+            "otherOpexPercent": [0.02, 0.02, 0.02, 0.02, 0.02],
+            "capexPercent": [0.24, 0.23, 0.22, 0.21, 0.20]
+        },
+        "conservative": {
+            "revenueGrowthRate": [0.12, 0.09, 0.07, 0.05, 0.04],
+            "cogsPercent": [0.44, 0.45, 0.46, 0.46, 0.47],
+            "sgaPercent": [0.11, 0.12, 0.12, 0.13, 0.13],
+            "rdPercent": [0, 0, 0, 0, 0],
+            "otherOpexPercent": [0.02, 0.02, 0.02, 0.02, 0.02],
+            "capexPercent": [0.26, 0.27, 0.28, 0.28, 0.29]
+        }
+    }
+}
