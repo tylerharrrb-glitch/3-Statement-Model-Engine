@@ -109,14 +109,21 @@ function applyZebraAndNegatives(sheet: ExcelJS.Worksheet) {
 // MAIN EXPORT
 // ══════════════════════════════════════════════════════════════
 
-export async function exportToExcel(
+type ExportLiveRates = { cbeDepositRate: number; cbeLendingRate: number; cbeDiscountRate: number; tbillRate12m: number; usdEgpRate: number; eurEgpRate: number; sarEgpRate: number; aedEgpRate: number; egyptianCPI: number; lastUpdated: string; lastMPCDate: string; source: string } | null;
+
+/**
+ * Pure workbook builder — runnable in Node (no Blob, no document).
+ * Returns the populated ExcelJS.Workbook so callers can either trigger a
+ * browser download (exportToExcel) or write to disk (scripts/run-export.mjs).
+ */
+export async function buildWorkbook(
     results: ModelResults,
     assumptions: AssumptionSet,
     companyName: string,
     allScenarios?: Scenario[],
     historicalInputs?: HistoricalInputs,
-    liveRates?: { cbeDepositRate: number; cbeLendingRate: number; cbeDiscountRate: number; tbillRate12m: number; usdEgpRate: number; eurEgpRate: number; sarEgpRate: number; aedEgpRate: number; egyptianCPI: number; lastUpdated: string; lastMPCDate: string; source: string } | null,
-): Promise<void> {
+    liveRates?: ExportLiveRates,
+): Promise<ExcelJS.Workbook> {
     const workbook = new ExcelJS.Workbook();
     workbook.creator = 'FinModel Engine';
     workbook.created = new Date();
@@ -3942,10 +3949,15 @@ export async function exportToExcel(
     // ════════════════════════════════════════════════════════
     allSheets.forEach(sheet => applyZebraAndNegatives(sheet));
 
-    // ════════════════════════════════════════════════════════
-    // DOWNLOAD
-    // ════════════════════════════════════════════════════════
-    let buffer = await workbook.xlsx.writeBuffer();
+    return workbook;
+}
+
+/**
+ * Serialize a built workbook to an ArrayBuffer with the calcPr iterate
+ * attributes patched in. Pure / no browser deps.
+ */
+export async function workbookToBuffer(workbook: ExcelJS.Workbook): Promise<ArrayBuffer> {
+    let buffer = await workbook.xlsx.writeBuffer() as ArrayBuffer;
 
     // ── Patch calcPr to ensure iterate attributes are in OOXML ──
     // ExcelJS doesn't reliably write iterate/iterateCount/iterateDelta
@@ -3955,11 +3967,9 @@ export async function exportToExcel(
         const wbXmlFile = zip.file('xl/workbook.xml');
         if (wbXmlFile) {
             let wbXml = await wbXmlFile.async('string');
-            // Remove existing iterate attrs if present (avoid duplicates)
             wbXml = wbXml.replace(/\s+iterate="[^"]*"/g, '');
             wbXml = wbXml.replace(/\s+iterateCount="[^"]*"/g, '');
             wbXml = wbXml.replace(/\s+iterateDelta="[^"]*"/g, '');
-            // Inject iterate attributes into <calcPr ...>
             wbXml = wbXml.replace(
                 /<calcPr([^/>]*)(\/?\s*>)/,
                 '<calcPr$1 iterate="1" iterateCount="1000" iterateDelta="0.001"$2'
@@ -3970,6 +3980,24 @@ export async function exportToExcel(
     } catch (e) {
         console.warn('calcPr patch skipped (non-critical):', e);
     }
+    return buffer;
+}
+
+/**
+ * Browser entry point: build workbook → trigger download.
+ * Calls into pure buildWorkbook + workbookToBuffer; only the final
+ * Blob/document/URL.createObjectURL block requires a DOM.
+ */
+export async function exportToExcel(
+    results: ModelResults,
+    assumptions: AssumptionSet,
+    companyName: string,
+    allScenarios?: Scenario[],
+    historicalInputs?: HistoricalInputs,
+    liveRates?: ExportLiveRates,
+): Promise<void> {
+    const workbook = await buildWorkbook(results, assumptions, companyName, allScenarios, historicalInputs, liveRates);
+    const buffer = await workbookToBuffer(workbook);
 
     const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
     const safeName = companyName.replace(/[^a-zA-Z0-9]/g, '_');
