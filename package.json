@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "export:audit": "tsx scripts/run-export.ts",
-    "export:audit:telecom": "tsx scripts/run-export.ts --input fixtures/telecom-egypt.json"
+    "export:audit:telecom": "tsx scripts/run-export.ts --input fixtures/telecom-egypt.json",
+    "audit:sync": "tsx scripts/audit-sync.ts"
   },
   "dependencies": {
     "@prisma/client": "^7.4.0",
