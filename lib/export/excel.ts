@@ -46,7 +46,7 @@ const LIGHT_BG: ExcelJS.Fill = { type: 'pattern', pattern: 'solid', fgColor: { a
 const INPUT_BG: ExcelJS.Fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFFDE7' } }; // light yellow = input cell
 const WHITE_FONT: Partial<ExcelJS.Font> = { bold: true, color: { argb: 'FFFFFFFF' }, size: 11 };
 const BOLD_FONT: Partial<ExcelJS.Font> = { bold: true, size: 11 };
-const NUM_FMT = '#,##0;(#,##0);0';
+const NUM_FMT = '#,##0;-#,##0;0';
 const PCT_FMT = '0.0%';
 const EPS_FMT = '$#,##0.00';
 const BORDER_THIN: Partial<ExcelJS.Border> = { style: 'thin', color: { argb: 'FF333333' } };
@@ -575,10 +575,16 @@ export async function buildWorkbook(
         aSheet.getColumn(i + 2).width = 16;
     }
 
-    // Header row
+    // Header row — historical columns get an "(A)" suffix so users don't
+    // mistake an empty historical cell for "the assumption is zero".
+    // Forward-looking driver assumptions (LT Debt Repayment, Equity Issuance,
+    // CapEx, etc.) are populated only in projection columns by design.
     aSheet.getCell(1, 1).value = 'Assumption';
+    aSheet.getCell(1, 1).note = 'Driver assumptions populate projection columns only. Historical (A) columns show reference values back-derived from Historical Data when applicable; an empty historical cell does not mean the value is zero.';
     for (let i = 0; i < nYears; i++) {
-        aSheet.getCell(1, i + 2).value = periods[i] ?? `Year ${i + 1}`;
+        const isHist = i < numHistorical;
+        const base = periods[i] ?? `Year ${i + 1}`;
+        aSheet.getCell(1, i + 2).value = isHist ? `${base} (A)` : base;
     }
     styleHeader(aSheet);
 
@@ -3280,6 +3286,44 @@ export async function buildWorkbook(
     // FINAL POLISH — zebra striping + red negatives on all tabs
     // ════════════════════════════════════════════════════════
     allSheets.forEach(sheet => applyZebraAndNegatives(sheet));
+
+    // ════════════════════════════════════════════════════════
+    // AUTO-WIDTH every column on every sheet so negative-formatted
+    // numbers (e.g. "-56,417") don't clip when the column is too narrow.
+    // Min 12 / max 32 keeps tables readable without runaway width.
+    // ════════════════════════════════════════════════════════
+    allSheets.forEach(sheet => {
+        // sheet.columns only includes columns explicitly touched via getColumn();
+        // iterate the full populated range so every data column gets a width.
+        const colCount = sheet.actualColumnCount || sheet.columnCount || 0;
+        for (let cn = 1; cn <= colCount; cn++) {
+            const col = sheet.getColumn(cn);
+            let maxLength = 0;
+            sheet.eachRow({ includeEmpty: false }, row => {
+                const cell = row.getCell(cn);
+                const v = cell.value as unknown;
+                if (v == null) return;
+                let str = '';
+                let n: number | undefined;
+                if (typeof v === 'number') {
+                    n = v;
+                } else if (typeof v === 'object' && v !== null && 'result' in (v as Record<string, unknown>) && typeof (v as { result?: unknown }).result === 'number') {
+                    n = (v as { result: number }).result;
+                } else if (typeof v === 'object' && v !== null && 'richText' in (v as Record<string, unknown>)) {
+                    str = (v as { richText: { text: string }[] }).richText.map(t => t.text).join('');
+                } else {
+                    str = String(v);
+                }
+                if (n != null) {
+                    str = (n < 0 ? '-' : '') + Math.abs(n).toLocaleString('en-US', { maximumFractionDigits: 0 });
+                }
+                if (str.length > maxLength) maxLength = str.length;
+            });
+            const existing = (col.width as number | undefined) ?? 0;
+            const computed = Math.min(Math.max(maxLength + 3, 12), 32);
+            col.width = Math.max(existing, computed);
+        }
+    });
 
     return workbook;
 }
