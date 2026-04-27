@@ -12,7 +12,7 @@ export default function CashFlowPage() {
     const lastHistIdx = statements.reduce((acc, s, i) => s.periodType === 'historical' ? i : acc, -1);
 
     type CFKey = keyof typeof statements[0];
-    type CFRow = { label: string; key: CFKey; bold?: boolean; alwaysShow?: boolean };
+    type CFRow = { label: string; key: CFKey; bold?: boolean; alwaysShow?: boolean; tooltip?: string };
     const sections: { title: string; rows: CFRow[] }[] = [
         {
             title: 'OPERATING ACTIVITIES', rows: [
@@ -53,7 +53,7 @@ export default function CashFlowPage() {
                 { label: 'Dividends Paid', key: 'dividendsPaid' },
                 { label: 'Dividend WHT', key: 'dividendWHT' },
                 { label: 'EPD Paid', key: 'employeeProfitSharingPaid' },
-                { label: 'Equity Issuance', key: 'equityIssuance' },
+                { label: 'Equity Issuance', key: 'equityIssuance', tooltip: 'Computed from Δ APIC + Δ Common Stock vs prior period (historical years) or equityIssuance assumption (projection years).' },
                 { label: 'Share Repurchases', key: 'shareRepurchases' },
                 { label: 'Cash from Financing', key: 'cashFromFinancing', bold: true, alwaysShow: true },
             ]
@@ -115,7 +115,10 @@ export default function CashFlowPage() {
                                 {section.title && <tr className="row-subheader"><td colSpan={statements.length + 1}>{section.title}</td></tr>}
                                 {section.rows.filter(isRowVisible).map((row, ri) => (
                                     <tr key={ri} className={row.bold ? 'row-bold' : ''}>
-                                        <td>{row.label}</td>
+                                        <td title={row.tooltip}>
+                                            {row.label}
+                                            {row.tooltip && <span style={{ marginLeft: 4, color: 'var(--text-muted)', fontSize: '0.75em', cursor: 'help' }} title={row.tooltip}>ⓘ</span>}
+                                        </td>
                                         {statements.map((s, idx) => {
                                             const val = (s[row.key] ?? 0) as number;
                                             return (

@@ -2182,6 +2182,8 @@ export async function buildWorkbook(
         },
         value: j => results.cashFlowStatements[j]?.equityIssuance ?? 0,
     });
+    // Annotate row label: source is computed, not a direct UI assumption
+    cfSheet.getCell(cfRows['equityIssuance'], 1).note = 'Computed from Δ APIC + Δ Common Stock vs prior period (historical years) or equityIssuance assumption (projection years).';
 
     // Share Repurchases: historical = -ABS(ΔTreasury) from Historical Data, projected = -ABS(assumption)
     addCFRow('Share Repurchases', 'shareRepurchases', {
