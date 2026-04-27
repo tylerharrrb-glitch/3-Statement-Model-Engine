@@ -47,7 +47,7 @@ const LIGHT_BG: ExcelJS.Fill = { type: 'pattern', pattern: 'solid', fgColor: { a
 const INPUT_BG: ExcelJS.Fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFFDE7' } }; // light yellow = input cell
 const WHITE_FONT: Partial<ExcelJS.Font> = { bold: true, color: { argb: 'FFFFFFFF' }, size: 11 };
 const BOLD_FONT: Partial<ExcelJS.Font> = { bold: true, size: 11 };
-const NUM_FMT = '#,##0';
+const NUM_FMT = '#,##0;(#,##0);0';
 const PCT_FMT = '0.0%';
 const EPS_FMT = '$#,##0.00';
 const BORDER_THIN: Partial<ExcelJS.Border> = { style: 'thin', color: { argb: 'FF333333' } };
