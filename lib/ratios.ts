@@ -176,10 +176,3 @@ export function calculateFinancialRatios(
     };
 }
 
-// Post-process to add derived ratios
-export function enrichRatios(ratios: FinancialRatios): FinancialRatios {
-    return {
-        ...ratios,
-        cashConversionCycle: ratios.dso + ratios.dio - ratios.dpo,
-    };
-}

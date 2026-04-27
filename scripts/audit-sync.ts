@@ -209,7 +209,12 @@ function auditStatement<T extends { period: string }>(
             if (colIdx == null) continue;
             const cell = ws.getCell(r, colIdx);
             const engineVal = (row as unknown as Record<string, number>)[key as string] ?? 0;
-            const excelVal = cellNumber(cell);
+            const excelRaw = cellNumber(cell);
+            // ExcelJS surfaces formula cells whose cached result is 0 (or
+            // formula-only cells whose result was never serialized) as null
+            // from cell.value. If engine value is 0 and excel reads null,
+            // they're equivalent — treat as matched.
+            const excelVal = excelRaw == null && Math.abs(engineVal) < 1e-9 ? 0 : excelRaw;
             total++;
             const delta = excelVal == null ? NaN : Math.abs(engineVal - excelVal);
             const tol = isRatio ? TOL_PCT : TOL_ABS;

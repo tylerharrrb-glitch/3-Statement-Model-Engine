@@ -12,7 +12,10 @@
       "Bash(tee /tmp/tsc.log)",
       "Read(//tmp/**)",
       "Bash(npx next *)",
-      "Bash(npx --yes depcheck --skip-missing)"
+      "Bash(npx --yes depcheck --skip-missing)",
+      "Bash(npx ts-prune *)",
+      "Bash(npx depcheck *)",
+      "Bash(npm uninstall *)"
     ]
   }
 }

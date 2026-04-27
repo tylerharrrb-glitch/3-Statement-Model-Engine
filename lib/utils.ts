@@ -54,13 +54,6 @@ export function formatPercent(value: number, decimals: number = 1): string {
     return `${(value * 100).toFixed(decimals)}%`;
 }
 
-export function formatNumber(value: number, decimals: number = 0): string {
-    return new Intl.NumberFormat('en-US', {
-        minimumFractionDigits: decimals,
-        maximumFractionDigits: decimals,
-    }).format(value);
-}
-
 /**
  * Format EPS with the selected currency symbol.
  * Always English numerals.
@@ -68,25 +61,4 @@ export function formatNumber(value: number, decimals: number = 0): string {
 export function formatEPS(value: number, currency: string = 'USD'): string {
     const cfg = CURRENCY_MAP[currency as SupportedCurrency] || CURRENCY_MAP.USD;
     return `${cfg.symbol}${value.toFixed(2)}`;
-}
-
-export function colorForValue(value: number): string {
-    if (value > 0) return 'var(--accent-emerald)';
-    if (value < 0) return 'var(--accent-rose)';
-    return 'var(--text-primary)';
-}
-
-export function cn(...classes: (string | boolean | undefined | null)[]): string {
-    return classes.filter(Boolean).join(' ');
-}
-
-/**
- * Format a fiscal year label based on the fiscal year end month.
- * For calendar year (Dec end): "FY2024"
- * For Egyptian govt (Jun end): "FY2024/25"
- */
-export function formatFiscalYear(year: number, fiscalYearEnd: number = 12): string {
-    if (fiscalYearEnd === 12) return `FY${year}`;
-    const nextYear = (year + 1) % 100;
-    return `FY${year}/${nextYear.toString().padStart(2, '0')}`;
 }
