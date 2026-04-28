@@ -15,7 +15,14 @@
       "Bash(npx --yes depcheck --skip-missing)",
       "Bash(npx ts-prune *)",
       "Bash(npx depcheck *)",
-      "Bash(npm uninstall *)"
+      "Bash(npm uninstall *)",
+      "Bash(python -c ' *)",
+      "Bash(PYTHONIOENCODING=utf-8 cat)",
+      "Bash(node /tmp/wtest.mjs)",
+      "Bash(cat)",
+      "Bash(node wtest.mjs)",
+      "Bash(unzip -p widthtest.xlsx xl/worksheets/sheet1.xml)",
+      "Bash(unzip -p out-base.xlsx 'xl/worksheets/sheet*.xml')"
     ]
   }
 }
