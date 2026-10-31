@@ -109,7 +109,7 @@ if (part === 'part5') {
   const off = edge('FX off', i => { i.settings.fxOn = 0; });
   g.check('FX off: no FX line', off.rows.fx_line.slice(2).every(v => v === 0));
   edge('all three revenue-and-cost modes', i => { i.settings.revenueBasis = 2; i.settings.cogsMode = 2; i.settings.sellMode = 2; i.settings.gaMode = 2; i.settings.depMode = 1; i.settings.divMode = 2; i.scenarios.base.dps = Array(10).fill(1); });
-  const fxr = edge('FX on with USD balances and depreciation', i => { i.settings.usd = { cash: 0.5, inv_nc: 0.5, inv_cur: 0.5, fvtpl: 0, ofa: 1, ar: 1, debtors: 0.5, ap: 0.5, creditors: 0.2, cust_adv: 1 }; i.scenarios.base.fx_close = Array.from({ length: 10 }, (_, k) => 51.4281 * 1.1 ** (k + 1)); });
+  const fxr = edge('FX on with USD balances and depreciation', i => { i.settings.usd = { cash: 0.5, inv_nc: 0.5, inv_cur: 0.5, fvtpl: 0, ofa: 1, ar: 1, debtors: 0.5, ap: 0.5, creditors: 0.2, cust_adv: 1 }; i.scenarios.base.fx_close = Array.from({ length: 10 }, (_, k) => 56.0429 * 1.1 ** (k + 1)); });
   g.check('FX revaluation reaches the IS and carries deferred tax', (fxr.rows.fx_line[2] as number) !== 0 && (fxr.rows.dtl_mov_fx[2] as number) !== 0);
   edge('bonus shares', i => { i.scenarios.base.bonus_re = Array(10).fill(1000000000); });
   edge('leases, disposals, provisions, benefits', i => { const d = i.scenarios.base; d.rou_new = Array(10).fill(50000000); d.disposal_cost = Array(10).fill(10000000); d.disposal_nbv = Array(10).fill(4000000); d.disposal_proceeds = Array(10).fill(6000000); d.prov_formed = Array(10).fill(5000000); d.prov_reversed = Array(10).fill(1000000); d.prov_used = Array(10).fill(1000000); d.oci_gross = Array(10).fill(-20000000); d.ecl = Array(10).fill(-3000000); d.impairment = Array(10).fill(2000000); });

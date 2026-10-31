@@ -15,25 +15,25 @@ PASS  amortizing: balanced at switch 0  [failed 0]
 PASS  amortizing: converged at switch 0  [iterations 1,1,1,1,1]
 PASS  amortizing: iteration count at or under the cap of 100
 PASS  amortizing: balanced at switch 1  [failed 0]
-PASS  amortizing: converged at switch 1  [iterations 11,11,11,11,12]
+PASS  amortizing: converged at switch 1  [iterations 11,11,12,12,12]
 PASS  amortizing: iteration count at or under the cap of 100
 PASS  floating: balanced at switch 0  [failed 0]
 PASS  floating: converged at switch 0  [iterations 1,1,1,1,1]
 PASS  floating: iteration count at or under the cap of 100
 PASS  floating: balanced at switch 1  [failed 0]
-PASS  floating: converged at switch 1  [iterations 11,11,11,11,12]
+PASS  floating: converged at switch 1  [iterations 11,11,11,12,12]
 PASS  floating: iteration count at or under the cap of 100
 PASS  revolver: balanced at switch 0  [failed 0]
 PASS  revolver: converged at switch 0  [iterations 1,1,1,1,1]
 PASS  revolver: iteration count at or under the cap of 100
 PASS  revolver: balanced at switch 1  [failed 0]
-PASS  revolver: converged at switch 1  [iterations 13,12,11,11,12]
+PASS  revolver: converged at switch 1  [iterations 13,12,12,12,12]
 PASS  revolver: iteration count at or under the cap of 100
 PASS  sweep: balanced at switch 0  [failed 0]
 PASS  sweep: converged at switch 0  [iterations 1,1,1,1,1]
 PASS  sweep: iteration count at or under the cap of 100
 PASS  sweep: balanced at switch 1  [failed 0]
-PASS  sweep: converged at switch 1  [iterations 12,11,11,11,12]
+PASS  sweep: converged at switch 1  [iterations 12,11,11,12,12]
 PASS  sweep: iteration count at or under the cap of 100
 PASS  USD loan: balanced at switch 0  [failed 0]
 PASS  USD loan: converged at switch 0  [iterations 1,1,1,1,1]
@@ -45,7 +45,7 @@ PASS  MOPCO, no debt: balanced at switch 0  [failed 0]
 PASS  MOPCO, no debt: converged at switch 0  [iterations 1,1,1,1,1]
 PASS  MOPCO, no debt: iteration count at or under the cap of 100
 PASS  MOPCO, no debt: balanced at switch 1  [failed 0]
-PASS  MOPCO, no debt: converged at switch 1  [iterations 11,11,11,11,12]
+PASS  MOPCO, no debt: converged at switch 1  [iterations 11,11,11,12,12]
 PASS  MOPCO, no debt: iteration count at or under the cap of 100
 PASS  No plug language or back-solving in the core
 Decision 10: debt logic is tested on hand-built cases only. MOPCO has no bank debt; the Telecom Egypt fixture is synthetic.

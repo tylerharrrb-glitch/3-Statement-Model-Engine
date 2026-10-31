@@ -228,19 +228,19 @@ const base = {
   ebo_service: f(31000000), ebo_rate: f(0.155), ebo_paid: f(15000000), ebo_cur_share: f(0.11), oci_gross: f(0), prov_used: f(0),
   tax_pay_pct: f(1),
   yield_delta: f(0), yield_spread: f(-0.13), usd_yield: f(0.04), base_delta: f(0),
-  fx_close: f(51.4281),
+  fx_close: f(56.0429),
   inv_nc_net: f(0), inv_cur_net: f(0), fvtpl_net: f(0), ofa_mov: f(0), assoc_mov: f(0),
   payout: f(0.5), dps: f(0), emp_pct: f(0.10), wages: f(0), board_pct: f(0.03), div_pay_pct: f(1),
   bonus_re: f(0), bonus_res: f(0),
   min_cash: f(500000000), sweep_pct: f(0), debt_cur_share: f(0.2),
 };
 const path = (s, step) => Array.from({ length: N }, (_, i) => +(s * (1 + step) ** (i + 1)).toFixed(4));
-const bear = { ...base, g_export: f(-0.05), g_domestic: f(0.05), g_urea: f(-0.03), g_ammonia: f(-0.03), gas_pct: f(0.38), other_cogs_pct: f(0.09), sell_pct: f(0.021), ga_pct: f(0.025), capex_direct: f(800000000), capex_puc: f(1000000000), payout: f(0.4), fx_close: path(51.4281, 0.10) };
-const bull = { ...base, g_export: f(0.08), g_domestic: f(0.15), g_urea: f(0.10), g_ammonia: f(0.10), gas_pct: f(0.30), other_cogs_pct: f(0.08), sell_pct: f(0.019), ga_pct: f(0.021), capex_direct: f(1200000000), capex_puc: f(2000000000), payout: f(0.6), fx_close: path(51.4281, 0.03) };
+const bear = { ...base, g_export: f(-0.05), g_domestic: f(0.05), g_urea: f(-0.03), g_ammonia: f(-0.03), gas_pct: f(0.38), other_cogs_pct: f(0.09), sell_pct: f(0.021), ga_pct: f(0.025), capex_direct: f(800000000), capex_puc: f(1000000000), payout: f(0.4), fx_close: path(56.0429, 0.10) };
+const bull = { ...base, g_export: f(0.08), g_domestic: f(0.15), g_urea: f(0.10), g_ammonia: f(0.10), gas_pct: f(0.30), other_cogs_pct: f(0.08), sell_pct: f(0.019), ga_pct: f(0.021), capex_direct: f(1200000000), capex_puc: f(2000000000), payout: f(0.6), fx_close: path(56.0429, 0.03) };
 const settings = {
   circularity: 0, fxOn: 1, revenueBasis: 1, cogsMode: 1, gasMode: 2, sellMode: 1, gaMode: 1, depMode: 2, divMode: 1,
   revolverOn: 1, revolverSpread: 0.02, schedTaxOn: 0, yieldBaseId: 'tbill_364d', floatBaseId: 'cbe_overnight_lending',
-  fxHistClose: 51.4281, fxHistAvg: 51.4281,
+  fxHistClose: 56.0429, fxHistAvg: 56.0429,
   usd: { cash: 0, inv_nc: 0, inv_cur: 0, fvtpl: 0, ofa: 0, ar: 0, debtors: 0, ap: 0, creditors: 0, cust_adv: 0 },
   lrPct: 0.05, lrCapPct: 0.5, empFloorPct: 0.10, boardCapPct: 0.10, boardMinDistPct: 0.05,
   sanityUpperPp: 0.10, sanityLowerPp: 0.10,
@@ -250,7 +250,7 @@ const settings = {
 writeFileSync('tests/fixtures/mopco-drivers.json', JSON.stringify({
   _meta: {
     status: 'Analyst placeholders derived from FY2025 ratios. Not a forecast view; the owner replaces them.',
-    unconfirmed: ['USD balance shares are 0: the FX-risk note was not available', 'fxHistClose and fxHistAvg use the registry USD/EGP, not the actual FY2025 rates', 'land is 0: not in Appendix B', 'depr_cogs_share is 1: split not in Appendix B', 'employee and board split: only the combined figure is reported in Appendix B'],
+    unconfirmed: ['USD balance shares are 0: the FX-risk note was not available', 'fxHistClose and fxHistAvg use the registry USD/EGP of 29-Oct-2026, not the actual FY2025 rates', 'land is 0: not in Appendix B', 'depr_cogs_share is 1: split not in Appendix B', 'employee and board split: only the combined figure is reported in Appendix B'],
   },
   settings, scenarios: { bear, base, bull }, tranches: [],
 }, null, 1) + '\n');

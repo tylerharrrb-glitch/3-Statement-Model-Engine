@@ -1,0 +1,97 @@
+PASS  Policy rate accepted when two CBE pages agree
+PASS  Bounds rejection: 99.9 on the US 10-year is rejected and the last value kept
+PASS  Policy rate change rejected when CBE pages disagree; last good kept
+PASS  KV holds latest, daily snapshots, changelog
+PASS  Corridor parser reads labelled percentages
+PASS  Corridor parser reads the press release sentence
+PASS  T-bill parser takes accepted bids
+PASS  Treasury parser takes the 10 Yr column of the par yield curve
+PASS  Staleness: MPC item is stale the day after the 29-Oct meeting
+PASS  Staleness: MPC item is not stale on the meeting day
+PASS  Staleness: the shipped corridor, verified 31-Oct-2026, is fresh
+PASS  Staleness: re-verified item is fresh
+PASS  A failed value keeps its value
+PASS  Snapshot freeze: hash stable
+PASS  Diff table lists id, old, new, source
+PASS  Manual value never labelled auto or live
+PASS  Two-page rule helper
+PASS  Worker runs locally (wrangler dev --test-scheduled)
+PASS  Cron trigger fires  [200]
+PASS  Pipeline run recorded for this trigger
+PASS  Adapter cbe_corridor_home returns a value or a logged failure  [1 value(s)]
+PASS  Adapter cbe_corridor_press_release returns a value or a logged failure  [1 value(s)]
+PASS  Adapter cbe_home_stats returns a value or a logged failure  [3 value(s)]
+PASS  Adapter cbe_tbills returns a value or a logged failure  [2 value(s)]
+PASS  Adapter cbe_tbonds returns a value or a logged failure  [1 value(s)]
+PASS  Adapter cbe_fx returns a value or a logged failure  [1 value(s)]
+PASS  Adapter us_treasury returns a value or a logged failure  [1 value(s)]
+PASS  Adapter imf_NGDP_RPCH returns a value or a logged failure  [failure: HTTP 403]
+PASS  Adapter imf_PCPIPCH returns a value or a logged failure  [failure: HTTP 403]
+PASS  US Treasury adapter returned a live value
+PASS  /api/rates: auto value wins when ok  [4.94]
+PASS  /api/rates: manual stays when the auto source failed, and is not relabelled
+
+REGISTRY TABLE (from /api/rates; today = 31-Oct-2026)
+id                                value                       as of       method  status       label
+board_remuneration_cap            10/5                        null        manual  unconfirmed  manual, not verified
+cbe_corridor_prior                19/20/19.5                  2026-10-28  manual  ok           manual, verified 31-Oct-2026
+cbe_discount_rate                 20.5                        2026-10-29  manual  ok           manual, verified 31-Oct-2026
+cbe_inflation_target              7                           2024-12-26  manual  ok           manual, verified 31-Oct-2026
+cbe_main_operation                20.5                        2026-10-31  auto    ok           auto, fetched 31-Oct-2026 15:32
+cbe_overnight_deposit             20                          2026-10-31  auto    ok           auto, fetched 31-Oct-2026 15:32
+cbe_overnight_lending             21                          2026-10-31  auto    ok           auto, fetched 31-Oct-2026 15:32
+cit_rate                          22.5                        null        manual  unconfirmed  manual, not verified
+conia                             19.468                      2026-10-31  auto    ok           auto, fetched 31-Oct-2026 15:32
+cpi_core_yoy                      14.1                        2026-10-31  auto    ok           auto, fetched 31-Oct-2026 15:32
+cpi_urban_headline_yoy            13.9                        2026-10-31  auto    ok           auto, fetched 31-Oct-2026 15:32
+cpi_urban_mom                     1.3                         2026-09-30  manual  ok           manual, verified 31-Oct-2026
+div_wht_general                   10                          2026-07-29  manual  ok           manual, not verified
+div_wht_listed                    5                           2026-07-29  manual  ok           manual, not verified
+egx_stamp_duty                    0.05                        null        manual  stale        manual, not verified
+egypt_cds_5y                      343                         2026-10-29  manual  unconfirmed  manual, not verified
+employee_profit_share_rule        10                          null        manual  unconfirmed  manual, not verified
+epd_law_14_2025                   null                        null        manual  unconfirmed  manual, not verified
+imf_inflation_forecast            null                        null        manual  unconfirmed  manual, not verified
+imf_real_gdp_growth               5.1                         2026-10-22  manual  unconfirmed  manual, not verified
+intercompany_dividend_exclusion   Excluded; conditions not l  2026-07-29  manual  unconfirmed  manual, not verified
+legal_reserve_rule                5/50                        null        manual  unconfirmed  manual, not verified
+listed_cgt                        Exempt, except disposals c  2026-07-29  manual  unconfirmed  manual, not verified
+mpc_calendar_2026                 2026-04-02/2026-05-21/2026  null        manual  unconfirmed  manual, not verified
+natural_gas_schedule_tax          20                          2026-07-29  manual  unconfirmed  manual, not verified
+sp_egypt_rating                   B / B, stable               2026-10-10  manual  ok           manual, not verified
+tbill_182d                        25.457                      2026-10-29  auto    ok           auto, fetched 31-Oct-2026 15:32
+tbill_273d                        null                        null        manual  unconfirmed  manual, not verified
+tbill_364d                        26.076                      2026-10-29  auto    ok           auto, fetched 31-Oct-2026 15:32
+tbill_91d                         24.316                      2026-10-27  manual  unconfirmed  manual, not verified
+tbond_3y                          24.432                      2026-10-26  auto    ok           auto, fetched 31-Oct-2026 15:32
+tbond_yields_by_tenor             null                        null        manual  unconfirmed  manual, not verified
+us_10y                            4.94                        2026-10-30  auto    ok           auto, fetched 31-Oct-2026 15:32
+usdegp_cbe_official               56.0429                     2026-10-29  auto    ok           auto, fetched 31-Oct-2026 15:32
+vat_standard                      14                          2026-07-29  manual  ok           manual, not verified
+29-Oct-2026 MPC change: 19.00 / 20.00 / 19.50 to 20.00 / 21.00 / 20.50, discount 20.50. Confirmed at CBE (press release and homepage) on 31-Oct-2026.
+unconfirmed: board_remuneration_cap
+unconfirmed: cit_rate
+unconfirmed: egypt_cds_5y
+unconfirmed: employee_profit_share_rule
+unconfirmed: epd_law_14_2025
+unconfirmed: imf_inflation_forecast
+unconfirmed: imf_real_gdp_growth
+unconfirmed: intercompany_dividend_exclusion
+unconfirmed: legal_reserve_rule
+unconfirmed: listed_cgt
+unconfirmed: mpc_calendar_2026
+unconfirmed: natural_gas_schedule_tax
+unconfirmed: tbill_273d
+unconfirmed: tbill_91d
+unconfirmed: tbond_yields_by_tenor
+[rates] cbe_corridor_home: 1 value(s)
+[rates] cbe_corridor_press_release: 1 value(s)
+[rates] cbe_home_stats: 3 value(s)
+[rates] cbe_tbills: 2 value(s)
+[rates] cbe_tbonds: 1 value(s)
+[rates] cbe_fx: 1 value(s)
+[rates] us_treasury: 1 value(s)
+[rates] imf_NGDP_RPCH: FAILED HTTP 403
+[rates] imf_PCPIPCH: FAILED HTTP 403
+
+32 PASS, 0 FAIL

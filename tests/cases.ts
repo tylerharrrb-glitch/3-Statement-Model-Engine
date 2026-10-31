@@ -38,6 +38,6 @@ export const sweep = (b: ModelInputs) => {
 export const usdLoan = (b: ModelInputs) => {
   const c = withDebt(b, { name: 'USD loan', currency: 'USD', fixedRate: 0.08, repay: Array(10).fill(1_000_000) });
   c.settings.usd.cash = 0.5;
-  each(c, d => { d.fx_close = Array.from({ length: 10 }, (_, i) => 51.4281 * 1.1 ** (i + 1)); });
+  each(c, d => { d.fx_close = Array.from({ length: 10 }, (_, i) => 56.0429 * 1.1 ** (i + 1)); });
   return c;
 };

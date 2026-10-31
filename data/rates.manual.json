@@ -8,19 +8,19 @@
       "value": 20,
       "unit": "pct",
       "nature": "official",
-      "sourceName": "EnterpriseAM 30-Oct-2026 reporting CBE statement",
-      "sourceUrl": "https://www.cbe.org.eg/en/",
+      "sourceName": "Central Bank of Egypt, MPC press release and homepage",
+      "sourceUrl": "https://www.cbe.org.eg/en/news-publications/news/2026/10/29/13/08/mpc-press-release-29-october-2026",
       "asOf": "2026-10-29",
       "fetchedAt": null,
-      "verifiedAt": null,
+      "verifiedAt": "2026-10-31",
       "method": "manual",
       "updateCycle": "mpc",
       "bounds": {
         "min": 0,
         "max": 60
       },
-      "status": "unconfirmed",
-      "notes": "MPC 29-Oct-2026. Secondary source reported by owner on 31-Oct-2026; primary source not read. cbe.org.eg rejects automated access."
+      "status": "ok",
+      "notes": "CBE MPC press release 29-Oct-2026: raised 100 bps to 20.0 / 21.0 / 20.5, discount 20.5. Also shown on the CBE homepage key statistics."
     },
     {
       "id": "cbe_overnight_lending",
@@ -28,19 +28,19 @@
       "value": 21,
       "unit": "pct",
       "nature": "official",
-      "sourceName": "EnterpriseAM 30-Oct-2026 reporting CBE statement",
-      "sourceUrl": "https://www.cbe.org.eg/en/",
+      "sourceName": "Central Bank of Egypt, MPC press release and homepage",
+      "sourceUrl": "https://www.cbe.org.eg/en/news-publications/news/2026/10/29/13/08/mpc-press-release-29-october-2026",
       "asOf": "2026-10-29",
       "fetchedAt": null,
-      "verifiedAt": null,
+      "verifiedAt": "2026-10-31",
       "method": "manual",
       "updateCycle": "mpc",
       "bounds": {
         "min": 0,
         "max": 60
       },
-      "status": "unconfirmed",
-      "notes": "MPC 29-Oct-2026. Secondary source reported by owner on 31-Oct-2026; primary source not read."
+      "status": "ok",
+      "notes": "CBE MPC press release 29-Oct-2026: raised 100 bps to 20.0 / 21.0 / 20.5, discount 20.5. Also shown on the CBE homepage key statistics."
     },
     {
       "id": "cbe_main_operation",
@@ -48,19 +48,19 @@
       "value": 20.5,
       "unit": "pct",
       "nature": "official",
-      "sourceName": "EnterpriseAM 30-Oct-2026 reporting CBE statement",
-      "sourceUrl": "https://www.cbe.org.eg/en/",
+      "sourceName": "Central Bank of Egypt, MPC press release and homepage",
+      "sourceUrl": "https://www.cbe.org.eg/en/news-publications/news/2026/10/29/13/08/mpc-press-release-29-october-2026",
       "asOf": "2026-10-29",
       "fetchedAt": null,
-      "verifiedAt": null,
+      "verifiedAt": "2026-10-31",
       "method": "manual",
       "updateCycle": "mpc",
       "bounds": {
         "min": 0,
         "max": 60
       },
-      "status": "unconfirmed",
-      "notes": "MPC 29-Oct-2026. Secondary source reported by owner on 31-Oct-2026; primary source not read."
+      "status": "ok",
+      "notes": "CBE MPC press release 29-Oct-2026: raised 100 bps to 20.0 / 21.0 / 20.5, discount 20.5. Also shown on the CBE homepage key statistics."
     },
     {
       "id": "cbe_discount_rate",
@@ -68,19 +68,19 @@
       "value": 20.5,
       "unit": "pct",
       "nature": "official",
-      "sourceName": "EnterpriseAM 30-Oct-2026 reporting CBE statement",
-      "sourceUrl": "https://www.cbe.org.eg/en/",
+      "sourceName": "Central Bank of Egypt, MPC press release",
+      "sourceUrl": "https://www.cbe.org.eg/en/news-publications/news/2026/10/29/13/08/mpc-press-release-29-october-2026",
       "asOf": "2026-10-29",
       "fetchedAt": null,
-      "verifiedAt": null,
+      "verifiedAt": "2026-10-31",
       "method": "manual",
       "updateCycle": "mpc",
       "bounds": {
         "min": 0,
         "max": 60
       },
-      "status": "unconfirmed",
-      "notes": "MPC 29-Oct-2026. Secondary source reported by owner on 31-Oct-2026; primary source not read."
+      "status": "ok",
+      "notes": "CBE MPC press release 29-Oct-2026: raised 100 bps to 20.0 / 21.0 / 20.5, discount 20.5. Also shown on the CBE homepage key statistics."
     },
     {
       "id": "cbe_corridor_prior",
@@ -92,16 +92,16 @@
       ],
       "unit": "pct",
       "nature": "official",
-      "sourceName": "Zawya/Reuters 29-Oct-2026",
-      "sourceUrl": "https://www.cbe.org.eg/en/",
-      "asOf": "2026-02-01",
+      "sourceName": "Implied by the CBE press release: a 100 bps raise to 20.0 / 21.0 / 20.5",
+      "sourceUrl": "https://www.cbe.org.eg/en/news-publications/news/2026/10/29/13/08/mpc-press-release-29-october-2026",
+      "asOf": "2026-10-28",
       "fetchedAt": null,
-      "verifiedAt": null,
+      "verifiedAt": "2026-10-31",
       "method": "manual",
       "updateCycle": "event",
       "bounds": null,
-      "status": "unconfirmed",
-      "notes": "History only: Feb-2026 to 29-Oct-2026. Start date within Feb-2026 not confirmed."
+      "status": "ok",
+      "notes": "History only. Start date within Feb-2026 not read at CBE."
     },
     {
       "id": "cpi_urban_headline_yoy",
@@ -109,19 +109,19 @@
       "value": 13.9,
       "unit": "pct",
       "nature": "official",
-      "sourceName": "CBE via Zawya/Reuters 20-Oct-2026",
-      "sourceUrl": "https://www.capmas.gov.eg/",
+      "sourceName": "Central Bank of Egypt, inflation rates",
+      "sourceUrl": "https://www.cbe.org.eg/en/economic-research/statistics/inflation-rates",
       "asOf": "2026-09-30",
       "fetchedAt": null,
-      "verifiedAt": null,
+      "verifiedAt": "2026-10-31",
       "method": "manual",
       "updateCycle": "monthly",
       "bounds": {
         "min": -5,
         "max": 80
       },
-      "status": "unconfirmed",
-      "notes": "Sep-2026; Aug 14.5. Secondary source reported by owner on 31-Oct-2026; primary source not read."
+      "status": "ok",
+      "notes": "Sep-2026, page updated 11-Oct-2026."
     },
     {
       "id": "cpi_core_yoy",
@@ -129,19 +129,19 @@
       "value": 14.1,
       "unit": "pct",
       "nature": "official",
-      "sourceName": "CBE via Zawya/Reuters 20-Oct-2026",
-      "sourceUrl": "https://www.cbe.org.eg/en/",
+      "sourceName": "Central Bank of Egypt, inflation rates",
+      "sourceUrl": "https://www.cbe.org.eg/en/economic-research/statistics/inflation-rates",
       "asOf": "2026-09-30",
       "fetchedAt": null,
-      "verifiedAt": null,
+      "verifiedAt": "2026-10-31",
       "method": "manual",
       "updateCycle": "monthly",
       "bounds": {
         "min": -5,
         "max": 80
       },
-      "status": "unconfirmed",
-      "notes": "Sep-2026; Aug 14.9. Secondary source reported by owner on 31-Oct-2026; primary source not read."
+      "status": "ok",
+      "notes": "Sep-2026, page updated 11-Oct-2026."
     },
     {
       "id": "cpi_urban_mom",
@@ -149,19 +149,19 @@
       "value": 1.3,
       "unit": "pct",
       "nature": "official",
-      "sourceName": "CBE via Zawya/Reuters 20-Oct-2026",
-      "sourceUrl": "https://www.capmas.gov.eg/",
+      "sourceName": "Central Bank of Egypt, inflation rates",
+      "sourceUrl": "https://www.cbe.org.eg/en/economic-research/statistics/inflation-rates",
       "asOf": "2026-09-30",
       "fetchedAt": null,
-      "verifiedAt": null,
+      "verifiedAt": "2026-10-31",
       "method": "manual",
       "updateCycle": "monthly",
       "bounds": {
         "min": -10,
         "max": 20
       },
-      "status": "unconfirmed",
-      "notes": "Sep-2026. Secondary source reported by owner on 31-Oct-2026; primary source not read."
+      "status": "ok",
+      "notes": "Sep-2026, page updated 11-Oct-2026."
     },
     {
       "id": "cbe_inflation_target",
@@ -169,16 +169,16 @@
       "value": 7,
       "unit": "pct",
       "nature": "official",
-      "sourceName": "Not verified",
-      "sourceUrl": "TO_VERIFY",
-      "asOf": null,
+      "sourceName": "Central Bank of Egypt, inflation target page",
+      "sourceUrl": "https://www.cbe.org.eg/en/monetary-policy/inflation-target",
+      "asOf": "2024-12-26",
       "fetchedAt": null,
-      "verifiedAt": null,
+      "verifiedAt": "2026-10-31",
       "method": "manual",
       "updateCycle": "event",
       "bounds": null,
-      "status": "unconfirmed",
-      "notes": "7% +/- 2pp; target date unconfirmed."
+      "status": "ok",
+      "notes": "7% +/- 2pp on average in Q4 2026; 5% +/- 2pp on average in Q4 2028, per the December 2024 MPC press release. Press release day not read."
     },
     {
       "id": "tbill_91d",
@@ -198,27 +198,27 @@
         "max": 60
       },
       "status": "unconfirmed",
-      "notes": "Auction 27-Oct-2026, before the hike."
+      "notes": "Auction 27-Oct-2026, before the hike; secondary source. Next 91-day and 273-day auctions are 1-Nov-2026 per CBE, so CBE results were not on the page."
     },
     {
       "id": "tbill_182d",
       "label": "T-bill yield, 182 days",
-      "value": 25.166,
+      "value": 25.457,
       "unit": "pct",
       "nature": "market_quote",
-      "sourceName": "Afronomics citing CBE",
-      "sourceUrl": "TO_VERIFY",
-      "asOf": "2026-10-27",
+      "sourceName": "Central Bank of Egypt, EGP T-bill auction results",
+      "sourceUrl": "https://www.cbe.org.eg/en/auctions/egp-t-bills",
+      "asOf": "2026-10-29",
       "fetchedAt": null,
-      "verifiedAt": null,
+      "verifiedAt": "2026-10-31",
       "method": "manual",
       "updateCycle": "weekly_auction",
       "bounds": {
         "min": 0,
         "max": 60
       },
-      "status": "unconfirmed",
-      "notes": "Auction 27-Oct-2026."
+      "status": "ok",
+      "notes": "Accepted bids, weighted average yield, auction 29-Oct-2026. Replaces the owner seed 25.166 from 27-Oct-2026, before the hike."
     },
     {
       "id": "tbill_273d",
@@ -238,27 +238,27 @@
         "max": 60
       },
       "status": "unconfirmed",
-      "notes": "No value obtained."
+      "notes": "No value obtained. Next auction 1-Nov-2026 per CBE."
     },
     {
       "id": "tbill_364d",
       "label": "T-bill yield, 364 days",
-      "value": 25.912,
+      "value": 26.076,
       "unit": "pct",
       "nature": "market_quote",
-      "sourceName": "Afronomics; HC Securities in Zawya 29-Oct-2026",
-      "sourceUrl": "TO_VERIFY",
-      "asOf": "2026-10-27",
+      "sourceName": "Central Bank of Egypt, EGP T-bill auction results",
+      "sourceUrl": "https://www.cbe.org.eg/en/auctions/egp-t-bills",
+      "asOf": "2026-10-29",
       "fetchedAt": null,
-      "verifiedAt": null,
+      "verifiedAt": "2026-10-31",
       "method": "manual",
       "updateCycle": "weekly_auction",
       "bounds": {
         "min": 0,
         "max": 60
       },
-      "status": "unconfirmed",
-      "notes": "Auction 27-Oct-2026."
+      "status": "ok",
+      "notes": "Accepted bids, weighted average yield, auction 29-Oct-2026. Replaces the owner seed 25.912 from 27-Oct-2026, before the hike."
     },
     {
       "id": "tbond_yields_by_tenor",
@@ -275,47 +275,47 @@
       "updateCycle": "weekly_auction",
       "bounds": null,
       "status": "unconfirmed",
-      "notes": "No value obtained."
+      "notes": "Other tenors not read. See tbond_3y."
     },
     {
       "id": "usdegp_cbe_official",
       "label": "USD/EGP, CBE official mid",
-      "value": 51.4281,
+      "value": 56.0429,
       "unit": "EGP_per_USD",
       "nature": "official",
-      "sourceName": "CBE official rate, read manually for the WOLF registry",
+      "sourceName": "Central Bank of Egypt, official exchange rates",
       "sourceUrl": "https://www.cbe.org.eg/en/economic-research/statistics/exchange-rates",
-      "asOf": "2026-09-23",
+      "asOf": "2026-10-29",
       "fetchedAt": null,
-      "verifiedAt": null,
+      "verifiedAt": "2026-10-31",
       "method": "manual",
       "updateCycle": "daily",
       "bounds": {
         "min": 30,
         "max": 120
       },
-      "status": "unconfirmed",
-      "notes": "Latest figure available in the WOLF registry, 23-Sep-2026. The brief reports the pound passed 54.73 by 29-Oct-2026 (Zawya), so this value is out of date. Re-read at CBE."
+      "status": "ok",
+      "notes": "Average market rate 29-Oct-2026: buy 55.9936, sell 56.0922; mid stored."
     },
     {
       "id": "conia",
       "label": "CONIA",
-      "value": null,
+      "value": 19.468,
       "unit": "pct",
       "nature": "official",
-      "sourceName": "Not checked",
-      "sourceUrl": "TO_VERIFY",
-      "asOf": null,
+      "sourceName": "Central Bank of Egypt, homepage key statistics",
+      "sourceUrl": "https://www.cbe.org.eg/en/",
+      "asOf": "2026-10-29",
       "fetchedAt": null,
-      "verifiedAt": null,
+      "verifiedAt": "2026-10-31",
       "method": "manual",
       "updateCycle": "daily",
       "bounds": {
         "min": 0,
         "max": 60
       },
-      "status": "unconfirmed",
-      "notes": "No value obtained."
+      "status": "ok",
+      "notes": "Page read 31-Oct-2026; date of the observation not shown beside the value, last page update used."
     },
     {
       "id": "cit_rate",
@@ -644,27 +644,47 @@
       "updateCycle": "event",
       "bounds": null,
       "status": "unconfirmed",
-      "notes": "February and December dates to be confirmed, so they are left out and cannot trigger staleness. 2027 calendar TO_VERIFY."
+      "notes": "29-Oct confirmed by the CBE press release. Other dates from Zawya/Reuters: the CBE schedule table loads by script and could not be read. February and December dates to be confirmed, so they are left out and cannot trigger staleness. 2027 calendar TO_VERIFY."
     },
     {
       "id": "us_10y",
       "label": "US Treasury 10-year par yield",
-      "value": null,
+      "value": 4.94,
       "unit": "pct",
       "nature": "market_quote",
       "sourceName": "US Treasury daily par yield curve",
       "sourceUrl": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve",
-      "asOf": null,
+      "asOf": "2026-10-30",
       "fetchedAt": null,
-      "verifiedAt": null,
+      "verifiedAt": "2026-10-31",
       "method": "manual",
       "updateCycle": "daily",
       "bounds": {
         "min": 0,
         "max": 20
       },
-      "status": "unconfirmed",
-      "notes": "Auto source; populated by the Worker."
+      "status": "ok",
+      "notes": "Read directly from the Treasury CSV on 31-Oct-2026. The Worker replaces this value when it runs."
+    },
+    {
+      "id": "tbond_3y",
+      "label": "T-bond 3-year fixed coupon, accepted weighted average yield",
+      "value": 24.432,
+      "unit": "pct",
+      "nature": "market_quote",
+      "sourceName": "Central Bank of Egypt, fixed coupon bond results",
+      "sourceUrl": "https://www.cbe.org.eg/en/auctions/egp-t-bonds-fixed-coupon",
+      "asOf": "2026-10-26",
+      "fetchedAt": null,
+      "verifiedAt": "2026-10-31",
+      "method": "manual",
+      "updateCycle": "weekly_auction",
+      "bounds": {
+        "min": 0,
+        "max": 60
+      },
+      "status": "ok",
+      "notes": "Auction 26-Oct-2026, before the hike. Coupon 23.981%."
     }
   ]
 }

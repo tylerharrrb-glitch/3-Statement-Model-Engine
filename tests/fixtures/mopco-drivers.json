@@ -3,7 +3,7 @@
   "status": "Analyst placeholders derived from FY2025 ratios. Not a forecast view; the owner replaces them.",
   "unconfirmed": [
    "USD balance shares are 0: the FX-risk note was not available",
-   "fxHistClose and fxHistAvg use the registry USD/EGP, not the actual FY2025 rates",
+   "fxHistClose and fxHistAvg use the registry USD/EGP of 29-Oct-2026, not the actual FY2025 rates",
    "land is 0: not in Appendix B",
    "depr_cogs_share is 1: split not in Appendix B",
    "employee and board split: only the combined figure is reported in Appendix B"
@@ -24,8 +24,8 @@
   "schedTaxOn": 0,
   "yieldBaseId": "tbill_364d",
   "floatBaseId": "cbe_overnight_lending",
-  "fxHistClose": 51.4281,
-  "fxHistAvg": 51.4281,
+  "fxHistClose": 56.0429,
+  "fxHistAvg": 56.0429,
   "usd": {
    "cash": 0,
    "inv_nc": 0,
@@ -884,16 +884,16 @@
     0
    ],
    "fx_close": [
-    56.5709,
-    62.228,
-    68.4508,
-    75.2959,
-    82.8255,
-    91.108,
-    100.2188,
-    110.2407,
-    121.2648,
-    133.3912
+    61.6472,
+    67.8119,
+    74.5931,
+    82.0524,
+    90.2577,
+    99.2834,
+    109.2118,
+    120.1329,
+    132.1462,
+    145.3608
    ],
    "inv_nc_net": [
     0,
@@ -1918,16 +1918,16 @@
     0
    ],
    "fx_close": [
-    51.4281,
-    51.4281,
-    51.4281,
-    51.4281,
-    51.4281,
-    51.4281,
-    51.4281,
-    51.4281,
-    51.4281,
-    51.4281
+    56.0429,
+    56.0429,
+    56.0429,
+    56.0429,
+    56.0429,
+    56.0429,
+    56.0429,
+    56.0429,
+    56.0429,
+    56.0429
    ],
    "inv_nc_net": [
     0,
@@ -2952,16 +2952,16 @@
     0
    ],
    "fx_close": [
-    52.9709,
-    54.5601,
-    56.1969,
-    57.8828,
-    59.6193,
-    61.4078,
-    63.2501,
-    65.1476,
-    67.102,
-    69.1151
+    57.7242,
+    59.4559,
+    61.2396,
+    63.0768,
+    64.9691,
+    66.9182,
+    68.9257,
+    70.9935,
+    73.1233,
+    75.317
    ],
    "inv_nc_net": [
     0,
