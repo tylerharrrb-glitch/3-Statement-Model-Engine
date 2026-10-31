@@ -1,0 +1,1723 @@
+=================== node debug_excel.js
+File not found at C:/Users/user/Downloads/Demo_Company_Inc__Financial_Model.xlsx 
+Error: File not found: C:/Users/user/Downloads/Demo_Company_Inc__Financial_Model.xlsx
+[exit code 0]
+=================== npx tsx scripts/check-circ.ts
+Error: File not found: TEST_CalcSheets_Lean.xlsx
+    at XLSX.readFile (<scratch-copy>\node_modules\exceljs\lib\xlsx\xlsx.js:51:13)
+    at async main (<scratch-copy>\scripts\check-circ.ts:5:5)
+[exit code 0]
+=================== node scripts/check_excel.js
+Error: ENOENT: no such file or directory, stat 'C:\Users\user\Downloads\WOLF_Financial_Model.xlsx'
+    at statSync (node:fs:1753:25)
+    at main (<scratch-copy>\scripts\check_excel.js:10:19)
+    at Object.<anonymous> (<scratch-copy>\scripts\check_excel.js:119:1)
+    at Module._compile (node:internal/modules/cjs/loader:1706:14)
+    at Object..js (node:internal/modules/cjs/loader:1839:10)
+    at Module.load (node:internal/modules/cjs/loader:1441:32)
+    at Function._load (node:internal/modules/cjs/loader:1263:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:237:24)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:171:5)
+    at node:internal/main/run_main_module:36:49 {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'stat',
+  path: 'C:\\Users\\user\\Downloads\\WOLF_Financial_Model.xlsx'
+}
+[exit code 0]
+=================== node scripts/check_excel.mjs
+No WOLF Excel files found in Downloads
+[exit code 1]
+=================== npx tsx scripts/debug-excel-cells.ts
+=== Scenario Guarantee (Single Source of Truth) ===
+  Store provided 3 scenario(s)
+    [0] name="Base Case" type="base" hasResults=true
+    [1] name="Optimistic Case" type="optimistic" hasResults=true
+    [2] name="Conservative Case" type="conservative" hasResults=true
+  -> Computing results for "Base Case"...
+    taxRate: [0.225,0.225,0.225,0.225,0.225]
+  -> [U+2713] Computed successfully
+  -> Computing results for "Optimistic Case"...
+    taxRate: [0.225,0.225,0.225,0.225,0.225]
+  -> [U+2713] Computed successfully
+  -> Computing results for "Conservative Case"...
+    taxRate: [0.225,0.225,0.225,0.225,0.225]
+  -> [U+2713] Computed successfully
+  Final: 3/3 with results
+=== buildScenariosSheet DEBUG ===
+allScenarios count: 3
+  [0] name="Base Case" type="base" hasResults=true
+  [1] name="Optimistic Case" type="optimistic" hasResults=true
+  [2] name="Conservative Case" type="conservative" hasResults=true
+Block "Base Case" (type=base): found=true, hasResults=true, scenarioName="Base Case"
+Block "Optimistic" (type=optimistic): found=true, hasResults=true, scenarioName="Optimistic Case"
+Block "Conservative" (type=conservative): found=true, hasResults=true, scenarioName="Conservative Case"
+Revenue Growth Rate is on row 4
+  Col 2: value=null, type=object, formula=undefined, result=undefined
+  Col 3: value=null, type=object, formula=undefined, result=undefined
+  Col 4: value={"formula":"IF(Assumptions!$B$67=\"Base Case\",Scenarios!D8,IF(Assumptions!$B$67=\"Optimistic\",Scenarios!D94,Scenarios!D180))","result":0.10000000000000012}, type=object, formula="IF(Assumptions!$B$67=\"Base Case\",Scenarios!D8,IF(Assumptions!$B$67=\"Optimistic\",Scenarios!D94,Scenarios!D180))", result=0.10000000000000012
+  Col 5: value={"formula":"IF(Assumptions!$B$67=\"Base Case\",Scenarios!E8,IF(Assumptions!$B$67=\"Optimistic\",Scenarios!E94,Scenarios!E180))","result":0.0800000000000001}, type=object, formula="IF(Assumptions!$B$67=\"Base Case\",Scenarios!E8,IF(Assumptions!$B$67=\"Optimistic\",Scenarios!E94,Scenarios!E180))", result=0.0800000000000001
+  Col 6: value={"formula":"IF(Assumptions!$B$67=\"Base Case\",Scenarios!F8,IF(Assumptions!$B$67=\"Optimistic\",Scenarios!F94,Scenarios!F180))","result":0.06999999999999998}, type=object, formula="IF(Assumptions!$B$67=\"Base Case\",Scenarios!F8,IF(Assumptions!$B$67=\"Optimistic\",Scenarios!F94,Scenarios!F180))", result=0.06999999999999998
+  Col 7: value={"formula":"IF(Assumptions!$B$67=\"Base Case\",Scenarios!G8,IF(Assumptions!$B$67=\"Optimistic\",Scenarios!G94,Scenarios!G180))","result":0.06000000000000008}, type=object, formula="IF(Assumptions!$B$67=\"Base Case\",Scenarios!G8,IF(Assumptions!$B$67=\"Optimistic\",Scenarios!G94,Scenarios!G180))", result=0.06000000000000008
+  Col 8: value={"formula":"IF(Assumptions!$B$67=\"Base Case\",Scenarios!H8,IF(Assumptions!$B$67=\"Optimistic\",Scenarios!H94,Scenarios!H180))","result":0.049999999999999954}, type=object, formula="IF(Assumptions!$B$67=\"Base Case\",Scenarios!H8,IF(Assumptions!$B$67=\"Optimistic\",Scenarios!H94,Scenarios!H180))", result=0.049999999999999954
+
+COGS % of Revenue is on row 5
+  Col 2: value=null, type=object
+  Col 3: value=null, type=object
+  Col 4: value={"formula":"IF(Assumptions!$B$67=\"Base Case\",Scenarios!D9,IF(Assumptions!$B$67=\"Optimistic\",Scenarios!D95,Scenarios!D181))","result":0.6}, type=object
+  Col 5: value={"formula":"IF(Assumptions!$B$67=\"Base Case\",Scenarios!E9,IF(Assumptions!$B$67=\"Optimistic\",Scenarios!E95,Scenarios!E181))","result":0.6}, type=object
+  Col 6: value={"formula":"IF(Assumptions!$B$67=\"Base Case\",Scenarios!F9,IF(Assumptions!$B$67=\"Optimistic\",Scenarios!F95,Scenarios!F181))","result":0.6}, type=object
+  Col 7: value={"formula":"IF(Assumptions!$B$67=\"Base Case\",Scenarios!G9,IF(Assumptions!$B$67=\"Optimistic\",Scenarios!G95,Scenarios!G181))","result":0.6}, type=object
+  Col 8: value={"formula":"IF(Assumptions!$B$67=\"Base Case\",Scenarios!H9,IF(Assumptions!$B$67=\"Optimistic\",Scenarios!H95,Scenarios!H181))","result":0.6}, type=object
+[exit code 0]
+=================== npx tsx scripts/diag-calc-sheets.ts
+Error: File not found: Demo_Company_Inc__Financial_Model.xlsx
+    at XLSX.readFile (<scratch-copy>\node_modules\exceljs\lib\xlsx\xlsx.js:51:13)
+    at async main (<scratch-copy>\scripts\diag-calc-sheets.ts:6:5)
+[exit code 0]
+=================== npx tsx scripts/diag-interest-dividend.ts
+
+Base Case:
+  interestRateOnDebt = [0.22, 0.2, 0.18, 0.17, 0.16]
+  interestRateOnCash = [0.19, 0.17, 0.15, 0.13, 0.12]
+  dividendPayoutRatio = [0.3, 0.3, 0.3, 0.3, 0.3]
+
+Optimistic Case:
+  interestRateOnDebt = [0.22, 0.2, 0.18, 0.17, 0.16]
+  interestRateOnCash = [0.19, 0.17, 0.15, 0.13, 0.12]
+  dividendPayoutRatio = [0.3, 0.3, 0.3, 0.3, 0.3]
+
+Conservative Case:
+  interestRateOnDebt = [0.22, 0.2, 0.18, 0.17, 0.16]
+  interestRateOnCash = [0.19, 0.17, 0.15, 0.13, 0.12]
+  dividendPayoutRatio = [0.3, 0.3, 0.3, 0.3, 0.3]
+=== Scenario Guarantee (Single Source of Truth) ===
+  Store provided 3 scenario(s)
+    [0] name="Base Case" type="base" hasResults=true
+    [1] name="Optimistic Case" type="optimistic" hasResults=true
+    [2] name="Conservative Case" type="conservative" hasResults=true
+  -> Computing results for "Base Case"...
+    taxRate: [0.225,0.225,0.225,0.225,0.225]
+  -> [U+2713] Computed successfully
+  -> Computing results for "Optimistic Case"...
+    taxRate: [0.225,0.225,0.225,0.225,0.225]
+  -> [U+2713] Computed successfully
+  -> Computing results for "Conservative Case"...
+    taxRate: [0.225,0.225,0.225,0.225,0.225]
+  -> [U+2713] Computed successfully
+  Final: 3/3 with results
+=== buildScenariosSheet DEBUG ===
+allScenarios count: 3
+  [0] name="Base Case" type="base" hasResults=true
+  [1] name="Optimistic Case" type="optimistic" hasResults=true
+  [2] name="Conservative Case" type="conservative" hasResults=true
+Block "Base Case" (type=base): found=true, hasResults=true, scenarioName="Base Case"
+Block "Optimistic" (type=optimistic): found=true, hasResults=true, scenarioName="Optimistic Case"
+Block "Conservative" (type=conservative): found=true, hasResults=true, scenarioName="Conservative Case"
+
+"Interest Rate (on Debt)" - found 3 rows: [31,117,203]
+  Base (row 31): 0.2200, 0.2200, 0.2200, 0.2000, 0.1800, 0.1700, 0.1600
+  Optimistic (row 117): 0.2200, 0.2200, 0.2200, 0.2000, 0.1800, 0.1700, 0.1600
+  Conservative (row 203): 0.2200, 0.2200, 0.2200, 0.2000, 0.1800, 0.1700, 0.1600
+
+"Interest Income Rate (on Cash)" - found 3 rows: [32,118,204]
+  Base (row 32): 0.1900, 0.1900, 0.1900, 0.1700, 0.1500, 0.1300, 0.1200
+  Optimistic (row 118): 0.1900, 0.1900, 0.1900, 0.1700, 0.1500, 0.1300, 0.1200
+  Conservative (row 204): 0.1900, 0.1900, 0.1900, 0.1700, 0.1500, 0.1300, 0.1200
+
+"Dividend Payout Ratio" - found 3 rows: [37,123,209]
+  Base (row 37): 0.0000, 0.4830, 0.3000, 0.3000, 0.3000, 0.3000, 0.3000
+  Optimistic (row 123): 0.0000, 0.4830, 0.3000, 0.3000, 0.3000, 0.3000, 0.3000
+  Conservative (row 209): 0.0000, 0.4830, 0.3000, 0.3000, 0.3000, 0.3000, 0.3000
+
+=== Assumptions Tab ===
+  Row 27 "Interest Rate (on Debt)": null, null, formula:0.2200, formula:0.2000, formula:0.1800, formula:0.1700, formula:0.1600
+  Row 28 "Interest Income Rate (on Cash)": null, null, formula:0.1900, formula:0.1700, formula:0.1500, formula:0.1300, formula:0.1200
+  Row 34 "Dividend Payout Ratio": null, null, formula:0.3000, formula:0.3000, formula:0.3000, formula:0.3000, formula:0.3000
+[exit code 0]
+=================== npx tsx scripts/diag_is.ts
+Error: File not found: <scratch-copy>\Demo_Company_Inc__Financial_Model.xlsx
+    at XLSX.readFile (<scratch-copy>\node_modules\exceljs\lib\xlsx\xlsx.js:51:13)
+    at async main (<scratch-copy>\scripts\diag_is.ts:11:5)
+[exit code 0]
+=================== npx tsx scripts/diagnose-scenarios-tab.ts
+=== lib/scenarios.ts GROUND TRUTH ===
+
+Base Case (base):
+  revenueGrowthRate: [0.1,0.08,0.07,0.06,0.05]
+  cogsPercent:       [0.6,0.6,0.6,0.6,0.6]
+  sgaPercent:        [0.15,0.15,0.15,0.15,0.15]
+  rdPercent:         [0.05,0.05,0.05,0.05,0.05]
+  capexPercent:      [0.05,0.05,0.05,0.05,0.05]
+
+Optimistic Case (optimistic):
+  revenueGrowthRate: [0.15,0.12,0.1,0.09,0.08]
+  cogsPercent:       [0.55,0.54,0.53,0.52,0.51]
+  sgaPercent:        [0.13,0.12,0.12,0.11,0.11]
+  rdPercent:         [0.05,0.05,0.05,0.05,0.05]
+  capexPercent:      [0.05,0.05,0.05,0.05,0.05]
+
+Conservative Case (conservative):
+  revenueGrowthRate: [0.03,0.02,0.02,0.01,0.01]
+  cogsPercent:       [0.65,0.66,0.67,0.67,0.68]
+  sgaPercent:        [0.18,0.19,0.19,0.2,0.2]
+  rdPercent:         [0.05,0.05,0.05,0.05,0.05]
+  capexPercent:      [0.05,0.05,0.05,0.05,0.05]
+
+
+=== Merged scenario assumptions (what buildAllArrays receives) ===
+
+base:
+  revenueGrowthRate:    [0.1,0.08,0.07,0.06,0.05]
+  cogsPercent:          [0.6,0.6,0.6,0.6,0.6]
+  sgaPercent:           [0.15,0.15,0.15,0.15,0.15]
+  rdPercent:            [0.05,0.05,0.05,0.05,0.05]
+  capexPercent:         [0.05,0.05,0.05,0.05,0.05]
+  dividendPayoutRatio:  [0.3,0.3,0.3,0.3,0.3]
+  depreciationRate:     [0.1,0.1,0.1,0.1,0.1]
+
+optimistic:
+  revenueGrowthRate:    [0.15,0.12,0.1,0.09,0.08]
+  cogsPercent:          [0.55,0.54,0.53,0.52,0.51]
+  sgaPercent:           [0.13,0.12,0.12,0.11,0.11]
+  rdPercent:            [0.05,0.05,0.05,0.05,0.05]
+  capexPercent:         [0.05,0.05,0.05,0.05,0.05]
+  dividendPayoutRatio:  [0.3,0.3,0.3,0.3,0.3]
+  depreciationRate:     [0.1,0.1,0.1,0.1,0.1]
+
+conservative:
+  revenueGrowthRate:    [0.03,0.02,0.02,0.01,0.01]
+  cogsPercent:          [0.65,0.66,0.67,0.67,0.68]
+  sgaPercent:           [0.18,0.19,0.19,0.2,0.2]
+  rdPercent:            [0.05,0.05,0.05,0.05,0.05]
+  capexPercent:         [0.05,0.05,0.05,0.05,0.05]
+  dividendPayoutRatio:  [0.3,0.3,0.3,0.3,0.3]
+  depreciationRate:     [0.1,0.1,0.1,0.1,0.1]
+
+
+=== Engine-computed results for each scenario ===
+
+base:
+  CapEx% from assumptions:     ["5.0%","5.0%","5.0%","5.0%","5.0%"]
+  CapEx% from engine results:  ["0.0%","4.7%","5.0%","5.0%","5.0%","5.0%","5.0%"]
+  DivPayout from assumptions:  ["30.0%","30.0%","30.0%","30.0%","30.0%"]
+  DivPayout from engine:       ["0.0%","48.3%","25.6%","27.0%","27.0%","27.0%","27.0%"]
+  Dividends Paid (CF):         [0,-46417,-26993,-35241,-39124,-41616,-44618]
+  CFO:                         [0,126417,276961,187012,206964,222027,239203]
+  Ending Cash:                 [0,200000,387165,469455,562424,663418,774275]
+  Revenue:                     [850000,950000,1045000,1128600,1207602,1280058,1344061]
+  Converged: true, Iterations: 33
+
+optimistic:
+  CapEx% from assumptions:     ["5.0%","5.0%","5.0%","5.0%","5.0%"]
+  CapEx% from engine results:  ["0.0%","4.7%","5.0%","5.0%","5.0%","5.0%","5.0%"]
+  DivPayout from assumptions:  ["30.0%","30.0%","30.0%","30.0%","30.0%"]
+  DivPayout from engine:       ["0.0%","48.3%","26.3%","27.0%","27.0%","27.0%","27.0%"]
+  Dividends Paid (CF):         [0,-46417,-56049,-74525,-86481,-101115,-114531]
+  CFO:                         [0,126417,386008,335279,385415,446510,503548]
+  Ending Cash:                 [0,200000,454019,625991,825597,1060186,1327561]
+  Revenue:                     [850000,950000,1092500,1223600,1345960,1467096,1584464]
+  Converged: true, Iterations: 35
+
+conservative:
+  CapEx% from assumptions:     ["5.0%","5.0%","5.0%","5.0%","5.0%"]
+  CapEx% from engine results:  ["0.0%","4.7%","5.0%","5.0%","5.0%","5.0%","5.0%"]
+  DivPayout from assumptions:  ["30.0%","30.0%","30.0%","30.0%","30.0%"]
+  DivPayout from engine:       ["0.0%","48.3%","25.5%","26.3%","27.0%","27.0%","27.0%"]
+  Dividends Paid (CF):         [0,-46417,-18109,-16451,-13683,-9796,-6500]
+  CFO:                         [0,126417,239686,114884,108099,97948,91196]
+  Ending Cash:                 [0,200000,365551,407827,446273,479386,509751]
+  Revenue:                     [850000,950000,978500,998070,1018031,1028212,1038494]
+  Converged: true, Iterations: 32
+
+
+=== createDefaultScenarios() - what store would have ===
+
+Base Case (base):
+  capexPercent:        [0.05,0.05,0.05,0.05,0.05]
+  dividendPayoutRatio: [0.3,0.3,0.3,0.3,0.3]
+  cogsPercent:         [0.6,0.6,0.6,0.6,0.6]
+
+Optimistic Case (optimistic):
+  capexPercent:        [0.06,0.06,0.06,0.06,0.06]
+  dividendPayoutRatio: [0.3,0.3,0.3,0.3,0.3]
+  cogsPercent:         [0.55,0.54,0.53,0.52,0.51]
+
+Conservative Case (conservative):
+  capexPercent:        [0.04,0.04,0.04,0.04,0.04]
+  dividendPayoutRatio: [0.3,0.3,0.3,0.3,0.3]
+  cogsPercent:         [0.65,0.66,0.67,0.67,0.68]
+[exit code 0]
+=================== npx tsx scripts/quick-diag.ts
+=== OPTIMISTIC SCENARIO ENGINE OUTPUT ===
+
+Periods:
+  [0] 2024 (historical) - Rev: 850000
+  [1] 2025 (historical) - Rev: 950000
+  [2] 2026E (projected) - Rev: 1092500
+  [3] 2027E (projected) - Rev: 1223600
+  [4] 2028E (projected) - Rev: 1345960
+  [5] 2029E (projected) - Rev: 1467096
+  [6] 2030E (projected) - Rev: 1584464
+
+Cash Flow:
+  [0] 2025 (historical) - CFO: 126417, FCF: 81417, EndCash: 200000, DivPaid: -46417, CapEx: -45000
+  [1] 2026E (projected) - CFO: 386008, FCF: 331383, EndCash: 454019, DivPaid: -56049, CapEx: -54625
+  [2] 2027E (projected) - CFO: 335279, FCF: 274099, EndCash: 625991, DivPaid: -74525, CapEx: -61180
+  [3] 2028E (projected) - CFO: 385415, FCF: 318117, EndCash: 825597, DivPaid: -86481, CapEx: -67298
+  [4] 2029E (projected) - CFO: 446510, FCF: 373155, EndCash: 1060186, DivPaid: -101115, CapEx: -73355
+  [5] 2030E (projected) - CFO: 503548, FCF: 424325, EndCash: 1327561, DivPaid: -114531, CapEx: -79223
+
+Converged: true Iters: 35
+[exit code 0]
+=================== npx tsx scripts/test-audit-fixes.ts
+[U+2554]===========================================================[U+2557]
+[U+2551]     FULL SCENARIO TEST SUITE - 3-Statement Model Engine  [U+2551]
+[U+2551]     Base Case | Optimistic | Conservative                [U+2551]
+[U+255A]===========================================================[U+255D]
+
+[U+2713] Base Case computed: Revenue=1344061, NI=231471, Converged=true
+
+[U+2713] Optimistic Case computed: Revenue=1584464, NI=457031, Converged=true
+
+[U+2713] Conservative Case computed: Revenue=1038494, NI=51373, Converged=true
+
+------------------------------------------------------------
+  TEST 1 - Integration Checks (All 28 checks x All Scenarios)
+------------------------------------------------------------
+  [U+2713] Base Case: 140/140 integration checks PASS
+  [U+2713] Optimistic Case: 140/140 integration checks PASS
+  [U+2713] Conservative Case: 140/140 integration checks PASS
+
+------------------------------------------------------------
+  TEST 2 - Balance Sheet Balances (A = L + E, All Scenarios)
+------------------------------------------------------------
+  [U+2713] Base Case: All 7 periods balanced
+  [U+2713] Optimistic Case: All 7 periods balanced
+  [U+2713] Conservative Case: All 7 periods balanced
+
+------------------------------------------------------------
+  TEST 3 - Cash Reconciliation (CF Ending Cash = BS Cash)
+------------------------------------------------------------
+  [U+2713] Base Case: All 5 projected cash balances tie
+  [U+2713] Optimistic Case: All 5 projected cash balances tie
+  [U+2713] Conservative Case: All 5 projected cash balances tie
+
+------------------------------------------------------------
+  TEST 4 - CFF WHT Treatment (memo, not double-counted)
+------------------------------------------------------------
+  [U+2713] Base Case: CFF correctly excludes WHT (memo only) across all 5 years
+  [U+2713] Optimistic Case: CFF correctly excludes WHT (memo only) across all 5 years
+  [U+2713] Conservative Case: CFF correctly excludes WHT (memo only) across all 5 years
+
+------------------------------------------------------------
+  TEST 5 - Circular Reference Convergence
+------------------------------------------------------------
+  [U+2713] PASS: Base Case: converged in 33 iterations (delta=0.007131)
+  [U+2713] PASS: Optimistic Case: converged in 35 iterations (delta=0.002388)
+  [U+2713] PASS: Conservative Case: converged in 32 iterations (delta=0.008670)
+
+------------------------------------------------------------
+  TEST 6 - Altman Z-Scores (Z' Private + Z_EM Emerging Markets)
+------------------------------------------------------------
+  [U+2713] Base Case: All Z-scores computed. Last period: Z'=3.40 (safe), Z_EM=9.09 (safe)
+  [U+2713] Optimistic Case: All Z-scores computed. Last period: Z'=4.41 (safe), Z_EM=12.17 (safe)
+  [U+2713] Conservative Case: All Z-scores computed. Last period: Z'=2.30 (grey), Z_EM=5.64 (safe)
+
+------------------------------------------------------------
+  TEST 7 - Income Statement Waterfall (Revenue -> NI)
+------------------------------------------------------------
+  [U+2713] Base Case: IS waterfall correct for all 7 periods
+  [U+2713] Optimistic Case: IS waterfall correct for all 7 periods
+  [U+2713] Conservative Case: IS waterfall correct for all 7 periods
+
+------------------------------------------------------------
+  TEST 8 - Profit Appropriation (LR -> EPD -> Dividends -> RE)
+------------------------------------------------------------
+  [U+2717] Base Case 2026E: Distributable=128194.33 != NI-LR=142993.70
+  [U+2717] Base Case 2026E: NIAfterEPD=133194.33 != 113394.96
+  [U+2717] Base Case 2026E: AddToRE=89736.03 != 94736.03
+  [U+2717] Base Case 2027E: Distributable=161842.49 != NI-LR=179824.99
+  [U+2717] Base Case 2027E: NIAfterEPD=161842.49 != 143859.99
+  [U+2717] Base Case 2028E: Distributable=180407.74 != NI-LR=200453.05
+  [U+2717] Base Case 2028E: NIAfterEPD=180407.74 != 160362.44
+  [U+2717] Base Case 2029E: Distributable=193518.20 != NI-LR=215020.22
+  [U+2717] Base Case 2029E: NIAfterEPD=193518.20 != 172016.18
+  [U+2717] Base Case 2030E: Distributable=208323.99 != NI-LR=231471.10
+  [U+2717] Base Case 2030E: NIAfterEPD=208323.99 != 185176.88
+  [U+2717] Optimistic Case 2026E: Distributable=190635.33 != NI-LR=212372.58
+  [U+2717] Optimistic Case 2026E: NIAfterEPD=195635.33 != 168898.07
+  [U+2717] Optimistic Case 2026E: AddToRE=133444.73 != 138444.73
+  [U+2717] Optimistic Case 2027E: Distributable=259125.65 != NI-LR=287917.39
+  [U+2717] Optimistic Case 2027E: NIAfterEPD=259125.65 != 230333.91
+  [U+2717] Optimistic Case 2028E: Distributable=306351.21 != NI-LR=340390.23
+  [U+2717] Optimistic Case 2028E: NIAfterEPD=306351.21 != 272312.19
+  [U+2717] Optimistic Case 2029E: Distributable=360870.09 != NI-LR=400966.77
+  [U+2717] Optimistic Case 2029E: NIAfterEPD=360870.09 != 320773.42
+  [U+2717] Optimistic Case 2030E: Distributable=411327.55 != NI-LR=457030.61
+  [U+2717] Optimistic Case 2030E: NIAfterEPD=411327.55 != 365624.49
+  [U+2717] Conservative Case 2026E: Distributable=62407.44 != NI-LR=69749.49
+  [U+2717] Conservative Case 2026E: NIAfterEPD=66078.46 != 55065.39
+  [U+2717] Conservative Case 2026E: AddToRE=43685.21 != 47356.23
+  [U+2717] Conservative Case 2027E: Distributable=63990.42 != NI-LR=71248.13
+  [U+2717] Conservative Case 2027E: NIAfterEPD=65319.39 != 56732.71
+  [U+2717] Conservative Case 2027E: AddToRE=44793.29 != 46122.27
+  [U+2717] Conservative Case 2028E: Distributable=61418.50 != NI-LR=68242.78
+  [U+2717] Conservative Case 2028E: NIAfterEPD=61418.50 != 54594.22
+  [U+2717] Conservative Case 2029E: Distributable=52755.77 != NI-LR=58617.52
+  [U+2717] Conservative Case 2029E: NIAfterEPD=52755.77 != 46894.02
+  [U+2717] Conservative Case 2030E: Distributable=46236.07 != NI-LR=51373.41
+  [U+2717] Conservative Case 2030E: NIAfterEPD=46236.07 != 41098.73
+
+------------------------------------------------------------
+  TEST 9 - CBE DSCR Formula (EBITDA / Debt Service)
+------------------------------------------------------------
+  [U+2713] Base Case 2026E: DSCR(EBITDA)=3.90x vs DSCR(NI+DA)=3.15x (d=+0.75x)
+  [U+2713] Base Case 2027E: DSCR(EBITDA)=4.64x vs DSCR(NI+DA)=4.13x (d=+0.50x)
+  [U+2713] Base Case 2028E: DSCR(EBITDA)=5.51x vs DSCR(NI+DA)=5.12x (d=+0.40x)
+  [U+2713] Base Case 2029E: DSCR(EBITDA)=6.19x vs DSCR(NI+DA)=5.85x (d=+0.33x)
+  [U+2713] Base Case 2030E: DSCR(EBITDA)=6.90x vs DSCR(NI+DA)=6.73x (d=+0.17x)
+  [U+2713] Optimistic Case 2026E: DSCR(EBITDA)=5.32x vs DSCR(NI+DA)=4.29x (d=+1.03x)
+  [U+2713] Optimistic Case 2027E: DSCR(EBITDA)=6.99x vs DSCR(NI+DA)=6.10x (d=+0.89x)
+  [U+2713] Optimistic Case 2028E: DSCR(EBITDA)=8.81x vs DSCR(NI+DA)=7.97x (d=+0.84x)
+  [U+2713] Optimistic Case 2029E: DSCR(EBITDA)=10.79x vs DSCR(NI+DA)=9.89x (d=+0.90x)
+  [U+2713] Optimistic Case 2030E: DSCR(EBITDA)=12.73x vs DSCR(NI+DA)=11.97x (d=+0.77x)
+  [U+2713] Conservative Case 2026E: DSCR(EBITDA)=2.38x vs DSCR(NI+DA)=1.93x (d=+0.45x)
+  [U+2713] Conservative Case 2027E: DSCR(EBITDA)=2.32x vs DSCR(NI+DA)=2.18x (d=+0.14x)
+  [U+2713] Conservative Case 2028E: DSCR(EBITDA)=2.42x vs DSCR(NI+DA)=2.41x (d=+0.01x)
+  [U+2713] Conservative Case 2029E: DSCR(EBITDA)=2.38x vs DSCR(NI+DA)=2.44x (d=-0.06x)
+  [U+2713] Conservative Case 2030E: DSCR(EBITDA)=2.32x vs DSCR(NI+DA)=2.52x (d=-0.21x)
+
+------------------------------------------------------------
+  TEST 10 - CBE ICR Tiered Thresholds (>=2.50x GREEN, >=1.50x AMBER, <1.50x RED)
+------------------------------------------------------------
+  [U+2713] Base Case 2026E: ICR=3.15x -> GREEN
+  [U+2713] Base Case 2027E: ICR=3.71x -> GREEN
+  [U+2713] Base Case 2028E: ICR=4.37x -> GREEN
+  [U+2713] Base Case 2029E: ICR=4.85x -> GREEN
+  [U+2713] Base Case 2030E: ICR=5.33x -> GREEN
+  [U+2713] Optimistic Case 2026E: ICR=4.56x -> GREEN
+  [U+2713] Optimistic Case 2027E: ICR=6.03x -> GREEN
+  [U+2713] Optimistic Case 2028E: ICR=7.59x -> GREEN
+  [U+2713] Optimistic Case 2029E: ICR=9.32x -> GREEN
+  [U+2713] Optimistic Case 2030E: ICR=10.97x -> GREEN
+  [U+26A0] Conservative Case 2026E: ICR=1.64x -> AMBER
+  [U+2717] Conservative Case 2027E: ICR=1.43x -> RED
+  [U+2717] Conservative Case 2028E: ICR=1.36x -> RED
+  [U+2717] Conservative Case 2029E: ICR=1.17x -> RED
+  [U+2717] Conservative Case 2030E: ICR=0.94x -> RED
+
+------------------------------------------------------------
+  TEST 11 - Legal Reserve Cap (50% of Paid-Up Capital)
+------------------------------------------------------------
+  [U+2713] Base Case: LR cap respected. Cumulative LR after projection = 5000.00 (cap=5000)
+  [U+2713] Optimistic Case: LR cap respected. Cumulative LR after projection = 5000.00 (cap=5000)
+  [U+2713] Conservative Case: LR cap respected. Cumulative LR after projection = 5000.00 (cap=5000)
+
+------------------------------------------------------------
+  TEST 12 - Dividend Blocking on Negative Cumulative RE
+------------------------------------------------------------
+  [U+2713] PASS: Negative RE (-30000): dividends blocked (0.00)
+
+------------------------------------------------------------
+  TEST 13 - Legal Reserve with Prior Opening Balance (4000 -> 1000 room)
+------------------------------------------------------------
+  [U+2713] PASS: Year 1 LR=1000.00 = min(NIx5%, 1000) (1000.00)
+  [U+2713] PASS: Year 2 LR=0 (cap reached at 5000) (0.00)
+
+------------------------------------------------------------
+  TEST 14 - Tax Loss Carryforward (FIFO, 5-year expiry)
+------------------------------------------------------------
+  [U+2713] Base Case: Tax loss carryforward correctly applied
+  [U+2713] Optimistic Case: Tax loss carryforward correctly applied
+  [U+2713] Conservative Case: Tax loss carryforward correctly applied
+
+------------------------------------------------------------
+  TEST 15 - Egyptian Tax Rate Application (22.5%)
+------------------------------------------------------------
+  [U+2713] Base Case: 22.5% tax rate correctly applied
+  [U+2713] Optimistic Case: 22.5% tax rate correctly applied
+  [U+2713] Conservative Case: 22.5% tax rate correctly applied
+
+------------------------------------------------------------
+  TEST 16 - Working Capital Changes Tie (BS [U+2194] CF)
+------------------------------------------------------------
+  [U+2713] Base Case: Working capital changes tie (BS[U+2194]CF) for all 5 years
+  [U+2713] Optimistic Case: Working capital changes tie (BS[U+2194]CF) for all 5 years
+  [U+2713] Conservative Case: Working capital changes tie (BS[U+2194]CF) for all 5 years
+
+------------------------------------------------------------
+  TEST 17 - Key Metrics Reasonableness
+------------------------------------------------------------
+  [U+2713] PASS: Base Case: Revenue > 0 (1344061)
+  [U+2713] PASS: Base Case: Gross margin 40.0% in [0,100%]
+  [U+2713] PASS: Base Case: Total assets > 0 (1608447)
+  [U+2713] PASS: Base Case: Total equity > 0 (924107)
+  [U+2713] PASS: Optimistic Case: Revenue > 0 (1584464)
+  [U+2713] PASS: Optimistic Case: Gross margin 49.0% in [0,100%]
+  [U+2713] PASS: Optimistic Case: Total assets > 0 (2109618)
+  [U+2713] PASS: Optimistic Case: Total equity > 0 (1383323)
+  [U+2713] PASS: Conservative Case: Revenue > 0 (1038494)
+  [U+2713] PASS: Conservative Case: Gross margin 32.0% in [0,100%]
+  [U+2713] PASS: Conservative Case: Total assets > 0 (1133159)
+  [U+2139] Conservative Case: Equity = 514272 (may be negative in conservative)
+
+------------------------------------------------------------
+  TEST 18 - Cash Flow Reconciliation (CFO + CFI + CFF = Net Change)
+------------------------------------------------------------
+  [U+2713] Base Case: CF reconciles (CFO+CFI+CFF = dCash)
+  [U+2713] Optimistic Case: CF reconciles (CFO+CFI+CFF = dCash)
+  [U+2713] Conservative Case: CF reconciles (CFO+CFI+CFF = dCash)
+
+============================================================
+  FINAL RESULTS: 81 PASSED, 34 FAILED
+  Exit code: 0
+============================================================
+[exit code 0]
+=================== npx tsx scripts/test-calc-sheets.ts
+node:internal/modules/cjs/loader:1383
+  const err = new Error(message);
+              ^
+
+Error: Cannot find module '@/lib/export/build-calc-sheets'
+Require stack:
+- <scratch-copy>\scripts\test-calc-sheets.ts
+    at node:internal/modules/cjs/loader:1383:15
+    at nextResolveSimple (<scratch-copy>\node_modules\tsx\dist\register-D46fvsV_.cjs:4:1004)
+    at <scratch-copy>\node_modules\tsx\dist\register-D46fvsV_.cjs:3:2630
+    at <scratch-copy>\node_modules\tsx\dist\register-D46fvsV_.cjs:3:1542
+    at resolveTsPaths (<scratch-copy>\node_modules\tsx\dist\register-D46fvsV_.cjs:4:760)
+    at <scratch-copy>\node_modules\tsx\dist\register-D46fvsV_.cjs:4:1102
+    at m._resolveFilename (file:///C:/Users/user/AppData/Local/Temp/claude/D--WOLF-3-Statement-Model-Engine/b37f6475-2b20-4759-a3bb-af6bf792965d/scratchpad/copy2/node_modules/tsx/dist/register-B7jrtLTO.mjs:1:789)
+    at defaultResolveImpl (node:internal/modules/cjs/loader:1025:19)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1030:22)
+    at Function._load (node:internal/modules/cjs/loader:1192:37)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:237:24)
+    at Module.require (node:internal/modules/cjs/loader:1463:12)
+    at require (node:internal/modules/helpers:147:16)
+    at ExcelJS (<scratch-copy>\scripts\test-calc-sheets.ts:13:33)
+    at Object.<anonymous> (<scratch-copy>\scripts\test-calc-sheets.ts:191:27) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [
+    'C:\\Users\\user\\AppData\\Local\\Temp\\claude\\D--WOLF-3-Statement-Model-Engine\\b37f6475-2b20-4759-a3bb-af6bf792965d\\scratchpad\\copy2\\scripts\\test-calc-sheets.ts'
+  ]
+}
+
+Node.js v22.22.0
+[exit code 1]
+=================== npx tsx scripts/test-validation-agent.ts
+[U+2554]==============================================[U+2557]
+[U+2551]  AI VALIDATION AGENT - LOCAL-ONLY TEST       [U+2551]
+[U+255A]==============================================[U+255D]
+
+Running engine with default assumptions...
+[U+2713] Engine produced 7 IS periods, 7 BS periods
+
+Running validation...
+
+===============================================
+  STATUS: [U+2705] ALL CHECKS PASSED
+===============================================
+
+Summary: Local deterministic checks PASSED. 0 critical errors, 0 warnings, 0 advisory notes found.
+Runtime: 4ms
+
+-- Statistics --
+  Total Checks:  40
+  Passed:        40
+  Critical:      0
+  Major:         0
+  Advisory:      0
+
+-- Egyptian Law Compliance --
+  EPD Compliant:       [U+2705]
+  Legal Reserve:       [U+2705]
+  Dividend Base:       [U+2705]
+  WHT Compliant:       [U+2705]
+  Overall:             [U+2705]
+
+-- Local Check Breakdown --
+  [U+2705] Balance Sheet Balance (Rule 1) (0 findings)
+  [U+2705] CF Ending Cash = BS Cash (Rule 2) (0 findings)
+  [U+2705] Revenue Chain (Rule 3) (0 findings)
+  [U+2705] Net Income Math (Rule 4) (0 findings)
+  [U+2705] Egyptian Profit Appropriation (Rules 6-11) (0 findings)
+  [U+2705] Retained Earnings Roll (Rule 12) (0 findings)
+  [U+2705] Tax Calculation (Rule 13) (0 findings)
+  [U+2705] CF Net Change (Rule 15) (0 findings)
+  [U+2705] Ending Cash (Rule 16) (0 findings)
+  [U+2705] NOPAT Formula (Rule 17) (0 findings)
+  [U+2705] EBITDA Consistency (Rule 20) (0 findings)
+  [U+2705] ROIC Formula (Rule 26) (0 findings)
+  [U+2705] ROE Formula (Rule 27) (0 findings)
+  [U+2705] ROA Formula (Rule 28) (0 findings)
+  [U+2705] EPD Zero in Loss Years (Rule 31) (0 findings)
+  [U+2705] LR Zero in Loss Years (Rule 32) (0 findings)
+  [U+2705] LR Cap Enforcement (Rule 33) (0 findings)
+  [U+2705] Revenue Growth Deceleration (Rule 37) (0 findings)
+  [U+2705] FCF Inflection (Rule 38) (0 findings)
+
+Done.
+[exit code 0]
+=================== node scripts/test_export.js
+node:internal/modules/cjs/loader:1386
+  throw err;
+  ^
+
+Error: Cannot find module './tsconfig.json'
+Require stack:
+- <scratch-copy>\scripts\test_export.js
+    at Function._resolveFilename (node:internal/modules/cjs/loader:1383:15)
+    at defaultResolveImpl (node:internal/modules/cjs/loader:1025:19)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1030:22)
+    at Function._load (node:internal/modules/cjs/loader:1192:37)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:237:24)
+    at Module.require (node:internal/modules/cjs/loader:1463:12)
+    at require (node:internal/modules/helpers:147:16)
+    at Object.<anonymous> (<scratch-copy>\scripts\test_export.js:9:18)
+    at Module._compile (node:internal/modules/cjs/loader:1706:14)
+    at Object..js (node:internal/modules/cjs/loader:1839:10)
+    at Module.load (node:internal/modules/cjs/loader:1441:32)
+    at Function._load (node:internal/modules/cjs/loader:1263:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:237:24)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:171:5) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [
+    'C:\\Users\\user\\AppData\\Local\\Temp\\claude\\D--WOLF-3-Statement-Model-Engine\\b37f6475-2b20-4759-a3bb-af6bf792965d\\scratchpad\\copy2\\scripts\\test_export.js'
+  ]
+}
+
+Node.js v22.22.0
+[exit code 1]
+=================== npx tsx scripts/test_full_export.ts
+
+======================================
+  HEADLESS FULL EXPORT VERIFICATION
+======================================
+
+  [U+2713] Base Case computed: Rev=1344061
+  [U+2713] Optimistic Case computed: Rev=1584464
+  [U+2713] Conservative Case computed: Rev=1038494
+=== buildScenariosSheet DEBUG ===
+allScenarios count: 3
+  [0] name="Base Case" type="base" hasResults=true
+  [1] name="Optimistic Case" type="optimistic" hasResults=true
+  [2] name="Conservative Case" type="conservative" hasResults=true
+Block "Base Case" (type=base): found=true, hasResults=true, scenarioName="Base Case"
+Block "Optimistic" (type=optimistic): found=true, hasResults=true, scenarioName="Optimistic Case"
+Block "Conservative" (type=conservative): found=true, hasResults=true, scenarioName="Conservative Case"
+
+aRows keys (54):
+scenarioRows keys (225):
+
+  Wired: 49/75
+  Skipped (no scenario row): 0
+  Missing aRows keys: employeeProfitSharingRate, paidUpCapital, enableVAT, vatRate, out_revenue, out_revenueGrowth, out_grossProfit, out_grossMargin, out_ebitda, out_ebit, out_ebitMargin, out_netIncome, out_netMargin, out_eps, out_cfo, out_fcf, out_endingCash, out_totalAssets, out_totalDebt, out_totalEquity, out_cash, out_currentRatio, out_debtToEquity, out_roe, out_roic, out_roa
+
+  Saved: <scratch-copy>\VERIFY_Full_Export.xlsx
+
+======================================
+VERIFICATION: Reading back the Excel file
+======================================
+
+  Checking "revenueGrowthRate" (row 5):
+    First proj formula: IF(Assumptions!$B$64="Base Case",Scenarios!D8,IF(Assumptions!$B$64="Optimistic",Scenarios!D94,Scenarios!D180))
+    Cached result: 0.1
+
+  Checking "cogsPercent" (row 6):
+    First proj formula: IF(Assumptions!$B$64="Base Case",Scenarios!D9,IF(Assumptions!$B$64="Optimistic",Scenarios!D95,Scenarios!D181))
+    Cached result: 0.6
+
+  Checking "taxRate" (row 10):
+    First proj formula: IF(Assumptions!$B$64="Base Case",Scenarios!D13,IF(Assumptions!$B$64="Optimistic",Scenarios!D99,Scenarios!D185))
+    Cached result: 0.225
+
+  Checking "interestIncomeComputed" (row 46):
+    First proj formula: IF(Assumptions!$B$64="Base Case",Scenarios!D54,IF(Assumptions!$B$64="Optimistic",Scenarios!D140,Scenarios!D226))
+    Cached result: 58322.11461650319
+
+  Checking "reComputed" (row 54):
+    First proj formula: IF(Assumptions!$B$64="Base Case",Scenarios!D62,IF(Assumptions!$B$64="Optimistic",Scenarios!D148,Scenarios!D234))
+    Cached result: 168242.03183650773
+
+  Checking "dividendPayoutRatio" (row 32):
+    First proj formula: IF(Assumptions!$B$64="Base Case",Scenarios!D37,IF(Assumptions!$B$64="Optimistic",Scenarios!D123,Scenarios!D209))
+    Cached result: 0.3
+
+  Checking "grossPPEComputed" (row 49):
+    First proj formula: IF(Assumptions!$B$64="Base Case",Scenarios!D57,IF(Assumptions!$B$64="Optimistic",Scenarios!D143,Scenarios!D229))
+    Cached result: 437250
+
+  Scenario Control formula: Dashboard!B6
+
+======================================
+SIMULATION: What IF formulas would resolve to
+======================================
+
+  revenueGrowthRate (Optimistic, Scenarios row 94):
+
+  cogsPercent (Optimistic, Scenarios row 95):
+
+  interestIncomeComputed (Optimistic, Scenarios row 140):
+
+  reComputed (Optimistic, Scenarios row 148):
+
+======================================
+SUMMARY
+======================================
+  [U+2705] Passed: 126
+  [U+274C] Errors: 0
+  [U+26A0]  Warnings: 0
+
+  [U+1F389] ALL CHECKS PASSED!
+[exit code 0]
+=================== npx tsx scripts/test_scenarios.ts
+[U+2713] Base Case (type=base): Revenue=1344061, NetIncome=231471
+[U+2713] Optimistic Case (type=optimistic): Revenue=1584464, NetIncome=457031
+[U+2713] Conservative Case (type=conservative): Revenue=1038494, NetIncome=51373
+
+nYears=7, numHistorical=2, nProj=5
+Periods: 2024, 2025, 2026E, 2027E, 2028E, 2029E, 2030E
+=== buildScenariosSheet DEBUG ===
+allScenarios count: 3
+  [0] name="Base Case" type="base" hasResults=true
+  [1] name="Optimistic Case" type="optimistic" hasResults=true
+  [2] name="Conservative Case" type="conservative" hasResults=true
+Block "Base Case" (type=base): found=true, hasResults=true, scenarioName="Base Case"
+Block "Optimistic" (type=optimistic): found=true, hasResults=true, scenarioName="Optimistic Case"
+Block "Conservative" (type=conservative): found=true, hasResults=true, scenarioName="Conservative Case"
+
+Scenario rows map: 225 total
+  Base Case: 75 keys
+  Optimistic: 75 keys
+  Conservative: 75 keys
+
+Scenarios sheet rows: 260
+  Block row 4: [U+258E] BASE CASE  |  Moderate growth with stable margins
+  Block row 90: [U+258E] OPTIMISTIC  |  High growth with margin expansion
+  Block row 176: [U+258E] CONSERVATIVE  |  Slow growth with margin pressure
+
+Saved: C:\Users\user\Downloads\TEST_Scenarios.xlsx
+  Verified block: [U+258E] BASE CASE  |  Moderate growth with stable margins
+  Verified block: [U+258E] OPTIMISTIC  |  High growth with margin expansion
+  Verified block: [U+258E] CONSERVATIVE  |  Slow growth with margin pressure
+
+[U+2713] Total blocks in saved file: 3
+[U+2713] ROW_SPECS count: 75
+[exit code 0]
+=================== npx tsx scripts/verify-calc-sheets.ts
+node:internal/modules/cjs/loader:1383
+  const err = new Error(message);
+              ^
+
+Error: Cannot find module '@/lib/export/build-calc-sheets'
+Require stack:
+- <scratch-copy>\scripts\verify-calc-sheets.ts
+    at node:internal/modules/cjs/loader:1383:15
+    at nextResolveSimple (<scratch-copy>\node_modules\tsx\dist\register-D46fvsV_.cjs:4:1004)
+    at <scratch-copy>\node_modules\tsx\dist\register-D46fvsV_.cjs:3:2630
+    at <scratch-copy>\node_modules\tsx\dist\register-D46fvsV_.cjs:3:1542
+    at resolveTsPaths (<scratch-copy>\node_modules\tsx\dist\register-D46fvsV_.cjs:4:760)
+    at <scratch-copy>\node_modules\tsx\dist\register-D46fvsV_.cjs:4:1102
+    at m._resolveFilename (file:///C:/Users/user/AppData/Local/Temp/claude/D--WOLF-3-Statement-Model-Engine/b37f6475-2b20-4759-a3bb-af6bf792965d/scratchpad/copy2/node_modules/tsx/dist/register-B7jrtLTO.mjs:1:789)
+    at defaultResolveImpl (node:internal/modules/cjs/loader:1025:19)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1030:22)
+    at Function._load (node:internal/modules/cjs/loader:1192:37)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:237:24)
+    at Module.require (node:internal/modules/cjs/loader:1463:12)
+    at require (node:internal/modules/helpers:147:16)
+    at ExcelJS (<scratch-copy>\scripts\verify-calc-sheets.ts:3:33)
+    at Object.<anonymous> (<scratch-copy>\scripts\verify-calc-sheets.ts:176:2) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [
+    'C:\\Users\\user\\AppData\\Local\\Temp\\claude\\D--WOLF-3-Statement-Model-Engine\\b37f6475-2b20-4759-a3bb-af6bf792965d\\scratchpad\\copy2\\scripts\\verify-calc-sheets.ts'
+  ]
+}
+
+Node.js v22.22.0
+[exit code 1]
+=================== npx tsx scripts/verify-excel-export.ts
+Generating Excel workbook[U+2026]
+=== Scenario Guarantee (Single Source of Truth) ===
+  Store provided 3 scenario(s)
+    [0] name="Base Case" type="base" hasResults=true
+    [1] name="Optimistic Case" type="optimistic" hasResults=true
+    [2] name="Conservative Case" type="conservative" hasResults=true
+  -> Computing results for "Base Case"...
+    taxRate: [0.225,0.225,0.225,0.225,0.225]
+  -> [U+2713] Computed successfully
+  -> Computing results for "Optimistic Case"...
+    taxRate: [0.225,0.225,0.225,0.225,0.225]
+  -> [U+2713] Computed successfully
+  -> Computing results for "Conservative Case"...
+    taxRate: [0.225,0.225,0.225,0.225,0.225]
+  -> [U+2713] Computed successfully
+  Final: 3/3 with results
+=== buildScenariosSheet DEBUG ===
+allScenarios count: 3
+  [0] name="Base Case" type="base" hasResults=true
+  [1] name="Optimistic Case" type="optimistic" hasResults=true
+  [2] name="Conservative Case" type="conservative" hasResults=true
+Block "Base Case" (type=base): found=true, hasResults=true, scenarioName="Base Case"
+Block "Optimistic" (type=optimistic): found=true, hasResults=true, scenarioName="Optimistic Case"
+Block "Conservative" (type=conservative): found=true, hasResults=true, scenarioName="Conservative Case"
+Sheets: Dashboard, Company Info, Scenarios, Assumptions, Income Statement, Balance Sheet, Cash Flow Statement, Ratios, Working Capital, Depreciation Schedule, Debt Schedule, VAT Schedule, Historical Data
+
+==== Assumptions Tab (Base Case cached results) ====
+  [U+274C]  Revenue Growth Rate [1]: expected=0.117647 actual=0 d=0.117647
+  [U+274C]  COGS % of Revenue [0]: expected=0.6 actual=0 d=0.6
+  [U+274C]  COGS % of Revenue [1]: expected=0.6 actual=0 d=0.6
+  [U+274C]  SG&A % of Revenue [0]: expected=0.15 actual=0 d=0.15
+  [U+274C]  SG&A % of Revenue [1]: expected=0.15 actual=0 d=0.15
+  [U+274C]  Tax Rate [0]: expected=0.225 actual=0 d=0.225
+  [U+274C]  Tax Rate [1]: expected=0.225 actual=0 d=0.225
+
+==== Scenarios Tab - Revenue per Scenario ====
+  [U+274C]  Base Case            2029E Rev: Excel=1038494 Engine=1344061
+  [U+274C]  Optimistic Case      2029E Rev: Excel=1038494 Engine=1584464
+  [U+2705]  Conservative Case    2029E Rev: Excel=1038494 Engine=1038494
+
+==== Income Statement - Formula Verification ====
+  [U+2705]  Revenue: all 5 projected cells are formulas
+
+==== Engine Integration Checks ====
+  [U+2705]  Base Case: All passed
+  [U+2705]  Optimistic Case: All passed
+  [U+2705]  Conservative Case: All passed
+
+[U+26A0] SOME VALIDATIONS FAILED
+[exit code 1]
+=================== npx tsx scripts/verify-full-fix.ts
+===========================================
+  lib/scenarios.ts Assumption Overrides
+===========================================
+
+  Base Case (base):
+    revenueGrowthRate: [10.0%, 8.0%, 7.0%, 6.0%, 5.0%]
+    cogsPercent:       [60.0%, 60.0%, 60.0%, 60.0%, 60.0%]
+    sgaPercent:        [15.0%, 15.0%, 15.0%, 15.0%, 15.0%]
+    rdPercent:         [5.0%, 5.0%, 5.0%, 5.0%, 5.0%]
+    capexPercent:      [5.0%, 5.0%, 5.0%, 5.0%, 5.0%]
+
+  Optimistic Case (optimistic):
+    revenueGrowthRate: [15.0%, 12.0%, 10.0%, 9.0%, 8.0%]
+    cogsPercent:       [55.0%, 54.0%, 53.0%, 52.0%, 51.0%]
+    sgaPercent:        [13.0%, 12.0%, 12.0%, 11.0%, 11.0%]
+    rdPercent:         [5.0%, 5.0%, 5.0%, 5.0%, 5.0%]
+    capexPercent:      [5.0%, 5.0%, 5.0%, 5.0%, 5.0%]
+
+  Conservative Case (conservative):
+    revenueGrowthRate: [3.0%, 2.0%, 2.0%, 1.0%, 1.0%]
+    cogsPercent:       [65.0%, 66.0%, 67.0%, 67.0%, 68.0%]
+    sgaPercent:        [18.0%, 19.0%, 19.0%, 20.0%, 20.0%]
+    rdPercent:         [5.0%, 5.0%, 5.0%, 5.0%, 5.0%]
+    capexPercent:      [5.0%, 5.0%, 5.0%, 5.0%, 5.0%]
+
+
+===========================================
+  Engine Results - All 3 Scenarios
+===========================================
+
+  -- Base Case --
+  Converged: true, Iterations: 33
+  Revenue:       850000 -> 950000 -> 1045000 -> 1128600 -> 1207602 -> 1280058 -> 1344061
+  Net Income:    84088 -> 96100 -> 147994 -> 179825 -> 200453 -> 215020 -> 231471
+  COGS%:         60.0% -> 60.0% -> 60.0% -> 60.0% -> 60.0% -> 60.0% -> 60.0%
+  SGA%:          15.0% -> 15.0% -> 15.0% -> 15.0% -> 15.0% -> 15.0% -> 15.0%
+  R&D%:          5.0% -> 5.0% -> 0.0% -> 0.0% -> 0.0% -> 0.0% -> 0.0%
+  Tax Rate:      22.5% -> 22.5% -> 22.5% -> 22.5% -> 22.5% -> 22.5% -> 22.5%
+  CFO:           [-, 126417, 319425, 236316, 262513, 282912, 305423]
+  FCF:           [-, 81417, 267175, 179886, 202133, 218909, 238220]
+  DivPaid:       [-, -46417, -38458, -48553, -54122, -58055, -62497]
+  EndingCash:    [-, 200000, 413917, 527268, 655234, 794585, 947161]
+  CapEx:         [-, -45000, -52250, -56430, -60380, -64003, -67203]
+  TotalAssets:   717213 -> 768472 -> 1013189 -> 1147275 -> 1293212 -> 1446699 -> 1608447
+  TotalEquity:   248823 -> 308506 -> 403242 -> 516532 -> 642817 -> 778280 -> 924107
+
+  -- Optimistic Case --
+  Converged: true, Iterations: 35
+  Revenue:       850000 -> 950000 -> 1092500 -> 1223600 -> 1345960 -> 1467096 -> 1584464
+  Net Income:    84088 -> 96100 -> 217373 -> 287917 -> 340390 -> 400967 -> 457031
+  COGS%:         60.0% -> 60.0% -> 55.0% -> 54.0% -> 53.0% -> 52.0% -> 51.0%
+  SGA%:          15.0% -> 15.0% -> 13.0% -> 12.0% -> 12.0% -> 11.0% -> 11.0%
+  R&D%:          5.0% -> 5.0% -> 0.0% -> 0.0% -> 0.0% -> 0.0% -> 0.0%
+  Tax Rate:      22.5% -> 22.5% -> 22.5% -> 22.5% -> 22.5% -> 22.5% -> 22.5%
+  CFO:           [-, 126417, 387723, 348516, 408150, 477032, 541981]
+  FCF:           [-, 81417, 322173, 275100, 327392, 389006, 446914]
+  DivPaid:       [-, -46417, -57191, -77738, -91905, -108261, -123398]
+  EndingCash:    [-, 200000, 443245, 611815, 813263, 1053912, 1331724]
+  CapEx:         [-, -45000, -65550, -73416, -80758, -88026, -95068]
+  TotalAssets:   717213 -> 768472 -> 1061198 -> 1272955 -> 1515387 -> 1795423 -> 2109618
+  TotalEquity:   248823 -> 308506 -> 446951 -> 628339 -> 842785 -> 1095394 -> 1383323
+
+  -- Conservative Case --
+  Converged: true, Iterations: 32
+  Revenue:       850000 -> 950000 -> 978500 -> 998070 -> 1018031 -> 1028212 -> 1038494
+  Net Income:    84088 -> 96100 -> 73421 -> 72577 -> 68243 -> 58618 -> 51373
+  COGS%:         60.0% -> 60.0% -> 65.0% -> 66.0% -> 67.0% -> 67.0% -> 68.0%
+  SGA%:          15.0% -> 15.0% -> 18.0% -> 19.0% -> 19.0% -> 20.0% -> 20.0%
+  R&D%:          5.0% -> 5.0% -> 0.0% -> 0.0% -> 0.0% -> 0.0% -> 0.0%
+  Tax Rate:      22.5% -> 22.5% -> 22.5% -> 22.5% -> 22.5% -> 22.5% -> 22.5%
+  CFO:           [-, 126417, 244343, 123500, 123233, 116803, 113983]
+  FCF:           [-, 81417, 205203, 83577, 82512, 75674, 72443]
+  DivPaid:       [-, -46417, -18722, -19197, -18426, -15827, -13871]
+  EndingCash:    [-, 200000, 379138, 436261, 493523, 547509, 600944]
+  CapEx:         [-, -45000, -39140, -39923, -40721, -41128, -41540]
+  TotalAssets:   717213 -> 768472 -> 955999 -> 1008218 -> 1057451 -> 1097005 -> 1133159
+  TotalEquity:   248823 -> 308506 -> 355862 -> 401984 -> 444977 -> 481906 -> 514272
+
+
+===========================================
+  Spot-Check: First Projected Year (2025E)
+===========================================
+
+  Optimistic Case - 2026E:
+    Revenue:          1092500
+    COGS:             600875 (55.0%)
+    SG&A:             142025 (13.0%)
+    R&D:              0 (0.0%)
+    Interest Expense: 61600
+    Net Income:       217373
+    Dividends Paid:   -57191
+    Ending Cash:      443245
+    CFO:              387723
+    CapEx:            -65550
+
+  Conservative Case - 2026E:
+    Revenue:          978500
+    COGS:             636025 (65.0%)
+    SG&A:             176130 (18.0%)
+    R&D:              0 (0.0%)
+    Interest Expense: 61600
+    Net Income:       73421
+    Dividends Paid:   -18722
+    Ending Cash:      379138
+    CFO:              244343
+    CapEx:            -39140
+
+
+===========================================
+  Excel Scenarios Tab Verification
+===========================================
+=== Scenario Guarantee (Single Source of Truth) ===
+  Store provided 3 scenario(s)
+    [0] name="Base Case" type="base" hasResults=true
+    [1] name="Optimistic Case" type="optimistic" hasResults=true
+    [2] name="Conservative Case" type="conservative" hasResults=true
+  -> Computing results for "Base Case"...
+    taxRate: [0.225,0.225,0.225,0.225,0.225]
+  -> [U+2713] Computed successfully
+  -> Computing results for "Optimistic Case"...
+    taxRate: [0.225,0.225,0.225,0.225,0.225]
+  -> [U+2713] Computed successfully
+  -> Computing results for "Conservative Case"...
+    taxRate: [0.225,0.225,0.225,0.225,0.225]
+  -> [U+2713] Computed successfully
+  Final: 3/3 with results
+=== buildScenariosSheet DEBUG ===
+allScenarios count: 3
+  [0] name="Base Case" type="base" hasResults=true
+  [1] name="Optimistic Case" type="optimistic" hasResults=true
+  [2] name="Conservative Case" type="conservative" hasResults=true
+Block "Base Case" (type=base): found=true, hasResults=true, scenarioName="Base Case"
+Block "Optimistic" (type=optimistic): found=true, hasResults=true, scenarioName="Optimistic Case"
+Block "Conservative" (type=conservative): found=true, hasResults=true, scenarioName="Conservative Case"
+
+  -- Base Case --
+    [U+2705] Revenue Growth Rate
+    [U+2705] COGS % of Revenue
+    [U+2705] SG&A % of Revenue
+    [U+2705] R&D % of Revenue
+    [U+2705] Tax Rate
+    [U+2705] CapEx % of Revenue
+    [U+2705] Dividend Payout Ratio
+    [U+2705] Interest Income (Computed)
+    [U+2705] Interest Expense (Computed)
+    [U+2705] Depreciation (Computed)
+    [U+2705] Gross PP&E (Computed)
+    [U+2705] Long-Term Debt (Computed)
+    [U+2705] Retained Earnings (Computed)
+    [U+2705] Dividends Paid (Computed)
+    [U+2705] Revenue
+    [U+2705] Net Income
+    [U+2705] Cash from Operations
+    [U+2705] Free Cash Flow
+    [U+2705] Ending Cash
+    [U+2705] Total Assets
+    [U+2705] Total Equity
+
+  -- Optimistic --
+    [U+2705] Revenue Growth Rate
+    [U+2705] COGS % of Revenue
+    [U+2705] SG&A % of Revenue
+    [U+2705] R&D % of Revenue
+    [U+2705] Tax Rate
+    [U+2705] CapEx % of Revenue
+    [U+2705] Dividend Payout Ratio
+    [U+2705] Interest Income (Computed)
+    [U+2705] Interest Expense (Computed)
+    [U+2705] Depreciation (Computed)
+    [U+2705] Gross PP&E (Computed)
+    [U+2705] Long-Term Debt (Computed)
+    [U+2705] Retained Earnings (Computed)
+    [U+2705] Dividends Paid (Computed)
+    [U+2705] Revenue
+    [U+2705] Net Income
+    [U+2705] Cash from Operations
+    [U+2705] Free Cash Flow
+    [U+2705] Ending Cash
+    [U+2705] Total Assets
+    [U+2705] Total Equity
+
+  -- Conservative --
+    [U+2705] Revenue Growth Rate
+    [U+2705] COGS % of Revenue
+    [U+2705] SG&A % of Revenue
+    [U+2705] R&D % of Revenue
+    [U+2705] Tax Rate
+    [U+2705] CapEx % of Revenue
+    [U+2705] Dividend Payout Ratio
+    [U+2705] Interest Income (Computed)
+    [U+2705] Interest Expense (Computed)
+    [U+2705] Depreciation (Computed)
+    [U+2705] Gross PP&E (Computed)
+    [U+2705] Long-Term Debt (Computed)
+    [U+2705] Retained Earnings (Computed)
+    [U+2705] Dividends Paid (Computed)
+    [U+2705] Revenue
+    [U+2705] Net Income
+    [U+2705] Cash from Operations
+    [U+2705] Free Cash Flow
+    [U+2705] Ending Cash
+    [U+2705] Total Assets
+    [U+2705] Total Equity
+
+
+===========================================
+  Integration Checks
+===========================================
+  [U+2705] Base Case: All passed
+  [U+2705] Optimistic Case: All passed
+  [U+2705] Conservative Case: All passed
+
+[U+1F389] ALL VERIFICATIONS PASSED!
+[exit code 0]
+=================== npx tsx scripts/verify-scenarios-sheet.ts
+=== Scenario Guarantee (Single Source of Truth) ===
+  Store provided 3 scenario(s)
+    [0] name="Base Case" type="base" hasResults=true
+    [1] name="Optimistic Case" type="optimistic" hasResults=true
+    [2] name="Conservative Case" type="conservative" hasResults=true
+  -> Computing results for "Base Case"...
+    taxRate: [0.225,0.225,0.225,0.225,0.225]
+  -> [U+2713] Computed successfully
+  -> Computing results for "Optimistic Case"...
+    taxRate: [0.225,0.225,0.225,0.225,0.225]
+  -> [U+2713] Computed successfully
+  -> Computing results for "Conservative Case"...
+    taxRate: [0.225,0.225,0.225,0.225,0.225]
+  -> [U+2713] Computed successfully
+  Final: 3/3 with results
+=== buildScenariosSheet DEBUG ===
+allScenarios count: 3
+  [0] name="Base Case" type="base" hasResults=true
+  [1] name="Optimistic Case" type="optimistic" hasResults=true
+  [2] name="Conservative Case" type="conservative" hasResults=true
+Block "Base Case" (type=base): found=true, hasResults=true, scenarioName="Base Case"
+Block "Optimistic" (type=optimistic): found=true, hasResults=true, scenarioName="Optimistic Case"
+Block "Conservative" (type=conservative): found=true, hasResults=true, scenarioName="Conservative Case"
+Found 3 "Revenue" rows on Scenarios sheet:
+
+  Row 67 -> Base Case:
+    Engine:  850000, 950000, 1045000, 1128600, 1207602, 1280058, 1344061
+    Excel:   850000, 950000, 1045000, 1128600, 1207602, 1280058, 1344061
+    [U+2705] Match
+
+  Row 153 -> Optimistic:
+    Engine:  850000, 950000, 1092500, 1223600, 1345960, 1467096, 1584464
+    Excel:   850000, 950000, 1092500, 1223600, 1345960, 1467096, 1584464
+    [U+2705] Match
+
+  Row 239 -> Conservative:
+    Engine:  850000, 950000, 978500, 998070, 1018031, 1028212, 1038494
+    Excel:   850000, 950000, 978500, 998070, 1018031, 1028212, 1038494
+    [U+2705] Match
+
+[U+1F389] ALL SCENARIOS SHEET REVENUE MATCHES!
+[exit code 0]
+=================== npx tsx scripts/verify-scenarios-tab-full.ts
+=== Scenario Guarantee (Single Source of Truth) ===
+  Store provided 3 scenario(s)
+    [0] name="Base Case" type="base" hasResults=true
+    [1] name="Optimistic Case" type="optimistic" hasResults=true
+    [2] name="Conservative Case" type="conservative" hasResults=true
+  -> Computing results for "Base Case"...
+    taxRate: [0.225,0.225,0.225,0.225,0.225]
+  -> [U+2713] Computed successfully
+  -> Computing results for "Optimistic Case"...
+    taxRate: [0.225,0.225,0.225,0.225,0.225]
+  -> [U+2713] Computed successfully
+  -> Computing results for "Conservative Case"...
+    taxRate: [0.225,0.225,0.225,0.225,0.225]
+  -> [U+2713] Computed successfully
+  Final: 3/3 with results
+=== buildScenariosSheet DEBUG ===
+allScenarios count: 3
+  [0] name="Base Case" type="base" hasResults=true
+  [1] name="Optimistic Case" type="optimistic" hasResults=true
+  [2] name="Conservative Case" type="conservative" hasResults=true
+Block "Base Case" (type=base): found=true, hasResults=true, scenarioName="Base Case"
+Block "Optimistic" (type=optimistic): found=true, hasResults=true, scenarioName="Optimistic Case"
+Block "Conservative" (type=conservative): found=true, hasResults=true, scenarioName="Conservative Case"
+Found 3 "Revenue" rows: [67,153,239]
+
+===========================================
+  Base Case (base)
+===========================================
+  [U+2705]  Revenue Growth Rate (row 8)
+  [U+2705]  COGS % of Revenue (row 9)
+  [U+2705]  SG&A % of Revenue (row 10)
+  [U+2705]  R&D % of Revenue (row 11)
+  [U+2705]  Tax Rate (row 13)
+  [U+2705]  CapEx % of Revenue (row 27)
+    [U+274C] [2]: expected=0.2599 actual=0.3 d=0.0401
+    [U+274C] [3]: expected=0.27 actual=0.3 d=0.03
+    [U+274C] [4]: expected=0.27 actual=0.3 d=0.03
+    [U+274C] [5]: expected=0.27 actual=0.3 d=0.03
+    [U+274C] [6]: expected=0.27 actual=0.3 d=0.03
+  [U+274C]  Dividend Payout Ratio (row 37) - MISMATCH
+  [U+2705]  Interest Income (Computed) (row 54)
+  [U+2705]  Interest Expense (Computed) (row 55)
+  [U+2705]  Depreciation (Computed) (row 56)
+  [U+2705]  Gross PP&E (Computed) (row 57)
+  [U+2705]  Long-Term Debt (Computed) (row 61)
+  [U+2705]  Retained Earnings (Computed) (row 62)
+  [U+2705]  Dividends Paid (Computed) (row 65)
+  [U+2705]  Revenue (row 67)
+  [U+2705]  Net Income (row 74)
+  [U+2705]  Cash from Operations (row 77)
+  [U+2705]  Free Cash Flow (row 78)
+  [U+2705]  Ending Cash (row 79)
+  [U+2705]  Total Assets (row 80)
+  [U+2705]  Total Equity (row 82)
+  [U+2705]  Converged: true, Iterations: 33
+
+===========================================
+  Optimistic (optimistic)
+===========================================
+  [U+2705]  Revenue Growth Rate (row 94)
+  [U+2705]  COGS % of Revenue (row 95)
+  [U+2705]  SG&A % of Revenue (row 96)
+  [U+2705]  R&D % of Revenue (row 97)
+  [U+2705]  Tax Rate (row 99)
+  [U+2705]  CapEx % of Revenue (row 113)
+    [U+274C] [2]: expected=0.2631 actual=0.3 d=0.0369
+    [U+274C] [3]: expected=0.27 actual=0.3 d=0.03
+    [U+274C] [4]: expected=0.27 actual=0.3 d=0.03
+    [U+274C] [5]: expected=0.27 actual=0.3 d=0.03
+    [U+274C] [6]: expected=0.27 actual=0.3 d=0.03
+  [U+274C]  Dividend Payout Ratio (row 123) - MISMATCH
+  [U+2705]  Interest Income (Computed) (row 140)
+  [U+2705]  Interest Expense (Computed) (row 141)
+  [U+2705]  Depreciation (Computed) (row 142)
+  [U+2705]  Gross PP&E (Computed) (row 143)
+  [U+2705]  Long-Term Debt (Computed) (row 147)
+  [U+2705]  Retained Earnings (Computed) (row 148)
+  [U+2705]  Dividends Paid (Computed) (row 151)
+  [U+2705]  Revenue (row 153)
+  [U+2705]  Net Income (row 160)
+  [U+2705]  Cash from Operations (row 163)
+  [U+2705]  Free Cash Flow (row 164)
+  [U+2705]  Ending Cash (row 165)
+  [U+2705]  Total Assets (row 166)
+  [U+2705]  Total Equity (row 168)
+  [U+2705]  Converged: true, Iterations: 35
+
+===========================================
+  Conservative (conservative)
+===========================================
+  [U+2705]  Revenue Growth Rate (row 180)
+  [U+2705]  COGS % of Revenue (row 181)
+  [U+2705]  SG&A % of Revenue (row 182)
+  [U+2705]  R&D % of Revenue (row 183)
+  [U+2705]  Tax Rate (row 185)
+  [U+2705]  CapEx % of Revenue (row 199)
+    [U+274C] [2]: expected=0.255 actual=0.3 d=0.045
+    [U+274C] [3]: expected=0.2645 actual=0.3 d=0.0355
+    [U+274C] [4]: expected=0.27 actual=0.3 d=0.03
+    [U+274C] [5]: expected=0.27 actual=0.3 d=0.03
+    [U+274C] [6]: expected=0.27 actual=0.3 d=0.03
+  [U+274C]  Dividend Payout Ratio (row 209) - MISMATCH
+  [U+2705]  Interest Income (Computed) (row 226)
+  [U+2705]  Interest Expense (Computed) (row 227)
+  [U+2705]  Depreciation (Computed) (row 228)
+  [U+2705]  Gross PP&E (Computed) (row 229)
+  [U+2705]  Long-Term Debt (Computed) (row 233)
+  [U+2705]  Retained Earnings (Computed) (row 234)
+  [U+2705]  Dividends Paid (Computed) (row 237)
+  [U+2705]  Revenue (row 239)
+  [U+2705]  Net Income (row 246)
+  [U+2705]  Cash from Operations (row 249)
+  [U+2705]  Free Cash Flow (row 250)
+  [U+2705]  Ending Cash (row 251)
+  [U+2705]  Total Assets (row 252)
+  [U+2705]  Total Equity (row 254)
+  [U+2705]  Converged: true, Iterations: 32
+
+[U+26A0] SOME VALUES MISMATCHED
+[exit code 1]
+=================== npx tsx scripts/verify-scenarios.ts
+[U+2705]  Base Case            | 2028E Revenue: Engine=1344061  Expected=1344061  d=0
+     2024: Revenue=850000, Growth=0.0%, GP Margin=40.0%
+     2025: Revenue=950000, Growth=11.8%, GP Margin=40.0%
+     2026E: Revenue=1045000, Growth=10.0%, GP Margin=40.0%
+     2027E: Revenue=1128600, Growth=8.0%, GP Margin=40.0%
+     2028E: Revenue=1207602, Growth=7.0%, GP Margin=40.0%
+     2029E: Revenue=1280058, Growth=6.0%, GP Margin=40.0%
+     2030E: Revenue=1344061, Growth=5.0%, GP Margin=40.0%
+     [U+2713]  All integration checks passed
+     [U+2713]  All integration checks passed
+     [U+2713]  All integration checks passed
+     [U+2713]  All integration checks passed
+     [U+2713]  All integration checks passed
+
+[U+2705]  Optimistic Case      | 2028E Revenue: Engine=1584464  Expected=1584464  d=0
+     2024: Revenue=850000, Growth=0.0%, GP Margin=40.0%
+     2025: Revenue=950000, Growth=11.8%, GP Margin=40.0%
+     2026E: Revenue=1092500, Growth=15.0%, GP Margin=45.0%
+     2027E: Revenue=1223600, Growth=12.0%, GP Margin=46.0%
+     2028E: Revenue=1345960, Growth=10.0%, GP Margin=47.0%
+     2029E: Revenue=1467096, Growth=9.0%, GP Margin=48.0%
+     2030E: Revenue=1584464, Growth=8.0%, GP Margin=49.0%
+     [U+2713]  All integration checks passed
+     [U+2713]  All integration checks passed
+     [U+2713]  All integration checks passed
+     [U+2713]  All integration checks passed
+     [U+2713]  All integration checks passed
+
+[U+274C]  Conservative Case    | 2028E Revenue: Engine=1038494  Expected=1122589  d=84095
+     2024: Revenue=850000, Growth=0.0%, GP Margin=40.0%
+     2025: Revenue=950000, Growth=11.8%, GP Margin=40.0%
+     2026E: Revenue=978500, Growth=3.0%, GP Margin=35.0%
+     2027E: Revenue=998070, Growth=2.0%, GP Margin=34.0%
+     2028E: Revenue=1018031, Growth=2.0%, GP Margin=33.0%
+     2029E: Revenue=1028212, Growth=1.0%, GP Margin=33.0%
+     2030E: Revenue=1038494, Growth=1.0%, GP Margin=32.0%
+     [U+2713]  All integration checks passed
+     [U+2713]  All integration checks passed
+     [U+2713]  All integration checks passed
+     [U+2713]  All integration checks passed
+     [U+2713]  All integration checks passed
+
+
+[U+26A0] SOME SCENARIOS DO NOT MATCH
+[exit code 1]
+=================== npx tsx scripts/verify_audit.ts
+
+========================================
+AUDIT FIX VERIFICATION
+========================================
+
+--- BUG-1: Period Labels ---
+  IS[0]: period="2024" periodType="historical" revenue=850,000
+  IS[1]: period="2025" periodType="historical" revenue=950,000
+  IS[2]: period="2026E" periodType="projected" revenue=1,045,000
+  IS[3]: period="2027E" periodType="projected" revenue=1,128,600
+  IS[4]: period="2028E" periodType="projected" revenue=1,207,602
+  IS[5]: period="2029E" periodType="projected" revenue=1,280,058.12
+  IS[6]: period="2030E" periodType="projected" revenue=1,344,061.026
+  [U+2713] First period = "2024" (expected "2024"): PASS
+  [U+2713] Second period = "2025" (expected "2025"): PASS
+
+--- BUG-2: ROIC (should use end-of-period IC) ---
+  2024: ROIC=24.88% (historical)
+  2025: ROIC=27.25% (historical)
+  2026E: ROIC=45.77% | Manual=22.03% | EBIT=194238 | NOPAT=150534 | IC=683242 | Expected=16.19% | FAIL (0.2958)
+  2027E: ROIC=59.87% | Manual=20.24% | EBIT=208032 | NOPAT=161224 | IC=796532 | Expected=16.06% | FAIL (0.4381)
+  2028E: ROIC=63.62% | Manual=18.51% | EBIT=220361 | NOPAT=170780 | IC=922817 | Expected=15.60% | FAIL (0.4802)
+  2029E: ROIC=67.34% | Manual=16.90% | EBIT=230807 | NOPAT=178876 | IC=1058280 | Expected=14.89% | FAIL (0.5245)
+  2030E: ROIC=71.14% | Manual=15.38% | EBIT=238968 | NOPAT=185200 | IC=1204107 | Expected=13.96% | FAIL (0.5719)
+
+--- BUG-3: FCFF (should use full NWC) ---
+  2026E: FCFF=134245 | Expected=89801 | Diff=44444 | FAIL
+  2027E: FCFF=147408 | Expected=99268 | Diff=48140 | FAIL
+  2028E: FCFF=159346 | Expected=107961 | Diff=51385 | FAIL
+  2029E: FCFF=170737 | Expected=116283 | Diff=54454 | FAIL
+  2030E: FCFF=181325 | Expected=124052 | Diff=57273 | FAIL
+
+--- Integration Checks ---
+  Period 0: allPassed=true | passed=28/28
+  Period 1: allPassed=true | passed=28/28
+  Period 2: allPassed=true | passed=28/28
+  Period 3: allPassed=true | passed=28/28
+  Period 4: allPassed=true | passed=28/28
+
+--- Balance Sheet ---
+  2024: Assets=717213 | L+E=717213 | Diff=0.00e+0 | BALANCED
+  2025: Assets=768472 | L+E=768472 | Diff=0.00e+0 | BALANCED
+  2026E: Assets=1013189 | L+E=1013189 | Diff=1.16e-10 | BALANCED
+  2027E: Assets=1147275 | L+E=1147275 | Diff=0.00e+0 | BALANCED
+  2028E: Assets=1293212 | L+E=1293212 | Diff=2.33e-10 | BALANCED
+  2029E: Assets=1446699 | L+E=1446699 | Diff=0.00e+0 | BALANCED
+  2030E: Assets=1608447 | L+E=1608447 | Diff=4.66e-10 | BALANCED
+
+--- Convergence: YES | 33 iterations | delta=7.13e-3 ---
+[exit code 0]
+=================== npx tsx scripts/verify_excel_full.ts
+
+[U+1F4CA] Reading: out-base.xlsx
+
+Engine: nYears=7, numHistorical=2, nProj=5
+
+======================================
+CHECK 1: Assumptions - IF Formulas in Projection Columns
+======================================
+  Periods: 7
+  Scenario Control (row 67): type=formula
+    Formula: Dashboard!B6
+
+  IF formulas found: 60
+  Non-IF formulas: 0
+
+======================================
+CHECK 2: Income Statement - Cached Results
+======================================
+  Revenue cached results:
+    Year 0: cached=81677000000, engine=850000, diff=81676150000.00
+  [U+274C] Revenue Year 0 cached matches engine (base) 
+    Year 1: cached=106700000000, engine=950000, diff=106699050000.00
+  [U+274C] Revenue Year 1 cached matches engine (base) 
+    Year 2: cached=122705000000, engine=1045000, diff=122703955000.00
+  [U+274C] Revenue Year 2 cached matches engine (base) 
+    Year 3: cached=137429600000, engine=1128600, diff=137428471400.00
+  [U+274C] Revenue Year 3 cached matches engine (base) 
+    Year 4: cached=151172560000, engine=1207602, diff=151171352398.00
+  [U+274C] Revenue Year 4 cached matches engine (base) 
+    Year 5: cached=163266364800, engine=1280058, diff=163265084741.88
+  [U+274C] Revenue Year 5 cached matches engine (base) 
+    Year 6: cached=173062346688, engine=1344061, diff=173061002626.97
+  [U+274C] Revenue Year 6 cached matches engine (base) 
+  Net Income cached results:
+    Year 0: cached=10444675000, engine=84088, diff=10444590912.50
+  [U+274C] NetIncome Year 0 cached matches engine (base) 
+    Year 1: cached=22552500000, engine=96100, diff=22552403900.00
+  [U+274C] NetIncome Year 1 cached matches engine (base) 
+    Year 2: cached=19796233593, engine=147994, diff=19796085599.35
+  [U+274C] NetIncome Year 2 cached matches engine (base) 
+    Year 3: cached=24052750050, engine=179825, diff=24052570225.07
+  [U+274C] NetIncome Year 3 cached matches engine (base) 
+    Year 4: cached=27926093073, engine=200453, diff=27925892619.70
+  [U+274C] NetIncome Year 4 cached matches engine (base) 
+    Year 5: cached=30555140097, engine=215020, diff=30554925076.38
+  [U+274C] NetIncome Year 5 cached matches engine (base) 
+    Year 6: cached=32420986259, engine=231471, diff=32420754787.57
+  [U+274C] NetIncome Year 6 cached matches engine (base) 
+
+======================================
+CHECK 3: Scenarios Sheet - Value Differences
+======================================
+  Block "Base Case" at row 4
+  Block "Optimistic" at row 90
+  Block "Conservative" at row 176
+  Base Case: Revenue Growth (first proj) = 15.0%
+  Optimistic: Revenue Growth (first proj) = 18.0%
+  Conservative: Revenue Growth (first proj) = 12.0%
+
+======================================
+CHECK 4: Balance Sheet - Balance Check
+======================================
+
+======================================
+CHECK 5: Cash Flow - Reconciliation
+======================================
+    CF[0]: cached=12000000000, engine=200000, diff=11999800000.00
+  [U+274C] CF Ending Cash 0 cached matches engine 
+    CF[1]: cached=11697654914, engine=413917, diff=11697240997.10
+  [U+274C] CF Ending Cash 1 cached matches engine 
+    CF[2]: cached=12968068806, engine=527268, diff=12967541537.73
+  [U+274C] CF Ending Cash 2 cached matches engine 
+    CF[3]: cached=16148044274, engine=655234, diff=16147389039.92
+  [U+274C] CF Ending Cash 3 cached matches engine 
+    CF[4]: cached=21079128979, engine=794585, diff=21078334393.76
+  [U+274C] CF Ending Cash 4 cached matches engine 
+    CF[5]: cached=28036623400, engine=947161, diff=28035676238.70
+  [U+274C] CF Ending Cash 5 cached matches engine 
+
+======================================
+CHECK 6: Sample IF Formula Inspection
+======================================
+  Revenue Growth Rate (row 4, col D):
+    Formula: IF(Assumptions!$B$67="Base Case",Scenarios!D8,IF(Assumptions!$B$67="Optimistic",Scenarios!D94,Scenarios!D180))
+    Result: 0.14999999999999986
+  Retained Earnings (Computed) (row 59, col D):
+    Formula: IF(Assumptions!$B$67="Base Case",Scenarios!D62,IF(Assumptions!$B$67="Optimistic",Scenarios!D148,Scenarios!D234))
+    Result: 61778758987.864876
+
+======================================
+SUMMARY
+======================================
+  [U+2705] Passed: 2
+  [U+274C] Errors: 20
+  [U+26A0]  Warnings: 0
+
+  [U+2757] SOME CHECKS FAILED - see above
+[exit code 1]
+=================== npx tsx scripts/verify_excel_readback.ts
+File not found: <scratch-copy>\Demo_Company_Inc__Financial_Model.xlsx
+[exit code 1]
+=================== npx tsx scripts/verify_live_formulas.ts
+======================================================
+  VERIFICATION: Engine Numbers vs Excel Formulas
+======================================================
+
+[U+2713] Engine computed: Base Case (7 periods, converged=true)
+[U+2713] Engine computed: Optimistic (7 periods, converged=true)
+[U+2713] Engine computed: Conservative (7 periods, converged=true)
+
+  Total periods: 7 (2 historical + 5 projection)
+
+-- Checking Base Case --
+-- Checking Optimistic --
+-- Checking Conservative --
+
+======================================================
+  RESULTS
+======================================================
+
+  [U+2717] Base Case: 66/72 passed
+    [U+2717] BS/Retained Earnings [period 2]: expected=144990.12, got=141490.12, diff=3500.00 (2.41%)
+    [U+2717] BS/APIC [period 2]: expected=230000.00, got=220000.00, diff=10000.00 (4.35%)
+    [U+2717] BS/APIC [period 3]: expected=230000.00, got=220000.00, diff=10000.00 (4.35%)
+    [U+2717] BS/APIC [period 4]: expected=230000.00, got=220000.00, diff=10000.00 (4.35%)
+    [U+2717] BS/APIC [period 5]: expected=230000.00, got=220000.00, diff=10000.00 (4.35%)
+    [U+2717] BS/APIC [period 6]: expected=230000.00, got=220000.00, diff=10000.00 (4.35%)
+  [U+2717] Optimistic: 67/72 passed
+    [U+2717] BS/APIC [period 2]: expected=230000.00, got=220000.00, diff=10000.00 (4.35%)
+    [U+2717] BS/APIC [period 3]: expected=230000.00, got=220000.00, diff=10000.00 (4.35%)
+    [U+2717] BS/APIC [period 4]: expected=230000.00, got=220000.00, diff=10000.00 (4.35%)
+    [U+2717] BS/APIC [period 5]: expected=230000.00, got=220000.00, diff=10000.00 (4.35%)
+    [U+2717] BS/APIC [period 6]: expected=230000.00, got=220000.00, diff=10000.00 (4.35%)
+  [U+2717] Conservative: 66/72 passed
+    [U+2717] BS/Retained Earnings [period 2]: expected=123244.87, got=120759.37, diff=2485.49 (2.02%)
+    [U+2717] BS/APIC [period 2]: expected=230000.00, got=220000.00, diff=10000.00 (4.35%)
+    [U+2717] BS/APIC [period 3]: expected=230000.00, got=220000.00, diff=10000.00 (4.35%)
+    [U+2717] BS/APIC [period 4]: expected=230000.00, got=220000.00, diff=10000.00 (4.35%)
+    [U+2717] BS/APIC [period 5]: expected=230000.00, got=220000.00, diff=10000.00 (4.35%)
+    [U+2717] BS/APIC [period 6]: expected=230000.00, got=220000.00, diff=10000.00 (4.35%)
+
+  Total: 199/216 passed, 17 failed
+
+  [U+2717] SOME CHECKS FAILED - see above for details
+
+[exit code 1]
+=================== npx tsx scripts/verify_scenario_export.ts
+
+======================================
+   SCENARIO EXPORT VERIFICATION
+======================================
+
+Step 1: Computing all scenarios via engine...
+  [U+2713] Base Case (type=base): TerminalRev=1344061, TerminalNI=231471
+  [U+2713] Optimistic Case (type=optimistic): TerminalRev=1584464, TerminalNI=457031
+  [U+2713] Conservative Case (type=conservative): TerminalRev=1038494, TerminalNI=51373
+  nYears=7, numHistorical=2, nProj=5
+  Periods: 2024, 2025, 2026E, 2027E, 2028E, 2029E, 2030E
+
+Step 2: Building Scenarios sheet...
+=== buildScenariosSheet DEBUG ===
+allScenarios count: 3
+  [0] name="Base Case" type="base" hasResults=true
+  [1] name="Optimistic Case" type="optimistic" hasResults=true
+  [2] name="Conservative Case" type="conservative" hasResults=true
+Block "Base Case" (type=base): found=true, hasResults=true, scenarioName="Base Case"
+Block "Optimistic" (type=optimistic): found=true, hasResults=true, scenarioName="Optimistic Case"
+Block "Conservative" (type=conservative): found=true, hasResults=true, scenarioName="Conservative Case"
+  Saved: <scratch-copy>\VERIFY_Scenarios.xlsx
+
+======================================
+Step 3: Cross-checking Scenarios sheet vs Engine
+======================================
+
+-- Base Case --
+
+-- Optimistic --
+
+-- Conservative --
+
+======================================
+Step 4: Checking IF formula wiring coverage
+======================================
+  Wireable: 75/75 (0 missing)
+
+======================================
+Step 5: Cross-Scenario Key Value Comparison
+======================================
+
+  Base Case (Terminal Year):
+    Revenue:    1,344,061.026
+    COGS:       806,436.616
+    Net Income: 231,471.103
+    EBITDA:     309,134.036
+    Cash:       947,161.415
+    Total Eq:   924,106.729
+    FCF:        238,220.321
+    End Cash:   947,161.415
+    Balanced:   true
+
+  Optimistic (Terminal Year):
+    Revenue:    1,584,464.112
+    COGS:       808,076.697
+    Net Income: 457,030.61
+    EBITDA:     570,407.08
+    Cash:       1,331,724.147
+    Total Eq:   1,383,322.877
+    FCF:        446,913.501
+    End Cash:   1,331,724.147
+    Balanced:   true
+
+  Conservative (Terminal Year):
+    Revenue:    1,038,493.831
+    COGS:       706,175.805
+    Net Income: 51,373.412
+    EBITDA:     103,849.383
+    Cash:       600,943.567
+    Total Eq:   514,271.738
+    FCF:        72,443.121
+    End Cash:   600,943.567
+    Balanced:   true
+
+======================================
+Step 6: Verifying assumption differences
+======================================
+  revenueGrowthRate (first proj year): Base=0.10000000000000012, Opt=0.15, Cons=0.03
+  cogsPercent (first proj year): Base=0.6, Opt=0.55, Cons=0.65
+  taxRate (first proj year): Base=0.225, Opt=0.225, Cons=0.225
+
+======================================
+SUMMARY
+======================================
+  [U+2705] Passed: 340
+  [U+274C] Errors: 0
+  [U+26A0]  Warnings: 0
+
+  [U+1F389] ALL CHECKS PASSED!
+[exit code 0]
+=================== npx tsx scripts/verify_scenario_output.ts
+======================================================
+  SCENARIO OUTPUT VERIFICATION
+======================================================
+
+[U+2713] Engine: Base Case (7 periods, converged=true)
+[U+2713] Engine: Optimistic (7 periods, converged=true)
+[U+2713] Engine: Conservative (7 periods, converged=true)
+
+  File: <scratch-copy>\Demo_Company_Inc__Financial_Model.xlsx
+
+Error: File not found: <scratch-copy>\Demo_Company_Inc__Financial_Model.xlsx
+    at XLSX.readFile (<scratch-copy>\node_modules\exceljs\lib\xlsx\xlsx.js:51:13)
+    at async main (<scratch-copy>\scripts\verify_scenario_output.ts:56:5)
+[exit code 0]
+=================== node test_excel_export.mjs
+
+[U+1F4CA] Reading: out-base.xlsx
+
+======================================
+TAB 1: ASSUMPTIONS
+======================================
+  Periods: 7
+  [U+274C] Revenue Base (Historical) exists 
+  [U+274C] Revenue Base (Projection) exists 
+  [U+2705] Dividend Payout Ratio exists
+    Values: 0, 0, 0.3, 0.3, 0.3, 0.3, 0.3
+  [U+2705] DivPayout Year 0 = 0
+  [U+2705] Dividends Paid (Computed) exists
+    Values: 0, -2552500000, -5048039566.227802, -6133451262.765062, -7121153733.549736, -7791560724.633717, -8267351495.962357
+  [U+274C] Equity Issuance (Computed) exists 
+  [U+274C] Share Repurchases (Computed) exists 
+  [U+2705] Equity Issuance assumption row exists
+
+======================================
+TAB 2: INCOME STATEMENT
+======================================
+  [U+2705] Revenue row exists
+    Revenue values: 81,677,000,000 | 106,700,000,000 | 122,705,000,000 | 137,429,600,000 | 151,172,560,000 | 163,266,364,800 | 173,062,346,688
+  [U+274C] Revenue Year 0 (2023) = 850,000 got: 81677000000
+  [U+274C] Revenue Year 1 (2024) = 950,000 got: 106700000000
+  [U+274C] Revenue Year 2 (2025E) [U+2248] 1,100,000 (1M * 1.1) got: 122704999999.99998
+  [U+2705] Year 2 formula references projection base
+    First projected year formula: C2*(1+Assumptions!D4)
+    Net Income: 10,444,675,000 | 22,552,500,000 | 19,796,233,593.05 | 24,052,750,050.059 | 27,926,093,072.744 | 30,555,140,096.603 | 32,420,986,258.676
+
+======================================
+TAB 3: BALANCE SHEET
+======================================
+    Balanced?: [U+2713] Balanced | [U+2713] Balanced | [U+2713] Balanced | [U+2713] Balanced | [U+2713] Balanced | [U+2713] Balanced | [U+2713] Balanced
+    Year 0: Assets=170,000,000,000, L+E=170,000,000,000
+    Year 1: Assets=201,000,000,000, L+E=201,000,000,000
+    Year 2: Assets=215,875,387,448.339, L+E=215,875,387,448.339
+
+======================================
+TAB 4: CASH FLOW STATEMENT
+======================================
+  CF Periods: 6
+  [U+2705] Dividends Paid row exists
+    Dividends Paid values: -2,552,500,000 | -5,048,039,566.228 | -6,133,451,262.765 | -7,121,153,733.55 | -7,791,560,724.634 | -8,267,351,495.962
+    Dividends Paid formulas: Assumptions!C64 | -MAX(0,'Income Statement'!D33*Assumptions!D34) | -MAX(0,'Income Statement'!E33*Assumptions!E34) | -MAX(0,'Income Statement'!F33*Assumptions!F34) | -MAX(0,'Income Statement'!G33*Assumptions!G34) | -MAX(0,'Income Statement'!H33*Assumptions!H34)
+  [U+2705] Dividends Paid col 1 has formula
+  [U+2705] Dividends Paid col 2 has formula
+  [U+2705] Dividends Paid col 3 has formula
+  [U+2705] Dividends Paid col 4 has formula
+  [U+2705] Dividends Paid col 5 has formula
+  [U+2705] Dividends Paid col 6 has formula
+    Historical div (CF[0]): -2552500000
+  [U+2705] Historical dividends != 0 (back-solved from RE)
+  [U+2705] Equity Issuance row exists
+    Equity Issuance values: 0 | 0 | 0 | 0 | 0 | 0
+    Equity Issuance formulas: ('Historical Data'!C45-'Historical Data'!B45)+('Historical Data'!C46-'Historical Data'!B46) | Assumptions!D39 | Assumptions!E39 | Assumptions!F39 | Assumptions!G39 | Assumptions!H39
+  [U+2705] Equity Issuance col 1 has formula
+  [U+2705] Equity Issuance col 2 has formula
+  [U+2705] Equity Issuance col 3 has formula
+  [U+2705] Equity Issuance col 4 has formula
+  [U+2705] Equity Issuance col 5 has formula
+  [U+2705] Equity Issuance col 6 has formula
+    Historical equity issuance (CF[0]): 0
+  [U+274C] Historical equity issuance = 10,000 (APIC 210K->220K) got: 0
+    Share Repurchases values: 0 | 0 | 0 | 0 | 0 | 0
+  [U+2705] Share Repurchases col 1 has formula
+  [U+2705] Share Repurchases col 2 has formula
+  [U+2705] Share Repurchases col 3 has formula
+  [U+2705] Share Repurchases col 4 has formula
+  [U+2705] Share Repurchases col 5 has formula
+  [U+2705] Share Repurchases col 6 has formula
+    Reconciliation: [U+2713] Reconciles | [U+2713] Reconciles | [U+2713] Reconciles | [U+2713] Reconciles | [U+2713] Reconciles | [U+2713] Reconciles
+  [U+2705] CF Year 0 reconciles
+  [U+2705] CF Year 1 reconciles
+  [U+2705] CF Year 2 reconciles
+  [U+2705] CF Year 3 reconciles
+  [U+2705] CF Year 4 reconciles
+  [U+2705] CF Year 5 reconciles
+    CF[0]: CFO=50,692,500,000, CFI=-38,000,000,000, CFF=-10,692,500,000, Net=2,000,000,000, Beg=10,000,000,000, End=12,000,000,000
+  [U+2705] CF[0] reconciles: Beg+CFO+CFI+CFF = End
+    CF[1]: CFO=37,401,567,839.626, CFI=-30,676,250,000, CFF=-7,027,662,925.533, Net=-302,345,085.907, Beg=12,000,000,000, End=11,697,654,914.093
+  [U+2705] CF[1] reconciles: Beg+CFO+CFI+CFF = End
+    CF[2]: CFO=44,166,540,159.648, CFI=-34,357,400,000, CFF=-8,538,726,267.771, Net=1,270,413,891.877, Beg=11,697,654,914.093, End=12,968,068,805.97
+  [U+2705] CF[2] reconciles: Beg+CFO+CFI+CFF = End
+
+======================================
+SUMMARY
+======================================
+  [U+2705] Passed: 36
+  [U+274C] Errors: 8
+  [U+26A0]  Warnings: 0
+
+  [U+2757] SOME CHECKS FAILED - see above
+[exit code 0]
+=================== python -I scripts/check_wolf.py
+Checking: C:\Users\user\Downloads\WOLF_Financial_Model.xlsx
+Traceback (most recent call last):
+  File "<scratch-copy>\scripts\check_wolf.py", line 12, in <module>
+    print(f"File size: {os.path.getsize(SRC):,} bytes")
+                        ~~~~~~~~~~~~~~~^^^^^
+  File "<frozen genericpath>", line 86, in getsize
+FileNotFoundError: [WinError 2] The system cannot find the file specified: 'C:\\Users\\user\\Downloads\\WOLF_Financial_Model.xlsx'
+[exit code 1]
+=================== python -I scripts/deep_dive.py
+Traceback (most recent call last):
+  File "<scratch-copy>\scripts\deep_dive.py", line 13, in <module>
+    wb_d = openpyxl.load_workbook(SRC, data_only=True)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python314\Lib\site-packages\openpyxl\reader\excel.py", line 346, in load_workbook
+    reader = ExcelReader(filename, read_only, keep_vba,
+                         data_only, keep_links, rich_text)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python314\Lib\site-packages\openpyxl\reader\excel.py", line 123, in __init__
+    self.archive = _validate_archive(fn)
+                   ~~~~~~~~~~~~~~~~~^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python314\Lib\site-packages\openpyxl\reader\excel.py", line 95, in _validate_archive
+    archive = ZipFile(filename, 'r')
+  File "C:\Users\user\AppData\Local\Programs\Python\Python314\Lib\zipfile\__init__.py", line 1453, in __init__
+    self.fp = io.open(file, filemode)
+              ~~~~~~~^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\user\\Downloads\\WOLF_Financial_Model.xlsx'
+[exit code 1]
+=================== python -I scripts/full_reconciliation.py
+Traceback (most recent call last):
+  File "<scratch-copy>\scripts\full_reconciliation.py", line 15, in <module>
+    wb = openpyxl.load_workbook(SRC)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python314\Lib\site-packages\openpyxl\reader\excel.py", line 346, in load_workbook
+    reader = ExcelReader(filename, read_only, keep_vba,
+                         data_only, keep_links, rich_text)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python314\Lib\site-packages\openpyxl\reader\excel.py", line 123, in __init__
+    self.archive = _validate_archive(fn)
+                   ~~~~~~~~~~~~~~~~~^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python314\Lib\site-packages\openpyxl\reader\excel.py", line 95, in _validate_archive
+    archive = ZipFile(filename, 'r')
+  File "C:\Users\user\AppData\Local\Programs\Python\Python314\Lib\zipfile\__init__.py", line 1453, in __init__
+    self.fp = io.open(file, filemode)
+              ~~~~~~~^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\user\\Downloads\\WOLF_Financial_Model.xlsx'
+[exit code 1]
+=================== python -I scripts/phase1_diagnosis.py
+Traceback (most recent call last):
+  File "<scratch-copy>\scripts\phase1_diagnosis.py", line 14, in <module>
+    shutil.copy2(SRC, WORK)
+    ~~~~~~~~~~~~^^^^^^^^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python314\Lib\shutil.py", line 514, in copy2
+    _winapi.CopyFile2(src_, dst_, flags)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [WinError 2] The system cannot find the file specified
+[exit code 1]
+=================== python -I scripts/targeted_comparison.py
+Traceback (most recent call last):
+  File "<scratch-copy>\scripts\targeted_comparison.py", line 19, in <module>
+    wb = openpyxl.load_workbook(SRC)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python314\Lib\site-packages\openpyxl\reader\excel.py", line 346, in load_workbook
+    reader = ExcelReader(filename, read_only, keep_vba,
+                         data_only, keep_links, rich_text)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python314\Lib\site-packages\openpyxl\reader\excel.py", line 123, in __init__
+    self.archive = _validate_archive(fn)
+                   ~~~~~~~~~~~~~~~~~^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python314\Lib\site-packages\openpyxl\reader\excel.py", line 95, in _validate_archive
+    archive = ZipFile(filename, 'r')
+  File "C:\Users\user\AppData\Local\Programs\Python\Python314\Lib\zipfile\__init__.py", line 1453, in __init__
+    self.fp = io.open(file, filemode)
+              ~~~~~~~^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\user\\Downloads\\WOLF_Financial_Model.xlsx'
+[exit code 1]
+=================== python -I scripts/trace_discrepancy.py
+Traceback (most recent call last):
+  File "<scratch-copy>\scripts\trace_discrepancy.py", line 12, in <module>
+    wb_d = openpyxl.load_workbook(SRC, data_only=True)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python314\Lib\site-packages\openpyxl\reader\excel.py", line 346, in load_workbook
+    reader = ExcelReader(filename, read_only, keep_vba,
+                         data_only, keep_links, rich_text)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python314\Lib\site-packages\openpyxl\reader\excel.py", line 123, in __init__
+    self.archive = _validate_archive(fn)
+                   ~~~~~~~~~~~~~~~~~^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python314\Lib\site-packages\openpyxl\reader\excel.py", line 95, in _validate_archive
+    archive = ZipFile(filename, 'r')
+  File "C:\Users\user\AppData\Local\Programs\Python\Python314\Lib\zipfile\__init__.py", line 1453, in __init__
+    self.fp = io.open(file, filemode)
+              ~~~~~~~^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\user\\Downloads\\WOLF_Financial_Model.xlsx'
+[exit code 1]
+=================== python -I scripts/verify_scenarios.py
+Traceback (most recent call last):
+  File "<scratch-copy>\scripts\verify_scenarios.py", line 14, in <module>
+    wb = openpyxl.load_workbook(SRC)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python314\Lib\site-packages\openpyxl\reader\excel.py", line 346, in load_workbook
+    reader = ExcelReader(filename, read_only, keep_vba,
+                         data_only, keep_links, rich_text)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python314\Lib\site-packages\openpyxl\reader\excel.py", line 123, in __init__
+    self.archive = _validate_archive(fn)
+                   ~~~~~~~~~~~~~~~~~^^^^
+  File "C:\Users\user\AppData\Local\Programs\Python\Python314\Lib\site-packages\openpyxl\reader\excel.py", line 95, in _validate_archive
+    archive = ZipFile(filename, 'r')
+  File "C:\Users\user\AppData\Local\Programs\Python\Python314\Lib\zipfile\__init__.py", line 1453, in __init__
+    self.fp = io.open(file, filemode)
+              ~~~~~~~^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\user\\Downloads\\WOLF_Financial_Model_Fixed.xlsx'
+[exit code 1]

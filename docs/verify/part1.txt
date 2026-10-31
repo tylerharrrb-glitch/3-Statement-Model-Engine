@@ -1,0 +1,45 @@
+PASS  docs/AUDIT.md exists
+PASS  Section present and non-empty: 1. File tree  [5728 chars]
+PASS  Section present and non-empty: 2. Every calculation  [155974 chars]
+PASS  Section present and non-empty: 3. Duplicated calculations  [9758 chars]
+PASS  Section present and non-empty: 4. Hardcoded rates and constants  [106672 chars]
+PASS  Section present and non-empty: 5. Statement links  [3569 chars]
+PASS  Section present and non-empty: 6. Balance check and circularity  [1735 chars]
+PASS  Section present and non-empty: 7. Network and storage  [2382 chars]
+PASS  Section present and non-empty: 8. Excel exporter  [17992 chars]
+PASS  Section present and non-empty: 9. Module inventory  [5580 chars]
+PASS  Section present and non-empty: 10. Test results  [29280 chars]
+PASS  Section 8 lists sheets
+PASS  Section 8 lists hardcoded numbers
+PASS  Section 8 lists literal constants
+PASS  Section 8 lists 30 longest formulas
+PASS  Section 8 reports function use
+PASS  Section 8 lists number formats
+PASS  Section 8 reports recalculation
+PASS  Section 7 covers the AI Analyst
+PASS  Section 4 flags the stale banner
+PASS  Section 10 records npm test
+PASS  Exactly 30 formulas listed in 8.4
+PASS  Citation lib/services/analyst.ts:29
+PASS  Citation lib/services/analyst.ts:189
+PASS  Citation lib/services/liveRates.ts:63
+PASS  Citation lib/engines/income-statement.ts:416
+PASS  Citation lib/engines/cash-flow.ts:231
+PASS  Citation lib/engines/balance-sheet.ts:235
+PASS  Citation lib/engines/balance-sheet.ts:246
+PASS  Citation lib/engines/balance-sheet.ts:330
+PASS  Citation lib/engines/circular-resolver.ts:36
+PASS  Citation lib/engines/circular-resolver.ts:37
+PASS  Citation lib/ratios.ts:63
+PASS  Citation lib/ratios.ts:72
+PASS  Citation lib/agents/validation-agent.ts:191
+PASS  Citation lib/export/excel.ts:139
+PASS  Citation lib/export/excel.ts:2390
+PASS  Citation lib/export/build-company-info.ts:102
+PASS  Citation components/CBERateBanner.tsx:50
+PASS  Citation lib/store.ts:538
+PASS  No source file differs from main
+PASS  AUDIT.md has no emoji or non-ASCII characters  [0 found]
+PASS  AUDIT.md contains no API key
+
+43 PASS, 0 FAIL
