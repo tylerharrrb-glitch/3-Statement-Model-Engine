@@ -266,4 +266,4 @@ L
 
 ## 8. Preview URL
 
-None confirmed at the time of this report. See docs/PROGRESS.md, Deployment.
+https://rebuild-v2.3-statement-model-engine.pages.dev (branch alias). The Worker is not deployed, so the preview uses the bundled manual rates and says so on the Rates page.

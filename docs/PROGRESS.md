@@ -1,94 +1,75 @@
 # 3SM v2 Progress
 
-Read this first in every session. Brief: the "3SM v2 Rebuild Brief". Standards: `CLAUDE.md`.
+Read this first in every session. Standards: `CLAUDE.md`. Gate output: `docs/verify/`. Final report: `docs/FINAL_REPORT.md`.
 
-## Open FAILs
+## Open items
 
-All from `docs/verify/part4.txt`. Each needs the audited PDFs, which are not on this machine:
+No gate has a FAIL. These are outside the gates and need the owner:
 
-- FY2024 CF line items: only the Appendix B totals are loaded.
-- FY2024 capital roll-forward.
-- FY2024 PP&E roll-forward (Note 3).
-- FY2023 reference year: not loaded.
-- Fixture transcription from the PDF: not done. The fixture is built from Appendix B, so the fixture-vs-Appendix B comparison is not an independent check.
-- Merger effective date: unconfirmed.
-
-The owner told the session to finish all Parts, so later Parts proceeded past these. Part 0's rule was not silently dropped: `verify-all` exits non-zero until they are closed, and CI stays red.
+1. Rotate the Groq key. https://3-statement-model-engine.pages.dev still serves it. Groq console, API Keys, revoke. Then consider taking down the old production deployment, which still has the AI Analyst. The local `.env.local` copy was deleted, because nothing uses it.
+2. Clear the GitHub billing lock so CI can run. Until then the Part 11 "PASS in CI" requirement is unmet, and the gates have run on Windows only.
+3. Deploy the rates Worker when wanted: see "Deployment" below. The preview itself works.
+4. Review the driver sets in `tests/fixtures/mopco-drivers.json`. Ratios come from the notes. Forward paths are assumptions prepared by Claude.
+5. Run `docs/verify/google-sheets-manual.md`, and open the file in real Excel with the switch at 1.
+6. Approve or decline the merge to main. The GitHub repo is public: never commit client data.
 
 ## Status
 
 | Part | Status | Gate output |
 |---|---|---|
-| 1 Audit | Done | `docs/verify/part1.txt` |
+| 1 Audit | Done | `part1.txt` |
 | 2 Architecture | Done | `part2.txt` |
-| 3 Rates, Worker | Done; not deployed | `part3.txt` |
-| 4 Data, MOPCO | Open FAILs above | `part4.txt` |
+| 3 Rates, Worker | Done locally; not deployed | `part3.txt` |
+| 4 Data, MOPCO | Done; PDFs obtained from mopco-eg.com | `part4.txt` |
 | 5 Forecast | Done | `part5.txt` |
 | 6 Debt, circularity | Done, hand-built cases only (Decision 10) | `part6.txt` |
 | 7 Statements, outputs | Done | `part7.txt` |
-| 8 Excel | Done in LibreOffice; real Excel and Google Sheets untested | `part8.txt`, `google-sheets-manual.md` |
+| 8 Excel | Done in LibreOffice; real Excel and Google Sheets untested | `part8.txt` |
 | 9 UI | Done | `part9.txt`, `screens/` |
 | 10 Confidentiality | Done | `part10.txt` |
-| 11 Tests | Done locally; CI result depends on Part 4 | `part11.txt`, `three-way.txt` |
+| 11 Tests | Local PASS; CI blocked by GitHub billing | `part11.txt`, `three-way.txt` |
 | 12 Documentation | Done | `part12.txt` |
 | 13 Monorepo | Plan only; needs written approval | `docs/MONOREPO_PLAN.md` |
 
-Last commit: run `git log -1 rebuild/v2`.
+## Deployment
 
-## Actions for the owner
+Preview: https://rebuild-v2.3-statement-model-engine.pages.dev builds on every push to `rebuild/v2` and deploys successfully. Production still serves the old site from main. Pages alone has no `/api/rates`, so the app uses the bundled manual rates and says so. For the Worker: `wrangler login`, `wrangler kv namespace create RATES`, put the id in `worker/wrangler.toml`, `npm run build`, then `wrangler versions upload` from `worker/`.
 
-1. Rotate the Groq API key now. Confirmed public on 31-Oct-2026: https://3-statement-model-engine.pages.dev serves it in a JavaScript chunk. Deleting the code does not revoke it. That deployment also still has the AI Analyst, so consider taking it down; that is your call, as main is unchanged.
-2. Supply the MOPCO audited PDFs (FY2025, FY2023). This closes every open FAIL.
-3. Replace the placeholder drivers in `tests/fixtures/mopco-drivers.json`.
-4. Run `docs/verify/google-sheets-manual.md`, and open the file in real Excel with the switch at 1.
-5. CI has not run: GitHub reports "The job was not started because your account is locked due to a billing issue." Clear that and re-run; the expected result is red until the PDFs close Part 4. The gates have never run on Linux.
-5a. The Cloudflare Pages build for rebuild/v2 failed (build logs need your login). The project was set up for Next.js, and a clean clone builds locally with `npm ci && npm run build`, so check the settings first: build command `npm run build`, output directory `dist`. Pages alone has no `/api/rates`, so the app would use the bundled manual rates and say so. The Worker serves both.
-5b. The GitHub repo is public. Never commit client company data to it; fixtures in `tests/fixtures` are public. Keep client models in the browser or outside the repo.
-5c. To deploy the Worker: `wrangler login`, create the KV namespace, put its id in `worker/wrangler.toml`, then `npm run build` and `wrangler versions upload` from `worker/` for a preview URL. No preview URL exists yet, because this machine has no Cloudflare login.
-6. Decide the Proposed items below.
+## Limits of the evidence
+
+- The scanned PDFs were read by eye, without OCR software. Each transcribed section sums to its printed total, which catches most digit errors.
+- The separate FY2024 PDF was downloaded but not compared line by line with the FY2025 comparatives.
+- The PDFs came from mopco-eg.com. Its pages contain 271 external spam links, which suggests the site has been compromised. The numbers agree with Appendix B and tie out, but tell MOPCO IR, and prefer an EGX copy for formal use.
+- Worker reads of CBE worked from this machine with browser-style headers. Cloudflare egress is untested. IMF returns 403 to the Worker.
+- The Python model has the same author as the engine.
 
 ## Unconfirmed values
 
-Source: `data/rates.manual.json`; the full table is in `docs/verify/part3.txt`.
-
-- 91-day T-bill (seed from a secondary source, before the hike); 273-day and T-bond tenors other than 3-year.
-- IMF growth and inflation: the IMF site returns 403 to the Worker. The upper revenue sanity flag stays inactive until inflation is loaded.
-- CIT article number. Statutory rules in Art. 40, 41, 88: confirm in the Arabic text. Schedule Tax applicability to feedstock. Dividend exclusion conditions. Listed CGT detail. MPC calendar except 29-Oct (the CBE schedule table loads by script).
-- Altman zones: secondary sources agree (2.6 and 1.1 before the 3.25 constant), but the 2005 paper was not read.
-- MOPCO inputs not in Appendix B: USD balance shares (0), land (0), depreciation split, employee and board split, actual FY2025 USD/EGP. The FX module has nothing to revalue until the USD shares are entered.
+See `docs/verify/part3.txt`. Main ones: 91-day and 273-day T-bills, other T-bond tenors, IMF growth and inflation (upper revenue sanity flag inactive), CIT article, tax-loss term article, Law 159 Art. 40, 41, 88 in the Arabic text, Schedule Tax applicability to feedstock, MPC calendar except 29-Oct, Altman zones (formula and zones agree with secondary sources; the 2005 paper was not read).
 
 ## Corrections to the brief
 
-- CBE does not block every automated request. Browser-style headers worked from this machine on 31-Oct-2026. The Worker reads the corridor, CPI, CONIA, T-bills, the 3-year bond and FX. Cloudflare egress is untested, so failures remain a normal path.
-- 364-day T-bill: CBE shows 26.076 on 29-Oct; Appendix A had 25.912 from 27-Oct. 182-day: 25.457, was 25.166.
-- USD/EGP mid 56.0429 on 29-Oct.
-- Inflation target: 7% +/- 2pp in Q4 2026; 5% +/- 2pp in Q4 2028.
-- Appendix B: non-current asset lines sum 1 EGP below the stated total (source note 9). Check against the PDF.
+- Decision 5: FY2023 is mixed. The balance sheet is post-merger (registered 13-Dec-2023), the income statement is MOPCO before the merger. Label updated.
+- CBE is readable with browser-style headers. The 29-Oct change is confirmed in the press release.
+- 364-day T-bill 26.076 (29-Oct), not 25.912. 182-day 25.457, not 25.166. USD/EGP 56.0429. Inflation target 7% +/- 2pp Q4 2026, 5% +/- 2pp Q4 2028.
+- Decision 6: tonnes are not disclosed, as the brief says, but Note 23 does disclose segment by market. It is recorded in the fixture `_meta`. The model still allocates the non-driving view; a segment-by-market matrix would be a small change if wanted.
+- Source notes 9 to 16 are new findings; see the fixture and `docs/FINAL_REPORT.md`.
 
-## Design decisions taken during the build
+## Design decisions
 
-- Vite replaces Next.js. The registry package and manual snapshot were built in Part 2, ahead of Part 3.
-- Revenue basis switch: by market, by segment, or volume x price. Appendix B gives no segment-by-market matrix, so the non-driving view is allocated by mix or export share.
-- Engine tolerance is 0.01 EGP, stricter than the 1 EGP ceiling, so comparisons stay inside 1 EGP after compounding.
-- Lease and benefit interest always use the opening balance, under both switch settings.
-- Balance check excludes the documented 1 EGP opening gap from source note 9.
-- LibreOffice ignores the file's iterate settings. Switch 1 is recalculated in repeated passes until stable (17 for MOPCO). Excel should need one calculation; untested.
-- Scenarios sheet: only the active scenario's outputs are live. The UI shows all three.
-- Dropped from the old audit's "keep" list: Recharts charts, because no Part asks for charts.
-
-## Proposed (not in the brief; needs owner approval)
-
-| Item | Recommendation | Why |
-|---|---|---|
-| Tax-loss carryforward | Add | Tax after a loss year is overstated without it. The term needs a source. |
-| Thin-cap rule | Leave out | Ratios and ceiling unconfirmed; MOPCO has no bank debt. |
-| VAT schedule | Leave out | Not in the brief. |
-| PDF and CSV exports | Leave out | Excel and JSON are the deliverables. |
+- Vite replaced Next.js. The registry package was built in Part 2, ahead of Part 3.
+- Engine tolerance is 0.01 EGP, stricter than the 1 EGP ceiling.
+- Lease and benefit interest always use the opening balance.
+- The balance check excludes the documented 1 EGP opening gap in source note 9.
+- LibreOffice ignores the file's iterate settings. Switch 1 is recalculated in repeated passes until stable.
+- Tax-loss carryforward added on the owner's instruction: fixed 5-year term, oldest first, no deferred tax asset.
+- Thin-cap, VAT schedule, PDF and CSV exports stay out, on the audit recommendation.
+- The first forecast year revalues USD balances from 47.6607 to 56.0429 in the base case, which adds a one-off FX gain of about EGP 2.7bn to 2026 profit. Look at this when reviewing 2026.
 
 ## Environment
 
-Node 22, Python 3.14. LibreOffice at `C:\Program Files\LibreOffice\program\soffice.exe`, not on PATH. `npx playwright install chromium` on a new machine. `wrangler dev` works locally without login.
+Node 22, Python 3.14. LibreOffice at `C:\Program Files\LibreOffice\program\soffice.exe`. `npx playwright install chromium` on a new machine. `wrangler dev` works locally without login.
 
 ## Next step
 
-Wait for the PDFs. Then transcribe FY2024 and FY2023, close the Part 4 FAILs, and get the owner's decision on merging.
+Owner actions above, then the merge decision.
