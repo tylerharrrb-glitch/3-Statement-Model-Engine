@@ -24,6 +24,27 @@ test('every page opens with no console errors, and data stays in the browser', a
     await page.waitForTimeout(250);
     await page.screenshot({ path: `docs/verify/screens/${t.toLowerCase().replace(/ /g, '-')}.png`, fullPage: false });
   }
+  // All section tabs fit at desktop width, with nothing cut off.
+  const nav = page.getByRole('navigation', { name: 'Sections' });
+  expect(await nav.evaluate(n => n.scrollWidth <= n.clientWidth)).toBe(true);
+  // Light mode, as in WOLF: same toggle, same storage key, survives a reload.
+  const theme = page.getByRole('button', { name: 'Toggle light and dark theme' });
+  const bg = () => page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+  expect(await bg()).toBe('rgb(8, 11, 17)');
+  await expect(theme).toHaveText('Light theme');
+  await theme.click();
+  expect(await bg()).toBe('rgb(244, 241, 234)');
+  await expect(theme).toHaveText('Dark theme');
+  for (const t of ['Income statement', 'Ratios', 'Rates', 'Company']) {
+    await page.getByRole('button', { name: t, exact: true }).click();
+    await page.waitForTimeout(200);
+    await page.screenshot({ path: `docs/verify/screens/light-${t.toLowerCase().replace(/ /g, '-')}.png` });
+  }
+  await page.reload();
+  await expect(page.locator('td[data-row="revenue"]').nth(1)).toBeVisible();
+  expect(await bg()).toBe('rgb(244, 241, 234)');
+  await theme.click();
+  expect(await bg()).toBe('rgb(8, 11, 17)');
   // Audit panel.
   await page.getByRole('button', { name: 'Income statement', exact: true }).click();
   await page.locator('td[data-row="gross_profit"]').nth(2).click();

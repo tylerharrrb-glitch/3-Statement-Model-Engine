@@ -16,7 +16,7 @@ const rep = existsSync('docs/verify/playwright-report.json') ? JSON.parse(readFi
 c9('Playwright smoke test passes (every page opens, audit panel, bank block, unmapped block, exports)', pw.status === 0, pw.status === 0 ? '' : tail.slice(-900));
 c9('No console errors on any page', !!rep && rep.consoleErrors.length === 0, rep ? JSON.stringify(rep.consoleErrors).slice(0, 400) : 'no report');
 const shots = existsSync('docs/verify/screens') ? readdirSync('docs/verify/screens').filter(f => f.endsWith('.png')) : [];
-c9('Screenshot set saved', shots.length >= 18, `${shots.length} files`);
+c9('Screenshot set saved', shots.length >= 22, `${shots.length} files`);
 
 const src = walk('src').filter(f => /\.(ts|tsx|css)$/.test(f));
 const EMOJI = /[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B50}\u{2705}\u{274C}\u{FE0F}\u{2190}-\u{21FF}\u{2713}\u{2717}]/u;
@@ -26,10 +26,15 @@ const bannedHits = src.filter(f => BANNED.test(readFileSync(f, 'utf8')));
 c9('No emoji code points in src/', emojiHits.length === 0, emojiHits.join(', '));
 c9('No banned words in src/', bannedHits.length === 0, bannedHits.join(', '));
 const css = readFileSync('src/ui/styles.css', 'utf8');
-c9('WOLF identity: dark and gold tokens', css.includes('--gold') && css.includes('--bg: #0d0f12'));
+const tokens = (t: string) => { const n = t.split(String.fromCharCode(13)).join(''); return n.slice(n.indexOf(':root {'), n.indexOf('html, body, #root')); };
+c9('Brand tokens: dark and light', css.includes('--gold: #c9a961') && css.includes('--bg: #080b11') && css.includes("html[data-theme='light']") && css.includes('--bg: #f4f1ea'));
+c9('Brand fonts are self-hosted', css.includes('@fontsource/spectral') && css.includes('@fontsource/ibm-plex-sans'));
+const wolfCss = path.resolve(process.env.WOLF_ENGINE_PATH ?? '../ValuationEngine', 'src/index.css');
+if (existsSync(wolfCss)) c9('Colour tokens are identical to the WOLF valuation engine', tokens(css) === tokens(readFileSync(wolfCss, 'utf8')));
+else lines9.push(`TO_VERIFY  Colour tokens against WOLF  [${wolfCss} not found]`);
 const app = readFileSync('src/ui/App.tsx', 'utf8');
 c9('No stale CBE banner; rates only from the registry', !/19\.00|CBERateBanner|IN SYNC|AI Audit/.test(app));
-c9('Status shown as text', /PASS/.test(app) && /FAIL/.test(app) && /toUpperCase/.test(app));
+c9('Status shown as text', /PASS/.test(app) && /FAIL/.test(app) && /'Stale'/.test(app) && /'Unconfirmed'/.test(app));
 c9('Methodology page generated from docs/METHODOLOGY.md', /METHODOLOGY\.md\?raw/.test(app) && existsSync('docs/METHODOLOGY.md'));
 const uiNoCalc = !/[a-z]\.rows\.[a-z_]+\[[^\]]+\]\s*[-+*/]\s*/i.test(app);
 c9('UI does not calculate statement figures', uiNoCalc);

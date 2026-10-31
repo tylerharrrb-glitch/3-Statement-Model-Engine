@@ -6,10 +6,14 @@ PASS  All other requests are static assets  [[]]
 
 Requests seen:
   http://127.0.0.1:8798/
-  http://127.0.0.1:8798/assets/index-CYYEc187.js
-  http://127.0.0.1:8798/assets/index-BDCQ_S9H.css
+  http://127.0.0.1:8798/assets/index-Dvm9ANYc.js
+  http://127.0.0.1:8798/assets/index-CZ1z4eYf.css
+  http://127.0.0.1:8798/assets/ibm-plex-sans-latin-400-normal-CDDApCn2.woff2
+  http://127.0.0.1:8798/assets/spectral-latin-600-normal-DE3OxvnQ.woff2
+  http://127.0.0.1:8798/assets/ibm-plex-sans-latin-600-normal-CuJfVYMP.woff2
   http://127.0.0.1:8798/api/rates
-  http://127.0.0.1:8798/assets/writer-BaguzJbo.js
+  http://127.0.0.1:8798/assets/ibm-plex-sans-latin-500-normal-6ng42L7E.woff2
+  http://127.0.0.1:8798/assets/writer-B6GUKhds.js
 PASS  Only one fetch call site in src/, to /api/rates
 PASS  No analytics, Groq or external fonts
 PASS  Saved models use IndexedDB; a clear control exists

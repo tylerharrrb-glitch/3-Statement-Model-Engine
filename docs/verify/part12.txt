@@ -15,7 +15,7 @@ PASS  docs/RATES_RUNBOOK.md has content  [2657 chars]
 PASS  docs/RATES_RUNBOOK.md has no emoji
 PASS  docs/RATES_RUNBOOK.md has no banned words
 PASS  CHANGELOG.md exists
-PASS  CHANGELOG.md has content  [1638 chars]
+PASS  CHANGELOG.md has content  [1693 chars]
 PASS  CHANGELOG.md has no emoji
 PASS  CHANGELOG.md has no banned words
 PASS  CLAUDE.md exists

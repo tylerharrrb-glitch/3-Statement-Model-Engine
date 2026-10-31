@@ -1,9 +1,24 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='8' fill='%230A0E17'/%3E%3Ctext x='32' y='40' font-family='serif' font-weight='900' font-size='18' fill='%23C9A84C' text-anchor='middle'%3EWOLF%3C/text%3E%3C/svg%3E" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>3-Statement Model Engine</title>
+    <meta name="description" content="WOLF 3-Statement Engine: linked historical and forecast statements for EGX-listed companies, with sourced macro rates and a formula-driven Excel model." />
+    <meta name="author" content="Ahmed Wael Metwally" />
+    <meta name="theme-color" content="#080b11" />
+    <title>WOLF 3-Statement Engine</title>
+    <script>
+      (function () {
+        try {
+          if (localStorage.getItem('wolf-theme') === 'light') document.documentElement.setAttribute('data-theme', 'light');
+        } catch (e) {}
+      })();
+    </script>
+    <style>
+      body { background-color: #080b11; margin: 0; }
+      html[data-theme="light"] body { background-color: #f4f1ea; }
+    </style>
   </head>
   <body>
     <div id="root"></div>

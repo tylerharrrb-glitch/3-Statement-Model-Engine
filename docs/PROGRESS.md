@@ -59,6 +59,10 @@ See `docs/verify/part3.txt`. Main ones: 91-day and 273-day T-bills, other T-bond
 
 Exports page, "Export to WOLF (.json)". Mapping: `src/export/wolfMap.ts`. Gate: `npx tsx scripts/verify-wolf-export.ts`, output `docs/verify/wolf-export.txt`. Historical years only: WOLF reads the last year in the file as the latest actual and allows five years. Price and dates are user inputs on the Company page, and WOLF rejects blanks. The older "Download WOLF JSON" button uses a different schema and does not import into WOLF.
 
+## Brand
+
+The UI uses the WOLF valuation engine's design: colour tokens copied unchanged from `ValuationEngine/src/index.css` (gated), Spectral and IBM Plex Sans self-hosted, the same header, tabs, panels, badges, drawer and footer, and the same light mode toggle and `wolf-theme` key. The Excel file keeps its own Part 8 style.
+
 ## Design decisions
 
 - Vite replaced Next.js. The registry package was built in Part 2, ahead of Part 3.

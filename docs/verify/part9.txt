@@ -1,12 +1,14 @@
 PASS  Playwright smoke test passes (every page opens, audit panel, bank block, unmapped block, exports)
 PASS  No console errors on any page  [[]]
-PASS  Screenshot set saved  [18 files]
+PASS  Screenshot set saved  [22 files]
 PASS  No emoji code points in src/
 PASS  No banned words in src/
-PASS  WOLF identity: dark and gold tokens
+PASS  Brand tokens: dark and light
+PASS  Brand fonts are self-hosted
+PASS  Colour tokens are identical to the WOLF valuation engine
 PASS  No stale CBE banner; rates only from the registry
 PASS  Status shown as text
 PASS  Methodology page generated from docs/METHODOLOGY.md
 PASS  UI does not calculate statement figures
 
-10 PASS, 0 FAIL
+12 PASS, 0 FAIL
