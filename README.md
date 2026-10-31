@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 3-Statement Model Engine
 
-## Getting Started
+## What the engine is
 
-First, run the development server:
+It produces linked historical and forecast statements for industrial and commercial companies presenting under EAS: income statement, balance sheet, cash flow, schedules, ratios, scenarios and a sensitivity grid. Valuation lives in WOLF; this engine exports a WOLF-compatible JSON. Banks and insurers are blocked, because for them the balance sheet is the business.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+The engine (`src/engine`) is pure and deterministic. The UI, the Excel writer and the JSON export only consume it. Company financials never leave the browser. The only server request is `GET /api/rates`.
+
+## How to run it
+
+```
+npm install
+npm run dev              # Vite dev server
+npm test                 # unit tests
+npm run verify-all       # every Part gate; needs LibreOffice and Python
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+To run the app with the rates API, build it and start the Worker:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+npm run build
+cd worker && npx wrangler dev --test-scheduled
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Without the Worker the app uses the manual rates file and says so on the Rates page.
 
-## Learn More
+## How to add a company
 
-To learn more about Next.js, take a look at the following resources:
+1. Open Historicals. Enter each line as reported and map it to a standard account. Unmapped lines block the run. Full absolute EGP only.
+2. Enter 2 to 5 historical years. Load the cash flow as reported. Never derive it from balance-sheet changes.
+3. On Company, set the sector, fiscal year end and the classification policy (interest received, interest paid, distributions).
+4. On Drivers, enter bear, base and bull sets for each forecast year.
+5. Check the Historicals tie-outs and record source discrepancies. Do not fix them.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+For a file-based fixture, copy the pattern in `scripts/gen-mopco-fixture.mjs`. It is loaded through the mapping layer in the same way.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Layout
 
-## Deploy on Vercel
+```
+packages/rates-registry/   schema, staleness, merge, snapshot, WOLF export schema; no React, no IO
+src/engine/                calculation core
+src/export/excel/          formula writer and the row table
+src/export/wolf.ts         WOLF JSON
+src/ui/                    React views
+worker/                    Cloudflare Worker: daily rates pipeline and /api/rates
+data/rates.manual.json     manual registry values, versioned
+tests/                     unit, fixtures, golden, python reference, e2e
+scripts/verify-*           Part gates
+docs/                      methodology, sources, runbook, audit, progress, gate output
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Status
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+See `docs/PROGRESS.md`. Open items are listed there first.

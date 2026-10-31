@@ -1,0 +1,18 @@
+PASS  No request contains a fixture value (revenue, cash, net profit digits)  [[]]
+PASS  No request to any other host  [[]]
+PASS  No POST or other non-GET request  [[]]
+PASS  The only API request is GET /api/rates  [[]]
+PASS  All other requests are static assets  [[]]
+
+Requests seen:
+  http://127.0.0.1:8798/
+  http://127.0.0.1:8798/assets/index-AB0Y1k2o.js
+  http://127.0.0.1:8798/assets/index-BDCQ_S9H.css
+  http://127.0.0.1:8798/api/rates
+  http://127.0.0.1:8798/assets/writer-CBfVySon.js
+PASS  Only one fetch call site in src/, to /api/rates
+PASS  No analytics, Groq or external fonts
+PASS  Saved models use IndexedDB; a clear control exists
+PASS  JSON export and import exist
+
+9 PASS, 0 FAIL

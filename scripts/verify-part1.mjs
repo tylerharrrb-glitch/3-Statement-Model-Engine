@@ -1,4 +1,5 @@
-// Part 1 gate. Opens docs/AUDIT.md and the cited source lines; prints PASS/FAIL per check.
+// Part 1 gate. Opens docs/AUDIT.md and the cited source lines as they stood at the audited commit
+// (the old code was deleted in Part 2); prints PASS/FAIL per check.
 // Usage: node scripts/verify-part1.mjs   (writes docs/verify/part1.txt)
 import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
@@ -72,13 +73,13 @@ const citations = [
   ['lib/store.ts', 538, 'financial-model-storage'],
 ];
 for (const [file, line, text] of citations) {
-  const l = readFileSync(file, 'utf8').split('\n')[line - 1] ?? '';
+  const l = execFileSync('git', ['show', `8ba8ab2:${file}`], { encoding: 'utf8', maxBuffer: 1 << 26 }).split('\n')[line - 1] ?? '';
   check(`Citation ${file}:${line}`, l.includes(text));
 }
 
 // Part 1 changes nothing except audit outputs.
-const changed = execFileSync('git', ['diff', '--name-only', 'main', '--', 'app', 'components', 'lib', 'types', 'fixtures', 'package.json', 'next.config.ts'], { encoding: 'utf8' }).trim();
-check('No source file differs from main', changed === '', changed);
+const changed = execFileSync('git', ['diff', '--name-only', '8ba8ab2', '6a897d3', '--', 'app', 'components', 'lib', 'types', 'fixtures', 'package.json', 'next.config.ts'], { encoding: 'utf8' }).trim();
+check('The audit commit changed no source file', changed === '', changed);
 
 // House rules for the audit outputs.
 const nonAscii = (doc.match(/[^\x00-\x7F]/g) ?? []).length;

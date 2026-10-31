@@ -1,0 +1,34 @@
+PASS  README.md exists
+PASS  README.md has content  [2440 chars]
+PASS  README.md has no emoji
+PASS  README.md has no banned words
+PASS  docs/METHODOLOGY.md exists
+PASS  docs/METHODOLOGY.md has content  [32644 chars]
+PASS  docs/METHODOLOGY.md has no emoji
+PASS  docs/METHODOLOGY.md has no banned words
+PASS  docs/DATA_SOURCES.md exists
+PASS  docs/DATA_SOURCES.md has content  [6158 chars]
+PASS  docs/DATA_SOURCES.md has no emoji
+PASS  docs/DATA_SOURCES.md has no banned words
+PASS  docs/RATES_RUNBOOK.md exists
+PASS  docs/RATES_RUNBOOK.md has content  [2657 chars]
+PASS  docs/RATES_RUNBOOK.md has no emoji
+PASS  docs/RATES_RUNBOOK.md has no banned words
+PASS  CHANGELOG.md exists
+PASS  CHANGELOG.md has content  [1294 chars]
+PASS  CHANGELOG.md has no emoji
+PASS  CHANGELOG.md has no banned words
+PASS  CLAUDE.md exists
+PASS  CLAUDE.md has content  [4024 chars]
+PASS  CLAUDE.md has no emoji
+FAIL  CLAUDE.md has no banned words
+PASS  docs/MONOREPO_PLAN.md exists
+PASS  docs/MONOREPO_PLAN.md has content  [1913 chars]
+PASS  docs/MONOREPO_PLAN.md has no emoji
+PASS  docs/MONOREPO_PLAN.md has no banned words
+PASS  README covers what it is, how to run, how to add a company
+PASS  CLAUDE.md carries the standards
+PASS  METHODOLOGY lists every model equation
+PASS  Monorepo work is a plan only
+
+31 PASS, 1 FAIL

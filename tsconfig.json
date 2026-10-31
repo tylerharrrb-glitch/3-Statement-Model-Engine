@@ -16,5 +16,5 @@
     "baseUrl": ".",
     "paths": { "@registry": ["packages/rates-registry/src/index.ts"] }
   },
-  "include": ["src", "packages/*/src", "tests", "worker/src", "vite.config.ts"]
+  "include": ["src", "packages/*/src", "tests", "worker/src", "vite.config.ts", "playwright.config.ts"]
 }
