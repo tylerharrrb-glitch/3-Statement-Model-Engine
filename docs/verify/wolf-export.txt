@@ -1,0 +1,47 @@
+PASS  Export is blocked until price, price date and valuation date are entered  [Valuation date is required (YYYY-MM-DD). Share price must be positive. Price date is required (YYYY-MM-DD).]
+
+1. Reference comparison (price, date and facts fields excepted)
+PASS  Every field, key, order and type matches the reference file  [192 values compared; 0 differences]
+PASS  Price and date keys present with the right types
+PASS  Facts is an array, as WOLF expects  [exported empty; the reference facts are excepted]
+PASS  Historical years only, all audited: true
+PASS  Amounts are integers; epsReported has at most 2 decimals
+PASS  Finance costs and distributions stay separate
+PASS  netChangeInCash is before the FX effect on cash
+PASS  Mapping lives in one table
+
+2. Sums per exported year
+PASS  FY2024 gross profit  [reported 8847435930, sum 8847435930, difference 0]
+PASS  FY2024 operating profit  [reported 7587928840, sum 7587928840, difference 0]
+PASS  FY2024 profit before tax  [reported 19058310405, sum 19058310405, difference 0]
+PASS  FY2024 total tax  [reported -3938571037, sum -3938571037, difference 0]
+PASS  FY2024 net profit  [reported 15119739368, sum 15119739368, difference 0]
+PASS  FY2024 total assets  [reported 58002649740, sum 58002649740, difference 0]
+PASS  FY2024 total liabilities  [reported 12624286542, sum 12624286542, difference 0]
+PASS  FY2024 total equity  [reported 45378363198, sum 45378363198, difference 0]
+PASS  FY2024 assets = liabilities + equity  [reported 58002649740, sum 58002649740, difference 0]
+PASS  FY2024 net operating cash flow  [reported 8151099666, sum 8151099666, difference 0]
+PASS  FY2025 gross profit  [reported 13536496926, sum 13536496926, difference 0]
+PASS  FY2025 operating profit  [reported 12960330520, sum 12960330520, difference 0]
+PASS  FY2025 profit before tax  [reported 14028144451, sum 14028144451, difference 0]
+PASS  FY2025 total tax  [reported -2731604164, sum -2731604164, difference 0]
+PASS  FY2025 net profit  [reported 11296540287, sum 11296540287, difference 0]
+PASS  FY2025 total assets: known exception, exported as reported, 1 EGP above the lines  [reported 61193831633, sum 61193831632, difference 1]
+PASS  FY2025 total liabilities  [reported 13387262693, sum 13387262693, difference 0]
+PASS  FY2025 total equity  [reported 47806568940, sum 47806568940, difference 0]
+PASS  FY2025 assets = liabilities + equity  [reported 61193831633, sum 61193831633, difference 0]
+PASS  FY2025 net operating cash flow  [reported 9685388291, sum 9685388291, difference 0]
+
+3. WOLF's own import
+WOLF path: D:\WOLF\ValuationEngine
+PASS  WOLF validateCompany: zero errors  [[]]
+PASS  WOLF companyChecks: all pass  [20 checks; failed: none]
+PASS  WOLF defaultsFor and runValuation complete with no throw
+PASS  WOLF valuation of the export is identical to its valuation of the reference
+PASS  WOLF built site: Import company JSON loads this file
+PASS  WOLF built site: all 20 of its statement checks show Ties  [20 shown]
+PASS  WOLF built site: zero import errors
+PASS  WOLF built site: no FAIL shown after import  [0 shown]
+PASS  WOLF built site: the Valuation page runs on the imported file
+
+38 PASS, 0 FAIL, 0 TO_VERIFY

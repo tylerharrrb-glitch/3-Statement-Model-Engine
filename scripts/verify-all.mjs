@@ -15,6 +15,7 @@ const gates = [
   ['part9+10', [...tsx, 'scripts/verify-part9-10.ts']],
   ['part12', ['scripts/verify-part12.mjs']],
   ['part11', [...tsx, 'scripts/verify-part11.ts']],
+  ['wolf-export', [...tsx, 'scripts/verify-wolf-export.ts']],
 ];
 const only = process.argv.slice(2);
 const out = [];

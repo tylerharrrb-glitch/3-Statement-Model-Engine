@@ -10,4 +10,6 @@ Added: Vite and React; a pure engine with `runModel(inputs, ratesSnapshot)`; a c
 
 Added after the audited PDFs were obtained from mopco-eg.com: FY2024 cash flow lines and Note 3, FY2023 reference totals, real FX rates and USD exposure, land, employee and board split, driver sets based on the notes, and a 5-year tax-loss carryforward.
 
+Added Export to WOLF (.json): a file WOLF imports with no edits, historical years only.
+
 Corrected facts at the primary source on 31-Oct-2026: CBE corridor 20.00 / 21.00 / 20.50 confirmed; 364-day T-bill 26.076 (29-Oct auction); USD/EGP mid 56.0429; inflation target 7% +/- 2pp in Q4 2026 and 5% +/- 2pp in Q4 2028.

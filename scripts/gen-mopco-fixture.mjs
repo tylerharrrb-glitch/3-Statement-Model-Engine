@@ -214,6 +214,13 @@ const fixture = {
   company: {
     name: 'Misr Fertilizers Production Company (MOPCO)', ticker: 'MFPC.CA', sector: 'industrial', fiscalYearEndMonth: 12, parValue: 10,
     policy: { interestReceivedOperating: 0, interestPaidOperating: 1, distributionsOperating: 1 },
+    wolf: {
+      name: 'Misr Fertilizers Production Company', shortName: 'MOPCO', exchange: 'EGX', country: 'EG', damodaranIndustry: 'Chemical (Basic)',
+      sharesNote: 'After the 2025 bonus issue; EPS for both years computed on this count.',
+      statementsDescription: 'Audited financial statements for the year ended 31 December 2025 (with FY2024 comparatives). All amounts in EGP.',
+      auditor: 'Crowe - Dr. A. M. Hegazy & Co.', reportDate: '2026-03-09',
+      valuationDate: '', price: 0, priceDate: '', priceSource: '',
+    },
   },
   historicals: { years: [2024, 2025], referenceYears: [2023], lines, reported, sourceNotes },
   reference: {

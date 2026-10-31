@@ -6,10 +6,11 @@ import { reconciliationTable, tieOuts, accountsForYear, unmappedLines } from '..
 import { OUTPUT_GROUPS } from '../engine/outputs/ratios';
 import { sensitivity } from '../engine/outputs/sensitivity';
 import { runModel, ModelBlockedError } from '../engine/run';
-import { SCENARIO_KEYS, type DriverKey, type ModelInputs, type ModelRun, type ScenarioKey, type Sector } from '../engine/types';
+import { SCENARIO_KEYS, type WolfProfile, type DriverKey, type ModelInputs, type ModelRun, type ScenarioKey, type Sector } from '../engine/types';
 import { DRIVERS } from '../export/excel/catalog';
 import { buildRows, type RowSpec } from '../export/excel/rows';
 import { buildWolfExport } from '../export/wolf';
+import { buildWolfCompany, wolfExportIssues } from '../export/wolfMap';
 import methodology from '../../docs/METHODOLOGY.md?raw';
 import { clearLocalData, deleteModel, download, fetchRates, freeze, listModels, mopcoInputs, saveModel, type SavedModel } from './store';
 import { fmt } from './format';
@@ -139,6 +140,13 @@ function RatiosPage({ run, specOf, specs, onCell }: P) {
   </>;
 }
 
+function setWolf<K extends keyof WolfProfile>(update: P['update'], key: K, value: WolfProfile[K]) {
+  update(x => {
+    x.company.wolf ??= { name: x.company.name, shortName: x.company.ticker, exchange: 'EGX', country: 'EG', damodaranIndustry: '', sharesNote: '', statementsDescription: '', auditor: '', reportDate: '', valuationDate: '', price: 0, priceDate: '', priceSource: '' };
+    x.company.wolf[key] = value;
+  });
+}
+
 function CompanyPage({ inputs, update }: P) {
   const c = inputs.company;
   const sec = checkSector(c.sector);
@@ -160,6 +168,12 @@ function CompanyPage({ inputs, update }: P) {
     {pol('interestReceivedOperating', 'Interest received', 'Operating', 'Investing')}
     {pol('interestPaidOperating', 'Interest paid', 'Operating', 'Financing')}
     {pol('distributionsOperating', 'Employee and board distributions', 'Operating', 'Financing')}
+    <h2>WOLF export</h2>
+    <p className="sub">User inputs. WOLF requires the valuation date, price and price date. EGX has no free official price feed.</p>
+    <label className="block mb-2">Valuation date <input aria-label="Valuation date" placeholder="YYYY-MM-DD" value={c.wolf?.valuationDate ?? ''} onChange={e => setWolf(update, 'valuationDate', e.target.value)} /></label>
+    <label className="block mb-2">Share price, EGP <input aria-label="Share price" value={c.wolf?.price || ''} onChange={e => setWolf(update, 'price', Number(e.target.value) || 0)} /></label>
+    <label className="block mb-2">Price date <input aria-label="Price date" placeholder="YYYY-MM-DD" value={c.wolf?.priceDate ?? ''} onChange={e => setWolf(update, 'priceDate', e.target.value)} /></label>
+    <label className="block mb-2">Price source <input aria-label="Price source" size={50} value={c.wolf?.priceSource ?? ''} onChange={e => setWolf(update, 'priceSource', e.target.value)} /></label>
     <h2>Modules</h2>
     <label className="block mb-2">FX module{' '}<select value={inputs.settings.fxOn} onChange={e => update(x => { x.settings.fxOn = Number(e.target.value) as 0 | 1; })}><option value={1}>On</option><option value={0}>Off (earns only in EGP)</option></select></label>
     <label className="block mb-2">Natural-gas Schedule Tax applies{' '}<select value={inputs.settings.schedTaxOn} onChange={e => update(x => { x.settings.schedTaxOn = Number(e.target.value) as 0 | 1; })}><option value={0}>No (unconfirmed)</option><option value={1}>Yes</option></select></label>
@@ -288,6 +302,7 @@ function ExportsPage({ inputs, run, snapshot }: P) {
   const [busy, setBusy] = useState(false);
   if (!run || !snapshot) return null;
   const base = inputs.company.ticker.replace(/[^A-Za-z0-9]/g, '_');
+  const wolfIssues = wolfExportIssues(inputs);
   const excel = async () => {
     setBusy(true);
     try {
@@ -301,6 +316,8 @@ function ExportsPage({ inputs, run, snapshot }: P) {
   return <><h1>Exports</h1><p className="sub">Files are built in this browser and saved to this device. Nothing is uploaded.</p>
     <p className="mb-2"><button className="btn btn-primary" disabled={busy} onClick={excel}>Download Excel</button> Formula-driven; ships with the circularity switch at 0.</p>
     <p className="mb-2"><button className="btn" onClick={() => download(`${base}_WOLF.json`, JSON.stringify(buildWolfExport(run, inputs), null, 2), 'application/json')}>Download WOLF JSON</button> FCFF, net debt, debt-like items, cash split, shares, rates hash.</p>
+    <p className="mb-2"><button className="btn" disabled={wolfIssues.length > 0} onClick={() => download(`${base}_WOLF_import.json`, JSON.stringify(buildWolfCompany(inputs), null, 2), 'application/json')}>Export to WOLF (.json)</button> Audited historical years, ready to import into the WOLF valuation engine. WOLF does not accept forecast years.</p>
+    {wolfIssues.length > 0 && <p className="warn mb-2" role="status">Export to WOLF is not available yet: {wolfIssues.join(' ')} Enter the WOLF export fields on the Company page.</p>}
   </>;
 }
 

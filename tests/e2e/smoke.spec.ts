@@ -1,6 +1,6 @@
 // Parts 9 and 10. Opens every page, collects console errors and screenshots, and records all network requests.
 import { expect, test } from '@playwright/test';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 
 const TABS = ['Company', 'Historicals', 'Drivers', 'Income statement', 'Balance sheet', 'Cash flow', 'Schedules', 'Ratios', 'Scenarios', 'Sensitivity', 'Checks', 'Rates', 'Exports', 'Saved models', 'Methodology', 'Data sources'];
 const report: Record<string, unknown> = {};
@@ -60,6 +60,20 @@ test('every page opens with no console errors, and data stays in the browser', a
   const dl2 = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Download WOLF JSON' }).click();
   expect((await dl2).suggestedFilename()).toContain('WOLF');
+  // Export to WOLF stays disabled until the user enters price and dates, then downloads the file.
+  await expect(page.getByRole('button', { name: 'Export to WOLF (.json)' })).toBeDisabled();
+  await page.getByRole('button', { name: 'Company', exact: true }).click();
+  await page.getByLabel('Valuation date').fill('2026-07-02');
+  await page.getByLabel('Share price').fill('36');
+  await page.getByLabel('Price date').fill('2026-07-01');
+  await page.getByRole('button', { name: 'Exports', exact: true }).click();
+  const dl3 = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Export to WOLF (.json)' }).click();
+  const wolfDl = await dl3;
+  expect(wolfDl.suggestedFilename()).toContain('WOLF_import.json');
+  const wolfFile = JSON.parse(readFileSync(await wolfDl.path(), 'utf8'));
+  expect(wolfFile.years[1].income.netProfit).toBe(11296540287);
+  expect(wolfFile.years).toHaveLength(2);
   await page.getByRole('button', { name: 'Saved models', exact: true }).click();
   await page.getByRole('button', { name: 'Save current model' }).click();
   await expect(page.getByRole('button', { name: 'Open' })).toBeVisible();

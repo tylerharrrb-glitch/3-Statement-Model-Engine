@@ -6,10 +6,10 @@ PASS  All other requests are static assets  [[]]
 
 Requests seen:
   http://127.0.0.1:8798/
-  http://127.0.0.1:8798/assets/index-E4uix_ll.js
+  http://127.0.0.1:8798/assets/index-CYYEc187.js
   http://127.0.0.1:8798/assets/index-BDCQ_S9H.css
   http://127.0.0.1:8798/api/rates
-  http://127.0.0.1:8798/assets/writer-D26Xa7h2.js
+  http://127.0.0.1:8798/assets/writer-BaguzJbo.js
 PASS  Only one fetch call site in src/, to /api/rates
 PASS  No analytics, Groq or external fonts
 PASS  Saved models use IndexedDB; a clear control exists

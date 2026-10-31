@@ -55,6 +55,10 @@ See `docs/verify/part3.txt`. Main ones: 91-day and 273-day T-bills, other T-bond
 - Decision 6: tonnes are not disclosed, as the brief says, but Note 23 does disclose segment by market. It is recorded in the fixture `_meta`. The model still allocates the non-driving view; a segment-by-market matrix would be a small change if wanted.
 - Source notes 9 to 16 are new findings; see the fixture and `docs/FINAL_REPORT.md`.
 
+## Export to WOLF
+
+Exports page, "Export to WOLF (.json)". Mapping: `src/export/wolfMap.ts`. Gate: `npx tsx scripts/verify-wolf-export.ts`, output `docs/verify/wolf-export.txt`. Historical years only: WOLF reads the last year in the file as the latest actual and allows five years. Price and dates are user inputs on the Company page, and WOLF rejects blanks. The older "Download WOLF JSON" button uses a different schema and does not import into WOLF.
+
 ## Design decisions
 
 - Vite replaced Next.js. The registry package was built in Part 2, ahead of Part 3.

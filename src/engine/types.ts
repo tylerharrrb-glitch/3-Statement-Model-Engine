@@ -12,6 +12,13 @@ export interface ClassificationPolicy {
   distributionsOperating: 0 | 1;
 }
 
+/** Fields WOLF needs that the model does not use. Price and dates are user inputs. */
+export interface WolfProfile {
+  name: string; shortName: string; exchange: string; country: string; damodaranIndustry: string; sharesNote: string;
+  statementsDescription: string; auditor: string; reportDate: string;
+  valuationDate: string; price: number; priceDate: string; priceSource: string;
+}
+
 export interface Company {
   name: string;
   ticker: string;
@@ -19,6 +26,7 @@ export interface Company {
   fiscalYearEndMonth: 6 | 12;
   parValue: number;
   policy: ClassificationPolicy;
+  wolf?: WolfProfile;
 }
 
 export type Statement = 'IS' | 'BS' | 'CF' | 'SCHED';
