@@ -6,12 +6,12 @@ Read this first in every session. Standards: `CLAUDE.md`. Gate output: `docs/ver
 
 No gate has a FAIL. These are outside the gates and need the owner:
 
-1. Rotate the Groq key. https://3-statement-model-engine.pages.dev still serves it. Groq console, API Keys, revoke. Then consider taking down the old production deployment, which still has the AI Analyst. The local `.env.local` copy was deleted, because nothing uses it.
+1. Rotate the Groq key. https://3-statement-model-engine.pages.dev still serves it. Groq console, API Keys, revoke. Old deployments stay reachable at their own Cloudflare hash URLs until removed in the dashboard, and they still have the AI Analyst. The local `.env.local` copy was deleted, because nothing uses it.
 2. Clear the GitHub billing lock so CI can run. Until then the Part 11 "PASS in CI" requirement is unmet, and the gates have run on Windows only.
 3. Deploy the rates Worker when wanted: see "Deployment" below. The preview itself works.
 4. Review the driver sets in `tests/fixtures/mopco-drivers.json`. Ratios come from the notes. Forward paths are assumptions prepared by Claude.
 5. Run `docs/verify/google-sheets-manual.md`, and open the file in real Excel with the switch at 1.
-6. Approve or decline the merge to main. The GitHub repo is public: never commit client data.
+6. The GitHub repo is public: never commit client data.
 
 ## Status
 
@@ -33,7 +33,7 @@ No gate has a FAIL. These are outside the gates and need the owner:
 
 ## Deployment
 
-Preview: https://rebuild-v2.3-statement-model-engine.pages.dev builds on every push to `rebuild/v2` and deploys successfully. Production still serves the old site from main. Pages alone has no `/api/rates`, so the app uses the bundled manual rates and says so. For the Worker: `wrangler login`, `wrangler kv namespace create RATES`, put the id in `worker/wrangler.toml`, `npm run build`, then `wrangler versions upload` from `worker/`.
+Production: https://3-statement-model-engine.pages.dev, from `main`, released on the owner's instruction on 31-Oct-2026 as a fast-forward of `rebuild/v2`. Preview: https://rebuild-v2.3-statement-model-engine.pages.dev. Pages alone has no `/api/rates`, so the app uses the bundled manual rates and says so. For the Worker: `wrangler login`, `wrangler kv namespace create RATES`, put the id in `worker/wrangler.toml`, `npm run build`, then `wrangler versions upload` from `worker/`.
 
 ## Limits of the evidence
 
@@ -80,4 +80,4 @@ Node 22, Python 3.14. LibreOffice at `C:\Program Files\LibreOffice\program\soffi
 
 ## Next step
 
-Owner actions above, then the merge decision.
+Owner actions above.

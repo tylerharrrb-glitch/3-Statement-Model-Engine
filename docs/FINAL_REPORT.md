@@ -42,27 +42,29 @@ Entries with sourceUrl TO_VERIFY are listed in docs/DATA_SOURCES.md.
 ```text
 === part1 (1 s)
 43 PASS, 0 FAIL
-=== part2 (11 s)
+=== part2 (27 s)
 41 PASS, 0 FAIL
 === part4 (1 s)
 83 PASS, 0 FAIL
-=== part5 (7 s)
+=== part5 (9 s)
 25 PASS, 0 FAIL
 === part6 (1 s)
 50 PASS, 0 FAIL
 === part7 (1 s)
 96 PASS, 0 FAIL
-=== part8 (455 s)
+=== part8 (498 s)
 45 PASS, 0 FAIL
-=== part3 (13 s)
+=== part3 (10 s)
 32 PASS, 0 FAIL
 === part9+10 (43 s)
-10 PASS, 0 FAIL
+12 PASS, 0 FAIL
 9 PASS, 0 FAIL
 === part12 (0 s)
 31 PASS, 0 FAIL
-=== part11 (175 s)
+=== part11 (172 s)
 23 PASS, 0 FAIL
+=== wolf-export (17 s)
+38 PASS, 0 FAIL, 0 TO_VERIFY
 
 ALL GATES PASS
 ```
@@ -188,13 +190,13 @@ board_remuneration_cap            10/5                        null        manual
 cbe_corridor_prior                19/20/19.5                  2026-10-28  manual  ok           manual, verified 31-Oct-2026
 cbe_discount_rate                 20.5                        2026-10-29  manual  ok           manual, verified 31-Oct-2026
 cbe_inflation_target              7                           2024-12-26  manual  ok           manual, verified 31-Oct-2026
-cbe_main_operation                20.5                        2026-10-31  auto    ok           auto, fetched 31-Oct-2026 16:30
-cbe_overnight_deposit             20                          2026-10-31  auto    ok           auto, fetched 31-Oct-2026 16:30
-cbe_overnight_lending             21                          2026-10-31  auto    ok           auto, fetched 31-Oct-2026 16:30
+cbe_main_operation                20.5                        2026-10-31  auto    ok           auto, fetched 31-Oct-2026 21:09
+cbe_overnight_deposit             20                          2026-10-31  auto    ok           auto, fetched 31-Oct-2026 21:09
+cbe_overnight_lending             21                          2026-10-31  auto    ok           auto, fetched 31-Oct-2026 21:09
 cit_rate                          22.5                        null        manual  unconfirmed  manual, not verified
-conia                             19.468                      2026-10-31  auto    ok           auto, fetched 31-Oct-2026 16:30
-cpi_core_yoy                      14.1                        2026-10-31  auto    ok           auto, fetched 31-Oct-2026 16:30
-cpi_urban_headline_yoy            13.9                        2026-10-31  auto    ok           auto, fetched 31-Oct-2026 16:30
+conia                             19.468                      2026-10-31  auto    ok           auto, fetched 31-Oct-2026 21:09
+cpi_core_yoy                      14.1                        2026-10-31  auto    ok           auto, fetched 31-Oct-2026 21:09
+cpi_urban_headline_yoy            13.9                        2026-10-31  auto    ok           auto, fetched 31-Oct-2026 21:09
 cpi_urban_mom                     1.3                         2026-09-30  manual  ok           manual, verified 31-Oct-2026
 div_wht_general                   10                          2026-07-29  manual  ok           manual, not verified
 div_wht_listed                    5                           2026-07-29  manual  ok           manual, not verified
@@ -211,14 +213,14 @@ mpc_calendar_2026                 2026-04-02/2026-05-21/2026  null        manual
 natural_gas_schedule_tax          20                          2026-07-29  manual  unconfirmed  manual, not verified
 sp_egypt_rating                   B / B, stable               2026-10-10  manual  ok           manual, not verified
 tax_loss_carryforward_years       5                           null        manual  unconfirmed  manual, not verified
-tbill_182d                        25.457                      2026-10-29  auto    ok           auto, fetched 31-Oct-2026 16:30
+tbill_182d                        25.457                      2026-10-29  auto    ok           auto, fetched 31-Oct-2026 21:09
 tbill_273d                        null                        null        manual  unconfirmed  manual, not verified
-tbill_364d                        26.076                      2026-10-29  auto    ok           auto, fetched 31-Oct-2026 16:30
+tbill_364d                        26.076                      2026-10-29  auto    ok           auto, fetched 31-Oct-2026 21:09
 tbill_91d                         24.316                      2026-10-27  manual  unconfirmed  manual, not verified
-tbond_3y                          24.432                      2026-10-26  auto    ok           auto, fetched 31-Oct-2026 16:30
+tbond_3y                          24.432                      2026-10-26  auto    ok           auto, fetched 31-Oct-2026 21:09
 tbond_yields_by_tenor             null                        null        manual  unconfirmed  manual, not verified
-us_10y                            4.94                        2026-10-30  auto    ok           auto, fetched 31-Oct-2026 16:30
-usdegp_cbe_official               56.0429                     2026-10-29  auto    ok           auto, fetched 31-Oct-2026 16:30
+us_10y                            4.94                        2026-10-30  auto    ok           auto, fetched 31-Oct-2026 21:09
+usdegp_cbe_official               56.0429                     2026-10-29  auto    ok           auto, fetched 31-Oct-2026 21:09
 vat_standard                      14                          2026-07-29  manual  ok           manual, not verified
 29-Oct-2026 MPC change: 19.00 / 20.00 / 19.50 to 20.00 / 21.00 / 20.50, discount 20.50. Confirmed at CBE (press release and homepage) on 31-Oct-2026.
 unconfirmed: board_remuneration_cap
@@ -266,4 +268,4 @@ L
 
 ## 8. Preview URL
 
-https://rebuild-v2.3-statement-model-engine.pages.dev (branch alias). The Worker is not deployed, so the preview uses the bundled manual rates and says so on the Rates page.
+Production: https://3-statement-model-engine.pages.dev. Preview: https://rebuild-v2.3-statement-model-engine.pages.dev. The Worker is not deployed, so both use the bundled manual rates and say so on the Rates page.

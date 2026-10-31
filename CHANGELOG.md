@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.0.0, branch rebuild/v2, not merged
+## 2.0.0, released to main on 31-Oct-2026
 
 Rebuild per the 3SM v2 brief.
 
