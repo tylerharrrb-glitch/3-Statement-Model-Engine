@@ -31,7 +31,7 @@ Method: source read by hand for the engine, exporter entry points, store and ser
 | # | Unknown | Status |
 |---|---|---|
 | U1 | MOPCO audited FY2025 and FY2023 PDFs. Not found in the repo, D:\WOLF, Desktop, Downloads or Documents (name search for mopco / fertili / MFPC and any PDF under D:\WOLF). Found only an interview guide, a comps file and a WOLF valuation output. | Needed before Part 4 |
-| U2 | Whether the deployed site contains the Groq key (0.1). | Not tested |
+| U2 | Whether the deployed site contains the Groq key (0.1). | Resolved after the audit, 31-Oct-2026: https://3-statement-model-engine.pages.dev serves a chunk containing a key in the Groq format. Counted only; never printed or used. Rotate it. |
 | U3 | Behaviour in real Excel. Only LibreOffice was available. The 302-cell count is LibreOffice's. | Excel not available |
 | U4 | All "stale" flags in Section 4 compare code with the brief's Appendix A. Nothing was re-verified at primary sources; that is Part 3's job. | `unconfirmed` |
 | U5 | Legal citations in code (Law 14/2025, Law 30/2023 thin-cap ratios and rate ceiling, Art. 25-26 depreciation rates, Law 6/2025 SME regime). None verified here. | `unconfirmed` |

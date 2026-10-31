@@ -1,12 +1,11 @@
-FAIL  mopco-base-sw0: engine = Python on every line  [2212 values; 0 differences; python lacks cf_repay_sched | python lacks cf_sweep]
+PASS  mopco-base-sw0: engine = Python on every line  [2212 values; 0 differences; ]
 PASS  mopco-base-sw0: engine = recalculated Excel on every line  [2212 values; 0 differences]
-FAIL  mopco-base-sw1: engine = Python on every line  [2212 values; 0 differences; python lacks cf_repay_sched | python lacks cf_sweep]
+PASS  mopco-base-sw1: engine = Python on every line  [2212 values; 0 differences; ]
 PASS  mopco-base-sw1: engine = recalculated Excel on every line  [2212 values; 0 differences]
-FAIL  debt-case-sw0: engine = Python on every line  [2258 values; 0 differences; python lacks cf_repay_sched | python lacks cf_sweep]
+PASS  debt-case-sw0: engine = Python on every line  [2258 values; 0 differences; ]
 PASS  debt-case-sw0: engine = recalculated Excel on every line  [2258 values; 0 differences]
-FAIL  debt-case-sw1: engine = Python on every line  [2258 values; 0 differences; python lacks cf_repay_sched | python lacks cf_sweep]
+PASS  debt-case-sw1: engine = Python on every line  [2258 values; 0 differences; ]
 PASS  debt-case-sw1: engine = recalculated Excel on every line  [2258 values; 0 differences]
-Golden file written.
 PASS  MOPCO golden file matches  [0 differences]
 PASS  FY2025 tie-out tie.bs  [diff -1]
 PASS  FY2025 tie-out tie.cf_net  [diff 0]
@@ -23,4 +22,4 @@ PASS  FY2025 tie-out tie.pbt  [diff 0]
 PASS  FY2025 tie-out tie.net_profit  [diff 0]
 Independence: the Python model was written from docs/METHODOLOGY.md, in one flow, not as a translation of the TypeScript structure. It has the same author as the engine, so a misreading of the brief could appear in both.
 
-18 PASS, 4 FAIL
+22 PASS, 0 FAIL

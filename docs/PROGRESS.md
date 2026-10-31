@@ -37,7 +37,7 @@ Last commit: run `git log -1 rebuild/v2`.
 
 ## Actions for the owner
 
-1. Rotate the Groq API key. It was built into the old static bundle (`docs/AUDIT.md` 0.1). The old deployment on main still carries whatever was built then, and deleting the code does not revoke a published key.
+1. Rotate the Groq API key now. Confirmed public on 31-Oct-2026: https://3-statement-model-engine.pages.dev serves it in a JavaScript chunk. Deleting the code does not revoke it. That deployment also still has the AI Analyst, so consider taking it down; that is your call, as main is unchanged.
 2. Supply the MOPCO audited PDFs (FY2025, FY2023). This closes every open FAIL.
 3. Replace the placeholder drivers in `tests/fixtures/mopco-drivers.json`.
 4. Run `docs/verify/google-sheets-manual.md`, and open the file in real Excel with the switch at 1.

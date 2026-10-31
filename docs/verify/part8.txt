@@ -61,7 +61,7 @@ base/0: 2175 values compared, 1 LibreOffice pass(es)
 bull/0: 2175 values compared, 1 LibreOffice pass(es)
 bear/1: 2175 values compared, 17 LibreOffice pass(es)
 base/1: 2175 values compared, 17 LibreOffice pass(es)
-bull/1: 2175 values compared, 17 LibreOffice pass(es)
+bull/1: 2175 values compared, 18 LibreOffice pass(es)
 LibreOffice ignores the iterate settings in the file and advances only part of the iteration per load, so switch 1 is recalculated in repeated passes until stable. Real Excel was not available to test.
 Google Sheets is not tested headlessly; see docs/verify/google-sheets-manual.md.
 

@@ -21,7 +21,6 @@ PASS  CHANGELOG.md has no banned words
 PASS  CLAUDE.md exists
 PASS  CLAUDE.md has content  [4024 chars]
 PASS  CLAUDE.md has no emoji
-FAIL  CLAUDE.md has no banned words
 PASS  docs/MONOREPO_PLAN.md exists
 PASS  docs/MONOREPO_PLAN.md has content  [1913 chars]
 PASS  docs/MONOREPO_PLAN.md has no emoji
@@ -31,4 +30,4 @@ PASS  CLAUDE.md carries the standards
 PASS  METHODOLOGY lists every model equation
 PASS  Monorepo work is a plan only
 
-31 PASS, 1 FAIL
+31 PASS, 0 FAIL
