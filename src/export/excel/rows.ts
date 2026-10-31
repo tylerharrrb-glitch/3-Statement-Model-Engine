@@ -261,7 +261,15 @@ export function buildRows(inp: ModelInputs): RowSpec[] {
   r('dtl_mov_ppe', 'Deferred tax: depreciation', 'egp', '([tax_dep]-[s_dep])*TAX_RATE');
   r('dtl_mov_fx', 'Deferred tax: unrealized FX', 'egp', '[fx_unreal]*TAX_RATE');
   r('taxable', 'Taxable profit', 'egp', '[pbt]-([tax_dep]-[s_dep])-[fx_unreal]');
-  r('s_current_tax', 'Current tax', 'egp', 'MAX(0,[taxable])*TAX_RATE', undefined, true);
+  r('tl_created', 'Tax loss created', 'egp', 'MAX(0,-[taxable])');
+  r('tl_cum_created', 'Cumulative losses created', 'egp', '[tl_cum_created@-1]+[tl_created]', 'ZERO');
+  r('tl_lag1', 'Cumulative losses, 1 year back', 'egp', '[tl_cum_created@-1]', 'ZERO');
+  for (const k of [2, 3, 4, 5, 6]) r(`tl_lag${k}`, `Cumulative losses, ${k} years back`, 'egp', `[tl_lag${k - 1}@-1]`, 'ZERO');
+  r('tl_cum_expired', 'Cumulative losses expired (after 5 years)', 'egp', 'MAX([tl_cum_expired@-1],[tl_lag6]-[tl_cum_used@-1])', 'ZERO');
+  r('tl_avail', 'Losses available', 'egp', '[tl_lag1]-[tl_cum_used@-1]-[tl_cum_expired]');
+  r('tl_used', 'Losses used', 'egp', 'MIN([tl_avail],MAX(0,[taxable]))');
+  r('tl_cum_used', 'Cumulative losses used', 'egp', '[tl_cum_used@-1]+[tl_used]', 'ZERO');
+  r('s_current_tax', 'Current tax', 'egp', '(MAX(0,[taxable])-[tl_used])*TAX_RATE', undefined, true);
   r('tax_paid', 'Tax paid', 'egp', '[d_tax_pay_pct]*[tax_payable@-1]');
 
   sec('Schedules', 'Equity and distributions');

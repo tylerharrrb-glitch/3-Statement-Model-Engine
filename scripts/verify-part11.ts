@@ -110,6 +110,8 @@ async function main() {
   // Tie-out test for every Part 4 equation.
   const h = loadMopco().historicals;
   const fy25 = tieOuts(h, 2025, accountsForYear(h, 2024));
+  const fy24 = tieOuts(h, 2024, null);
+  g.check('FY2024: every Part 4 equation is loaded', fy24.notLoaded.length === 0 && fy24.checks.every(c => c.pass), fy24.notLoaded.join('; '));
   const need = ['tie.bs', 'tie.cf_net', 'tie.cf_close', 'tie.re', 'tie.lr', 'tie.capital', 'tie.ppe_cost', 'tie.ppe_accum', 'tie.ppe_net', 'tie.gross_profit', 'tie.op_profit', 'tie.pbt', 'tie.net_profit'];
   for (const id of need) { const c = fy25.checks.find(x => x.id === id); g.check(`FY2025 tie-out ${id}`, !!c && c.pass, c ? `diff ${c.diff}` : 'missing'); }
   g.note('Independence: the Python model was written from docs/METHODOLOGY.md, in one flow, not as a translation of the TypeScript structure. It has the same author as the engine, so a misreading of the brief could appear in both.');

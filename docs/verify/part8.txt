@@ -1,30 +1,30 @@
-PASS  MOPCO bear, switch 0: every output equals the engine  [2175 values; 0 diffs]
+PASS  MOPCO bear, switch 0: every output equals the engine  [2294 values; 0 diffs]
 PASS  MOPCO bear, switch 0: master check TRUE  [true]
 PASS  MOPCO bear, switch 0: zero error values  [0]
-PASS  MOPCO base, switch 0: every output equals the engine  [2175 values; 0 diffs]
+PASS  MOPCO base, switch 0: every output equals the engine  [2294 values; 0 diffs]
 PASS  MOPCO base, switch 0: master check TRUE  [true]
 PASS  MOPCO base, switch 0: zero error values  [0]
-PASS  MOPCO bull, switch 0: every output equals the engine  [2175 values; 0 diffs]
+PASS  MOPCO bull, switch 0: every output equals the engine  [2294 values; 0 diffs]
 PASS  MOPCO bull, switch 0: master check TRUE  [true]
 PASS  MOPCO bull, switch 0: zero error values  [0]
-PASS  MOPCO bear, switch 1: every output equals the engine  [2175 values; 0 diffs]
+PASS  MOPCO bear, switch 1: every output equals the engine  [2294 values; 0 diffs]
 PASS  MOPCO bear, switch 1: master check TRUE  [true]
 PASS  MOPCO bear, switch 1: zero error values  [0]
-PASS  MOPCO base, switch 1: every output equals the engine  [2175 values; 0 diffs]
+PASS  MOPCO base, switch 1: every output equals the engine  [2294 values; 0 diffs]
 PASS  MOPCO base, switch 1: master check TRUE  [true]
 PASS  MOPCO base, switch 1: zero error values  [0]
-PASS  MOPCO bull, switch 1: every output equals the engine  [2175 values; 0 diffs]
+PASS  MOPCO bull, switch 1: every output equals the engine  [2294 values; 0 diffs]
 PASS  MOPCO bull, switch 1: master check TRUE  [true]
 PASS  MOPCO bull, switch 1: zero error values  [0]
-PASS  term loan, switch 0: every output equals the engine  [2221 values; 0 diffs]
+PASS  term loan, switch 0: every output equals the engine  [2340 values; 0 diffs]
 PASS  term loan, switch 0: master check TRUE  [true]
-PASS  term loan, switch 1: every output equals the engine  [2221 values; 0 diffs]
+PASS  term loan, switch 1: every output equals the engine  [2340 values; 0 diffs]
 PASS  term loan, switch 1: master check TRUE  [true]
-PASS  revolver, switch 0: every output equals the engine  [2221 values; 0 diffs]
+PASS  revolver, switch 0: every output equals the engine  [2340 values; 0 diffs]
 PASS  revolver, switch 0: master check TRUE  [true]
-PASS  revolver, switch 1: every output equals the engine  [2221 values; 0 diffs]
+PASS  revolver, switch 1: every output equals the engine  [2340 values; 0 diffs]
 PASS  revolver, switch 1: master check TRUE  [true]
-PASS  10-year run: every output equals the engine  [3875 values; 0 diffs]
+PASS  10-year run: every output equals the engine  [4054 values; 0 diffs]
 PASS  Sheet list as specified
 PASS  File ships with the switch at 0
 PASS  Iterative calculation enabled (calcPr iterate="1")
@@ -45,9 +45,9 @@ PASS  No nested IF deeper than 2
 PASS  Every row has one formula pattern across forecast columns  [0]
 
 EXCEL LINT REPORT
-Formulas: 3273
+Formulas: 3398
 Formulas over 80 characters (flag, not a failure): 1
-Unit constants used: {"0":1516,"1":444,"100":3,"365":36}
+Unit constants used: {"0":1544,"1":444,"100":3,"365":36}
 Literal constants outside the allowed list: 0 {}
 Hardcodes in calculation cells: 0
 Banned functions: 0
@@ -56,12 +56,12 @@ Row-pattern breaks: 0
 Style issues: 0; fills: 0; formats: 0; widths: 0
 Samples, over80:
   Checks!D26 (130): AND(D5:J5,D6:J6,D7:J7,D8:J8,D9:J9,D10:J10,D11:J11,D12:J12,D13:J13,D14:J14,D15:J15,D16:J16,D19:J19,D20:J20,D21:J21,D22:J22,D24:F24)
-bear/0: 2175 values compared, 1 LibreOffice pass(es)
-base/0: 2175 values compared, 1 LibreOffice pass(es)
-bull/0: 2175 values compared, 1 LibreOffice pass(es)
-bear/1: 2175 values compared, 17 LibreOffice pass(es)
-base/1: 2175 values compared, 17 LibreOffice pass(es)
-bull/1: 2175 values compared, 18 LibreOffice pass(es)
+bear/0: 2294 values compared, 1 LibreOffice pass(es)
+base/0: 2294 values compared, 1 LibreOffice pass(es)
+bull/0: 2294 values compared, 1 LibreOffice pass(es)
+bear/1: 2294 values compared, 19 LibreOffice pass(es)
+base/1: 2294 values compared, 20 LibreOffice pass(es)
+bull/1: 2294 values compared, 20 LibreOffice pass(es)
 LibreOffice ignores the iterate settings in the file and advances only part of the iteration per load, so switch 1 is recalculated in repeated passes until stable. Real Excel was not available to test.
 Google Sheets is not tested headlessly; see docs/verify/google-sheets-manual.md.
 

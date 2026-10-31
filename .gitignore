@@ -1,5 +1,6 @@
 node_modules/
 dist/
+docs/verify/playwright-report.json
 .wrangler/
 .next/
 out/

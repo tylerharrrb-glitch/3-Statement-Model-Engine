@@ -1,4 +1,4 @@
-// Hand-built debt cases (Decision 10). MOPCO has no bank debt and the Telecom fixture is synthetic.
+// Hand-built debt cases (Decision 10). MOPCO has no bank debt.
 // A borrowing of 1,000,000,000 is added to the opening balance sheet with matching cash.
 import type { ModelInputs, Tranche } from '../src/engine/types';
 
@@ -38,6 +38,6 @@ export const sweep = (b: ModelInputs) => {
 export const usdLoan = (b: ModelInputs) => {
   const c = withDebt(b, { name: 'USD loan', currency: 'USD', fixedRate: 0.08, repay: Array(10).fill(1_000_000) });
   c.settings.usd.cash = 0.5;
-  each(c, d => { d.fx_close = Array.from({ length: 10 }, (_, i) => 56.0429 * 1.1 ** (i + 1)); });
+  each(c, d => { d.fx_close = Array.from({ length: 10 }, (_, i) => c.settings.fxHistClose * 1.1 ** (i + 1)); });
   return c;
 };

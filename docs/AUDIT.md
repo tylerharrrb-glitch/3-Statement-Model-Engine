@@ -3428,7 +3428,7 @@ dividends absorbs difference: -2552500000 reconciles true
 
 ### 10.9 Remaining existing scripts (each run with a 60 second limit)
 
-Full output: `docs/verify/part1-existing-scripts.txt`.
+The full output file was removed with the scripts themselves in the cleanup; the table below is the record.
 
 | Script | Exit | Last meaningful line |
 |---|---:|---|

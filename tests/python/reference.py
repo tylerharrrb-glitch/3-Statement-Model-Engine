@@ -53,6 +53,8 @@ class Model:
             r["total_le"] = r["total_liabilities"] + r["total_equity"]
             r["balance_check"] = r["total_assets"] - r["total_le"]
             r["tax_rate"] = self.t
+            for k in ["tl_cum_created", "tl_cum_used", "tl_cum_expired", "tl_lag1", "tl_lag2", "tl_lag3", "tl_lag4", "tl_lag5", "tl_lag6"]:
+                r[k] = 0.0
             r["lease_total"] = get("lease_cur") + get("lease_nc")
             r["ebo_total"] = get("ebo_cur") + get("ebo_nc")
             r["debt_total"] = r["debt_cur"] + r["debt_nc"]
@@ -213,7 +215,16 @@ class Model:
         y["dtl_mov_fx"] = y["fx_unreal"] * t
         y["deferred_tax"] = y["dtl_mov_ppe"] + y["dtl_mov_fx"]
         y["taxable"] = y["pbt"] - (y["tax_dep"] - y["dep"]) - y["fx_unreal"]
-        y["current_tax"] = max(0.0, y["taxable"]) * t
+        y["tl_created"] = max(0.0, -y["taxable"])
+        y["tl_cum_created"] = p["tl_cum_created"] + y["tl_created"]
+        y["tl_lag1"] = p["tl_cum_created"]
+        for k in range(2, 7):
+            y["tl_lag%d" % k] = p["tl_lag%d" % (k - 1)]
+        y["tl_cum_expired"] = max(p["tl_cum_expired"], y["tl_lag6"] - p["tl_cum_used"])
+        y["tl_avail"] = y["tl_lag1"] - p["tl_cum_used"] - y["tl_cum_expired"]
+        y["tl_used"] = min(y["tl_avail"], max(0.0, y["taxable"]))
+        y["tl_cum_used"] = p["tl_cum_used"] + y["tl_used"]
+        y["current_tax"] = (max(0.0, y["taxable"]) - y["tl_used"]) * t
         y["net_profit"] = y["pbt"] - y["current_tax"] - y["deferred_tax"]
         y["effective_tax"] = safe(y["current_tax"] + y["deferred_tax"], y["pbt"])
         y["oci_gross"] = D("oci_gross")

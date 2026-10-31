@@ -1,11 +1,16 @@
 {
  "_meta": {
   "company": "Misr Fertilizers Production Company (MOPCO)",
-  "source": "Audited FY2025 financial statements; Crowe Dr. A. M. Hegazy & Co.; report dated 9-Mar-2026; as transcribed by the owner in Appendix B of the rebuild brief",
-  "pdfCrossCheck": "NOT DONE: the audited PDFs were not available on this machine. FY2024 cash flow is loaded at the totals supplied in Appendix B only. FY2023 is not loaded.",
-  "mergerEffectiveDate": "unconfirmed: confirm from FY2024 notes",
+  "source": "Audited FY2025 financial statements; Crowe Dr. A. M. Hegazy & Co.; report dated 9-Mar-2026; published at mopco-eg.com, Investor Relations, Financial Reports",
+  "sourceFiles": {
+   "FY2025": "http://www.mopco-eg.com/images/gallery/files/gallery_file_761512307.pdf",
+   "FY2024": "http://www.mopco-eg.com/images/gallery/files/gallery_file_1105043101.pdf",
+   "FY2023": "http://www.mopco-eg.com/images/gallery/files/gallery_file_1789109249.pdf"
+  },
+  "pdfCrossCheck": "Primary statements, equity statement and Note 3 in the FY2025 PDF were read page by page on 31-Oct-2026 and agree with Appendix B line by line. FY2024 CF lines and Note 3 comparatives were transcribed from the FY2025 PDF. The scans were read by eye, without OCR software; every transcribed section sums to its printed total. The separate FY2024 PDF was downloaded but not compared line by line with the FY2025 comparatives.",
+  "mergerEffectiveDate": "Registered 13-Dec-2023; base date 31-Dec-2022 (Note 1). See source note 14.",
   "units": "Full absolute EGP",
-  "deviation": "cf_ecl_cash reported FY2025 only."
+  "segmentByMarket": "Note 23 discloses segment by market. FY2025 export: urea 20,069,830,298, ammonia 1,396,781,754. Domestic: urea 3,600,332,114, ammonia 1,776,815,820, other 315,590."
  },
  "company": {
   "name": "Misr Fertilizers Production Company (MOPCO)",
@@ -24,7 +29,9 @@
    2024,
    2025
   ],
-  "referenceYears": [],
+  "referenceYears": [
+   2023
+  ],
   "lines": [
    {
     "label": "Net sales - export",
@@ -572,6 +579,7 @@
     "mapsTo": "cf_pbt",
     "sign": 1,
     "values": {
+     "2024": 19058310405,
      "2025": 14028144451
     }
    },
@@ -581,6 +589,7 @@
     "mapsTo": "cf_dep",
     "sign": 1,
     "values": {
+     "2024": 2219254113,
      "2025": 2283209560
     }
    },
@@ -590,6 +599,7 @@
     "mapsTo": "cf_amort",
     "sign": 1,
     "values": {
+     "2024": 18900491,
      "2025": 35519470
     }
    },
@@ -599,6 +609,7 @@
     "mapsTo": "cf_prov_rev",
     "sign": 1,
     "values": {
+     "2024": -19299728,
      "2025": -160216876
     }
    },
@@ -608,6 +619,7 @@
     "mapsTo": "cf_prov_formed",
     "sign": 1,
     "values": {
+     "2024": 194831582,
      "2025": 668304
     }
    },
@@ -617,6 +629,7 @@
     "mapsTo": "cf_ebo_cost",
     "sign": 1,
     "values": {
+     "2024": 106869737,
      "2025": 30494385
     }
    },
@@ -626,6 +639,7 @@
     "mapsTo": "cf_cap_losses",
     "sign": 1,
     "values": {
+     "2024": 196093,
      "2025": 4378362
     }
    },
@@ -635,6 +649,7 @@
     "mapsTo": "cf_cap_gains",
     "sign": 1,
     "values": {
+     "2024": -3816000,
      "2025": -17534400
     }
    },
@@ -644,6 +659,7 @@
     "mapsTo": "cf_other_adj",
     "sign": 1,
     "values": {
+     "2024": -3488490,
      "2025": -2704250
     }
    },
@@ -653,6 +669,7 @@
     "mapsTo": "cf_ecl",
     "sign": 1,
     "values": {
+     "2024": 390502424,
      "2025": -357037587
     }
    },
@@ -662,6 +679,7 @@
     "mapsTo": "cf_impairment",
     "sign": 1,
     "values": {
+     "2024": -310962888,
      "2025": 0
     }
    },
@@ -671,6 +689,7 @@
     "mapsTo": "cf_net_fin",
     "sign": 1,
     "values": {
+     "2024": -2225691578,
      "2025": -2161430375
     }
    },
@@ -680,6 +699,7 @@
     "mapsTo": "cf_fx_unreal",
     "sign": 1,
     "values": {
+     "2024": -6619976512,
      "2025": 982480426
     }
    },
@@ -689,6 +709,7 @@
     "mapsTo": "cf_ofa",
     "sign": 1,
     "values": {
+     "2024": -197327079,
      "2025": 75437796
     }
    },
@@ -698,6 +719,7 @@
     "mapsTo": "cf_inventory",
     "sign": 1,
     "values": {
+     "2024": -478480293,
      "2025": -213445319
     }
    },
@@ -707,6 +729,7 @@
     "mapsTo": "cf_ar",
     "sign": 1,
     "values": {
+     "2024": 173958084,
      "2025": -899820862
     }
    },
@@ -716,6 +739,7 @@
     "mapsTo": "cf_debtors",
     "sign": 1,
     "values": {
+     "2024": -370945365,
      "2025": 113856513
     }
    },
@@ -725,6 +749,7 @@
     "mapsTo": "cf_rp",
     "sign": 1,
     "values": {
+     "2024": 665027,
      "2025": 267150
     }
    },
@@ -734,6 +759,7 @@
     "mapsTo": "cf_sup_adv",
     "sign": 1,
     "values": {
+     "2024": 36464343,
      "2025": -34512064
     }
    },
@@ -743,6 +769,7 @@
     "mapsTo": "cf_ap",
     "sign": 1,
     "values": {
+     "2024": 156236100,
      "2025": 173398437
     }
    },
@@ -752,6 +779,7 @@
     "mapsTo": "cf_creditors",
     "sign": 1,
     "values": {
+     "2024": 4481672,
      "2025": 152019271
     }
    },
@@ -761,6 +789,7 @@
     "mapsTo": "cf_cust_adv",
     "sign": 1,
     "values": {
+     "2024": -56838820,
      "2025": 250753316
     }
    },
@@ -770,6 +799,7 @@
     "mapsTo": "cf_prov_used",
     "sign": 1,
     "values": {
+     "2024": -201878213,
      "2025": -41362731
     }
    },
@@ -819,6 +849,7 @@
     "mapsTo": "cf_assoc",
     "sign": 1,
     "values": {
+     "2024": -841326,
      "2025": -16519
     }
    },
@@ -828,6 +859,7 @@
     "mapsTo": "cf_fvtpl",
     "sign": 1,
     "values": {
+     "2024": -1804007195,
      "2025": 635719918
     }
    },
@@ -837,6 +869,7 @@
     "mapsTo": "cf_ac",
     "sign": 1,
     "values": {
+     "2024": 1753638359,
      "2025": -2775425169
     }
    },
@@ -846,6 +879,7 @@
     "mapsTo": "cf_proceeds",
     "sign": 1,
     "values": {
+     "2024": 3816000,
      "2025": 17534400
     }
    },
@@ -1025,6 +1059,7 @@
     "mapsTo": "ppe_gross",
     "sign": 1,
     "values": {
+     "2024": 52768961464,
      "2025": 53298293853
     }
    },
@@ -1034,6 +1069,7 @@
     "mapsTo": "ppe_accum",
     "sign": 1,
     "values": {
+     "2024": 19229575610,
      "2025": 21492392949
     }
    },
@@ -1043,6 +1079,7 @@
     "mapsTo": "puc",
     "sign": 1,
     "values": {
+     "2024": 1092621142,
      "2025": 6386587177
     }
    },
@@ -1052,6 +1089,7 @@
     "mapsTo": "capex_total",
     "sign": 1,
     "values": {
+     "2024": 1248933200,
      "2025": 5848069006
     }
    },
@@ -1061,6 +1099,7 @@
     "mapsTo": "disposal_cost",
     "sign": 1,
     "values": {
+     "2024": 8278168,
      "2025": 24770582
     }
    },
@@ -1070,6 +1109,7 @@
     "mapsTo": "disposal_accum",
     "sign": 1,
     "values": {
+     "2024": 4172451,
      "2025": 20392221
     }
    },
@@ -1079,6 +1119,7 @@
     "mapsTo": "ebo_service",
     "sign": 1,
     "values": {
+     "2024": 106869737,
      "2025": 30494385
     }
    },
@@ -1098,6 +1139,7 @@
     "mapsTo": "prov_formed",
     "sign": 1,
     "values": {
+     "2024": 194831582,
      "2025": 668304
     }
    },
@@ -1107,6 +1149,7 @@
     "mapsTo": "prov_used",
     "sign": 1,
     "values": {
+     "2024": 201878213,
      "2025": 41362731
     }
    }
@@ -1228,6 +1271,7 @@
     "id": "cf_before_wc",
     "label": "Subtotal before working capital",
     "values": {
+     "2024": 12805629649,
      "2025": 14665971470
     }
    },
@@ -1283,6 +1327,7 @@
     "id": "cf_ecl_cash",
     "label": "ECL on cash",
     "values": {
+     "2024": 0,
      "2025": 10382262
     }
    },
@@ -1312,15 +1357,25 @@
    },
    {
     "id": "capital_movement",
-    "label": "Capital movement: merger result 7,889,562,509 + 11 from RE",
+    "label": "Capital movement: FY2025 merger result 7,889,562,509 + 11 from RE; FY2024 none",
     "values": {
+     "2024": 0,
      "2025": 7889562520
+    }
+   },
+   {
+    "id": "capital_opening",
+    "label": "Opening capital",
+    "values": {
+     "2024": 20791840110,
+     "2025": 20791840110
     }
    },
    {
     "id": "note3_cost_open",
     "label": "Note 3 cost incl. PUC, opening",
     "values": {
+     "2024": 52620927574,
      "2025": 53861582606
     }
    },
@@ -1328,7 +1383,16 @@
     "id": "note3_accum_open",
     "label": "Note 3 accumulated depreciation, opening",
     "values": {
+     "2024": 17014493948,
      "2025": 19229575610
+    }
+   },
+   {
+    "id": "ppe_net_rounding",
+    "label": "Documented 1 EGP gap in Note 3 net at 31-Dec-2024 (source note 10)",
+    "values": {
+     "2024": 1,
+     "2025": 0
     }
    },
    {
@@ -1357,6 +1421,7 @@
     "id": "nca_rounding",
     "label": "Documented 1 EGP gap between non-current asset lines and stated totals (source note 9)",
     "values": {
+     "2024": 0,
      "2025": 1
     }
    },
@@ -1405,13 +1470,84 @@
    },
    {
     "id": 9,
-    "text": "NEW, found in Part 4: the six non-current asset lines in Appendix B sum to 50,015,842,514, but total non-current assets is stated as 50,015,842,515 and total assets as 61,193,831,633. Lines give total assets 61,193,831,632. Either source rounding or a transcription gap; check against the PDF. Balance sheet ties within this documented 1 EGP.",
+    "text": "FY2025 statement of financial position, PDF page 5: the six non-current asset lines sum to 50,015,842,514, but the printed total is 50,015,842,515, and total assets 61,193,831,633. Confirmed in the PDF: this is in the source, not a transcription gap. The balance sheet ties within this documented 1 EGP.",
     "amount": 1
+   },
+   {
+    "id": 10,
+    "text": "Note 3, PDF page 13: at 31-Dec-2024, total cost 53,861,582,606 less accumulated depreciation 19,229,575,610 gives 34,632,006,996; the printed net, which the column sum and the balance sheet support, is 34,632,006,997.",
+    "amount": 1
+   },
+   {
+    "id": 11,
+    "text": "Note 34, PDF page 29: shareholders dividends shown as 7,277,144,039; the equity statement shows 7,277,144,038.",
+    "amount": 1
+   },
+   {
+    "id": 12,
+    "text": "Note 34, PDF page 29: the FY2024 column prints 6,927,357,966 after distributions, but the lines give 6,297,357,965, and neither produces the printed EPS of 5.27. EPS 5.27 = 15,119,739,368 / 2,868,140,263, with no distributions deducted.",
+    "amount": 630000001
+   },
+   {
+    "id": 13,
+    "text": "FY2024 legal reserve transfer 478,114,534 is not 5% of reported FY2023 net profit 5,974,356,398 (298,717,820), because the FY2023 income statement excludes the merged company. The implied base is 9,562,290,680.",
+    "amount": 179396714
+   },
+   {
+    "id": 14,
+    "text": "Merger: resolved by EGM 4-Nov-2023, approved by GAFI 21-Sep-2023, base date 31-Dec-2022, entered in the commercial register 13-Dec-2023 (Note 1). So FY2023 is mixed: the balance sheet is post-merger and the income statement is MOPCO before the merger. Not comparable with FY2024 and FY2025."
+   },
+   {
+    "id": 15,
+    "text": "FY2024 CF additions line 1,275,986,560 includes other assets (Note 3 additions 1,248,933,200). The FY2025 line equals Note 3 additions exactly (see note 7)."
+   },
+   {
+    "id": 16,
+    "text": "Employee distribution paid in 2025, 1,511,973,937, equals 10% of FY2024 net profit, not 10% of dividends. It exceeds salaries in cost of sales (858,088,584). Whether it breaches the Art. 41 wages cap needs total wages and the Arabic text. No cap is applied in the model.",
+    "amount": 1511973937
    },
    {
     "id": 8,
     "text": "Debtors and other debit balances: BS change +603,590,502 does not match the CF line +113,856,513. Shown in the reconciliation table; the CF line is not derived from it."
    }
   ]
+ },
+ "reference": {
+  "FY2023": {
+   "label": "Reference only: balance sheet post-merger, income statement pre-merger, not comparable (source note 14).",
+   "page": "FY2023 PDF, text layer, statements section",
+   "net_sales": 5959553344,
+   "cost_of_sales": 2735322554,
+   "gross_profit": 3224230790,
+   "other_income": 155257336,
+   "selling": 160487452,
+   "ga": 213266360,
+   "other_expenses": 36607935,
+   "capital_losses": 97672,
+   "ecl": -4418140,
+   "operating_profit": 2964610567,
+   "finance_income": 879572186,
+   "finance_costs": 31046190,
+   "fx": 2119579834,
+   "net_finance": 2968105830,
+   "subsidiary_dividends": 1530854436,
+   "pbt": 7463570833,
+   "income_tax": 1489214435,
+   "net_profit": 5974356398,
+   "eps": 2.87,
+   "total_nca": 39007539808,
+   "total_ca": 15181857927,
+   "total_assets": 54189397735,
+   "capital": 20791840110,
+   "legal_reserve": 734200772,
+   "general_reserve": 352383742,
+   "merger_reserve": 7889562509,
+   "re": 13484740108,
+   "total_equity": 43252727241,
+   "total_ncl": 7287780564,
+   "total_cl": 3648889930,
+   "total_liabilities": 10936670494,
+   "cash": 7814757372
+  }
  }
 }

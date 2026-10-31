@@ -24,7 +24,7 @@ PASS  Pure module: src/engine/types.ts
 PASS  Pure module: src/engine/warnings.ts
 PASS  Pure module: packages/rates-registry/src/index.ts
 PASS  Pure module: packages/rates-registry/src/wolf-schema.ts
-PASS  runModel byte-identical across two runs  [41224 bytes]
+PASS  runModel byte-identical across two runs  [43434 bytes]
 PASS  Typecheck clean
 PASS  Deleted: lib/engines/dcf.ts
 PASS  Deleted: lib/engines/valuation.ts

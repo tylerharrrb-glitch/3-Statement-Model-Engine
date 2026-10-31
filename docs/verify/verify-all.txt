@@ -1,31 +1,25 @@
 === part1 (1 s)
 43 PASS, 0 FAIL
-=== part2 (16 s)
+=== part2 (11 s)
 41 PASS, 0 FAIL
 === part4 (1 s)
-FAIL  FY2024 CF: line items  [NOT LOADED: needs the FY2024 page of the audited PDF, which is not available]
-FAIL  FY2024 Capital roll-forward  [NOT LOADED: needs the FY2024 page of the audited PDF, which is not available]
-FAIL  FY2024 PP&E roll-forward (Note 3)  [NOT LOADED: needs the FY2024 page of the audited PDF, which is not available]
-FAIL  FY2023 reference year  [NOT LOADED: the FY2023 PDF is not available]
-FAIL  Fixture transcribed independently from the audited PDF  [NOT DONE: PDF not available. The fixture comes from Appendix B, so the fixture-vs-Appendix B comparison below is not an independent check]
-FAIL  Merger effective date confirmed from FY2024 notes  [unconfirmed: PDF not available]
-63 PASS, 6 FAIL
-=== part5 (9 s)
-23 PASS, 0 FAIL
+83 PASS, 0 FAIL
+=== part5 (7 s)
+25 PASS, 0 FAIL
 === part6 (1 s)
 50 PASS, 0 FAIL
 === part7 (1 s)
 96 PASS, 0 FAIL
-=== part8 (412 s)
+=== part8 (455 s)
 45 PASS, 0 FAIL
-=== part3 (10 s)
+=== part3 (13 s)
 32 PASS, 0 FAIL
-=== part9+10 (42 s)
+=== part9+10 (43 s)
 10 PASS, 0 FAIL
 9 PASS, 0 FAIL
 === part12 (0 s)
 31 PASS, 0 FAIL
-=== part11 (148 s)
-22 PASS, 0 FAIL
+=== part11 (175 s)
+23 PASS, 0 FAIL
 
-1 gate(s) with FAIL lines
+ALL GATES PASS

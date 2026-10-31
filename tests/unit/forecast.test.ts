@@ -8,7 +8,7 @@ import { costs } from '../../src/engine/forecast/costs';
 import { nwc } from '../../src/engine/forecast/nwc';
 import { provisions } from '../../src/engine/forecast/provisions';
 import { investments, financeIncome, liquidBalances } from '../../src/engine/forecast/investments';
-import { tax } from '../../src/engine/forecast/tax';
+import { tax, taxLosses } from '../../src/engine/forecast/tax';
 import { equity } from '../../src/engine/forecast/equity';
 import { allocateSweep, interestOn, revolver } from '../../src/engine/debt';
 import { iterate } from '../../src/engine/circularity';
@@ -118,16 +118,37 @@ describe('investments', () => {
     expect(liquidBalances(1, 2, 3, 4, ctx()).liquid).toBe(10);
   });
 });
+const TL0 = { tl_cum_created: 0, tl_cum_used: 0, tl_cum_expired: 0, tl_lag1: 0, tl_lag2: 0, tl_lag3: 0, tl_lag4: 0, tl_lag5: 0 };
+describe('tax losses', () => {
+  const roll = (series: number[]) => { let p: Record<string, number> = TL0; const out: Record<string, number>[] = []; for (const x of series) { p = taxLosses(p, x); out.push(p); } return out; };
+  it('a loss shields later profit', () => {
+    const r = roll([-100, 40, 100]);
+    expect(r[0].tl_created).toBe(100); expect(r[1].tl_used).toBe(40); expect(r[2].tl_used).toBe(60);
+  });
+  it('a loss can be used for five years and expires in the sixth', () => {
+    expect(roll([-100, 0, 0, 0, 0, 100])[5].tl_used).toBe(100);
+    const late = roll([-100, 0, 0, 0, 0, 0, 100]);
+    expect(late[6].tl_used).toBe(0); expect(late[6].tl_cum_expired).toBe(100);
+  });
+  it('uses oldest first, so only the unused part of an old loss expires', () => {
+    // Year 6: the first loss has expired net of the 30 used. The second is still usable.
+    const r = roll([-100, -50, 30, 0, 0, 0, 200]);
+    expect(r[6].tl_cum_expired).toBe(70);
+    expect(r[6].tl_used).toBe(50);
+    // Year 7: both have expired.
+    expect(roll([-100, -50, 30, 0, 0, 0, 0, 200])[7].tl_cum_expired).toBe(120);
+  });
+});
 describe('tax', () => {
   const d = { tax_dep_rate: 0.2, oci_gross: -59294377, tax_pay_pct: 1 };
   it('applies Decision 8 and the OCI tax', () => {
-    const r = tax({ tax_payable: 50, dtl: 1000 }, { pbt: 1000, dep: 80, dep_base: 500, fx_unreal: 40 }, d, ctx());
+    const r = tax({ ...TL0, tax_payable: 50, dtl: 1000 }, { pbt: 1000, dep: 80, dep_base: 500, fx_unreal: 40 }, d, ctx());
     expect(r.dtl_mov_ppe).toBeCloseTo(4.5); expect(r.dtl_mov_fx).toBeCloseTo(9);
     expect(r.current_tax).toBeCloseTo((1000 - 20 - 40) * 0.225);
     expect(r.net_profit).toBeCloseTo(1000 - r.current_tax - 13.5);
     expect(r.oci_dt).toBeCloseTo(13341234.8, 0); expect(r.tax_paid).toBe(50);
   });
-  it('no tax on a loss', () => { expect(tax({ tax_payable: 0, dtl: 0 }, { pbt: -100, dep: 0, dep_base: 0, fx_unreal: 0 }, { ...d, oci_gross: 0 }, ctx()).current_tax).toBe(0); });
+  it('no tax on a loss', () => { expect(tax({ ...TL0, tax_payable: 0, dtl: 0 }, { pbt: -100, dep: 0, dep_base: 0, fx_unreal: 0 }, { ...d, oci_gross: 0 }, ctx()).current_tax).toBe(0); });
 });
 describe('equity', () => {
   const p = { net_profit: 15119739368, capital: 20791840110, legal_reserve: 1212315306, general_reserve: 1, merger_reserve: 0, re: 0, shares: 100, dividends_payable: 0 };

@@ -60,6 +60,7 @@ const driversFor = (dr: Drivers, i: number): D => {
 export function historicalRow(acc: YearAccounts, year: number, inp: ModelInputs, c: Ctx, isLast: boolean, d0: D): Y {
   const y: Y = { ...acc, ...historicalSubtotals(acc) };
   y.tax_rate = c.taxRate;
+  for (const k of ['tl_cum_created', 'tl_cum_used', 'tl_cum_expired', 'tl_lag1', 'tl_lag2', 'tl_lag3', 'tl_lag4', 'tl_lag5', 'tl_lag6']) y[k] = 0;
   // The historical cash flow totals are loaded as reported, never re-derived.
   for (const r of inp.historicals.reported) {
     const v = r.values[String(year)];

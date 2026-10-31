@@ -338,6 +338,26 @@
       "notes": "Article number to confirm."
     },
     {
+      "id": "tax_loss_carryforward_years",
+      "label": "Tax-loss carryforward, years",
+      "value": 5,
+      "unit": "years",
+      "nature": "statutory",
+      "sourceName": "Income Tax Law 91/2005, per Andersen Egypt; corroborated by an SEC filing",
+      "sourceUrl": "https://eg.andersen.com/untangling-tax-losses/",
+      "asOf": null,
+      "fetchedAt": null,
+      "verifiedAt": null,
+      "method": "manual",
+      "updateCycle": "event",
+      "bounds": {
+        "min": 0,
+        "max": 20
+      },
+      "status": "unconfirmed",
+      "notes": "Secondary sources only; article and Arabic text to confirm. The model uses a fixed 5-year term."
+    },
+    {
       "id": "vat_standard",
       "label": "VAT standard rate",
       "value": 14,

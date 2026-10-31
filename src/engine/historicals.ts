@@ -134,15 +134,16 @@ export function tieOuts(h: Historicals, year: number, opening: YearAccounts | nu
     }
   }
   const capMove = rep('capital_movement');
-  if (need('Capital roll-forward', opening !== null && capMove !== undefined)) {
-    check(out, 'tie.capital', 'Capital roll-forward', per, (opening as YearAccounts).capital + (capMove as number), y.capital);
+  const capOpen = opening?.capital ?? rep('capital_opening');
+  if (need('Capital roll-forward', capOpen !== undefined && capMove !== undefined)) {
+    check(out, 'tie.capital', 'Capital roll-forward', per, (capOpen as number) + (capMove as number), y.capital);
   }
   if (need('PP&E roll-forward (Note 3)', y.ppe_accum !== undefined && rep('note3_cost_open') !== undefined)) {
     const costClose = (rep('note3_cost_open') as number) + (y.capex_total ?? 0) - (y.disposal_cost ?? 0);
     check(out, 'tie.ppe_cost', 'PP&E: cost roll-forward (incl. PUC)', per, costClose, (y.ppe_gross ?? 0) + (y.puc ?? 0));
     const accClose = (rep('note3_accum_open') as number) + (y.dep ?? 0) - (y.disposal_accum ?? 0);
     check(out, 'tie.ppe_accum', 'PP&E: accumulated depreciation roll-forward (1 EGP per source note 3)', per, accClose, y.ppe_accum, 1);
-    check(out, 'tie.ppe_net', 'PP&E: net cost less accumulated = BS', per, (y.ppe_gross ?? 0) + (y.puc ?? 0) - y.ppe_accum, y.fixed_assets);
+    check(out, 'tie.ppe_net', 'PP&E: net cost less accumulated = BS (1 EGP per source note 10 in FY2024)', per, (y.ppe_gross ?? 0) + (y.puc ?? 0) - y.ppe_accum, y.fixed_assets, rep('ppe_net_rounding') ?? 0);
   }
   if (need('EPS', rep('eps') !== undefined && rep('shares_basis') !== undefined)) {
     check(out, 'tie.eps', 'EPS: net profit / restated shares (2 dp as reported)', per, Math.round((t.net_profit / (rep('shares_basis') as number)) * 100) / 100, rep('eps') as number, 0.005);

@@ -21,6 +21,7 @@ Generated from data/rates.manual.json by scripts/gen-docs.ts. Free official sour
 | usdegp_cbe_official | 56.0429 | official | Central Bank of Egypt, official exchange rates | https://www.cbe.org.eg/en/economic-research/statistics/exchange-rates | 2026-10-29 | 2026-10-31 | manual | ok |
 | conia | 19.468 | official | Central Bank of Egypt, homepage key statistics | https://www.cbe.org.eg/en/ | 2026-10-29 | 2026-10-31 | manual | ok |
 | cit_rate | 22.5 | statutory | Income Tax Law 91/2005 | https://www.mof.gov.eg/ | n/a | no | manual | unconfirmed |
+| tax_loss_carryforward_years | 5 | statutory | Income Tax Law 91/2005, per Andersen Egypt; corroborated by an SEC filing | https://eg.andersen.com/untangling-tax-losses/ | n/a | no | manual | unconfirmed |
 | vat_standard | 14 | statutory | PwC summary of Law 149/2026 | TO_VERIFY | 2026-07-29 | no | manual | ok |
 | natural_gas_schedule_tax | 20 | statutory | PwC, Law 149/2026 | TO_VERIFY | 2026-07-29 | no | manual | unconfirmed |
 | div_wht_listed | 5 | statutory | PwC, Laws 148-155/2026 | TO_VERIFY | 2026-07-29 | no | manual | ok |
@@ -40,4 +41,4 @@ Generated from data/rates.manual.json by scripts/gen-docs.ts. Free official sour
 | us_10y | 4.94 | market_quote | US Treasury daily par yield curve | https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve | 2026-10-30 | 2026-10-31 | manual | ok |
 | tbond_3y | 24.432 | market_quote | Central Bank of Egypt, fixed coupon bond results | https://www.cbe.org.eg/en/auctions/egp-t-bonds-fixed-coupon | 2026-10-26 | 2026-10-31 | manual | ok |
 
-Company data: MOPCO audited FY2025 statements, Crowe Dr. A. M. Hegazy & Co., report dated 9-Mar-2026, as transcribed by the owner. Not cross-checked against the PDF, which was not available.
+Company data: MOPCO audited FY2025 statements, Crowe Dr. A. M. Hegazy & Co., report dated 9-Mar-2026, from mopco-eg.com, Investor Relations. Appendix B was checked against the PDF by eye; the scans have no text layer. See _meta in tests/fixtures/mopco-fy2025.json.

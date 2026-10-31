@@ -33,7 +33,7 @@ Cash comes from the cash flow statement. The revolver is the only balancing mech
 ## Decisions built into the equations
 
 Deferred tax (Decision 8): movement = (tax depreciation - book depreciation) x tax rate, plus unrealized FX x tax rate. There is no full temporary-difference schedule. OCI deferred tax is on the actuarial result.
-Current tax is MAX(0, taxable profit) x rate. Tax losses are not carried forward: a proposed item awaiting approval, so tax after a loss year is overstated.
+Current tax is (MAX(0, taxable profit) - losses used) x rate. Tax losses carry forward 5 years, oldest first (Income Tax Law 91/2005 per Andersen; article and Arabic text unconfirmed). A loss of year s can be used in years s+1 to s+5. No deferred tax asset is booked on losses, in keeping with Decision 8.
 FX: only balances on opening USD shares revalue. Revaluation on cash, investments, other financial assets and USD debt is unrealized and added back in the cash flow. Revaluation on working capital is treated as realized through the working capital movement.
 Legal reserve: 5% of prior-year net profit until the reserve reaches 50% of issued capital. FY2025 check: 755,986,968 = 5% x 15,119,739,368.
 Statutory rules (Law 159/1981 Art. 40, 41, 88) are from a secondary English translation and must be confirmed against the official Arabic text.
@@ -287,7 +287,19 @@ For tranche k: open = prior close. conv = average FX if USD, else 1. fx = open x
 - dtl_mov_ppe = ([tax_dep]-[s_dep])*TAX_RATE
 - dtl_mov_fx = [fx_unreal]*TAX_RATE
 - taxable = [pbt]-([tax_dep]-[s_dep])-[fx_unreal]
-- s_current_tax = MAX(0,[taxable])*TAX_RATE
+- tl_created = MAX(0,-[taxable])
+- tl_cum_created = [tl_cum_created@-1]+[tl_created]  [historical: reported line or 0]
+- tl_lag1 = [tl_cum_created@-1]  [historical: reported line or 0]
+- tl_lag2 = [tl_lag1@-1]  [historical: reported line or 0]
+- tl_lag3 = [tl_lag2@-1]  [historical: reported line or 0]
+- tl_lag4 = [tl_lag3@-1]  [historical: reported line or 0]
+- tl_lag5 = [tl_lag4@-1]  [historical: reported line or 0]
+- tl_lag6 = [tl_lag5@-1]  [historical: reported line or 0]
+- tl_cum_expired = MAX([tl_cum_expired@-1],[tl_lag6]-[tl_cum_used@-1])  [historical: reported line or 0]
+- tl_avail = [tl_lag1]-[tl_cum_used@-1]-[tl_cum_expired]
+- tl_used = MIN([tl_avail],MAX(0,[taxable]))
+- tl_cum_used = [tl_cum_used@-1]+[tl_used]  [historical: reported line or 0]
+- s_current_tax = (MAX(0,[taxable])-[tl_used])*TAX_RATE
 - tax_paid = [d_tax_pay_pct]*[tax_payable@-1]
 
 ## Equity and distributions

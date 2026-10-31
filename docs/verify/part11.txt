@@ -1,12 +1,13 @@
-PASS  mopco-base-sw0: engine = Python on every line  [2212 values; 0 differences; ]
-PASS  mopco-base-sw0: engine = recalculated Excel on every line  [2212 values; 0 differences]
-PASS  mopco-base-sw1: engine = Python on every line  [2212 values; 0 differences; ]
-PASS  mopco-base-sw1: engine = recalculated Excel on every line  [2212 values; 0 differences]
-PASS  debt-case-sw0: engine = Python on every line  [2258 values; 0 differences; ]
-PASS  debt-case-sw0: engine = recalculated Excel on every line  [2258 values; 0 differences]
-PASS  debt-case-sw1: engine = Python on every line  [2258 values; 0 differences; ]
-PASS  debt-case-sw1: engine = recalculated Excel on every line  [2258 values; 0 differences]
+PASS  mopco-base-sw0: engine = Python on every line  [2335 values; 0 differences; ]
+PASS  mopco-base-sw0: engine = recalculated Excel on every line  [2335 values; 0 differences]
+PASS  mopco-base-sw1: engine = Python on every line  [2335 values; 0 differences; ]
+PASS  mopco-base-sw1: engine = recalculated Excel on every line  [2335 values; 0 differences]
+PASS  debt-case-sw0: engine = Python on every line  [2381 values; 0 differences; ]
+PASS  debt-case-sw0: engine = recalculated Excel on every line  [2381 values; 0 differences]
+PASS  debt-case-sw1: engine = Python on every line  [2381 values; 0 differences; ]
+PASS  debt-case-sw1: engine = recalculated Excel on every line  [2381 values; 0 differences]
 PASS  MOPCO golden file matches  [0 differences]
+PASS  FY2024: every Part 4 equation is loaded
 PASS  FY2025 tie-out tie.bs  [diff -1]
 PASS  FY2025 tie-out tie.cf_net  [diff 0]
 PASS  FY2025 tie-out tie.cf_close  [diff 0]
@@ -22,4 +23,4 @@ PASS  FY2025 tie-out tie.pbt  [diff 0]
 PASS  FY2025 tie-out tie.net_profit  [diff 0]
 Independence: the Python model was written from docs/METHODOLOGY.md, in one flow, not as a translation of the TypeScript structure. It has the same author as the engine, so a misreading of the brief could appear in both.
 
-22 PASS, 0 FAIL
+23 PASS, 0 FAIL

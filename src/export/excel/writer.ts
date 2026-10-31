@@ -58,9 +58,9 @@ export async function buildWorkbook(inp: ModelInputs, rates: RatesSnapshot, opt:
   const S: Record<string, ExcelJS.Worksheet> = {};
   for (const s of sheets) S[s] = wb.addWorksheet(s);
   const sub: Record<string, string> = {
-    Cover: 'Company, master check and contents. Limitation: FY2024 cash flow lines and FY2023 are not loaded because the audited PDFs were not available.',
-    Summary: 'Key lines for the active scenario. Limitation: drivers are placeholders until the owner replaces them.',
-    Inputs: 'Switches, historicals and drivers. Limitation: USD balance shares are 0 until the FX-risk note is entered.',
+    Cover: 'Company, master check and contents. Limitation: forward drivers are analyst assumptions for the owner to review.',
+    Summary: 'Key lines for the active scenario. Limitation: forward drivers are analyst assumptions.',
+    Inputs: 'Switches, historicals and drivers. Limitation: USD shares apply one rate per side because the FX note gives totals only.',
     Sources: 'Every registry value with URL, as-of date and status. Limitation: unconfirmed values are not verified at their primary source.',
     Model: 'Income statement, balance sheet and cash flow. Limitation: historical cash flow is as reported and is not re-derived.',
     Schedules: 'FX, revenue, costs, PP&E, leases, benefits, tax, equity and debt. Limitation: lease interest is always on the opening liability.',
@@ -147,7 +147,7 @@ export async function buildWorkbook(inp: ModelInputs, rates: RatesSnapshot, opt:
   scalarHead('USD share of balances');
   const U = st.usd;
   ([['USD_CASH', 'Cash', U.cash], ['USD_INV_NC', 'Investments, non-current', U.inv_nc], ['USD_INV_CUR', 'Investments, current', U.inv_cur], ['USD_FVTPL', 'FVTPL', U.fvtpl], ['USD_OFA', 'Other financial assets', U.ofa], ['USD_AR', 'Receivables', U.ar], ['USD_DEBTORS', 'Debtors', U.debtors], ['USD_AP', 'Payables', U.ap], ['USD_CREDITORS', 'Creditors', U.creditors], ['USD_CUST_ADV', 'Customer advances', U.cust_adv]] as [string, string, number][])
-    .forEach(([a, b, v]) => scalar(a, `USD share: ${b}`, v, 'pct', 'FX-risk note not available; 0 until entered.', 'Estimate'));
+    .forEach(([a, b, v]) => scalar(a, `USD share: ${b}`, v, 'pct', 'Notes 35-36: USD assets 15,597,077,984 of 20,844,777,782; USD liabilities 342,946,952 of 2,060,181,086. Same share per class.', 'Estimate'));
   scalarHead('Thresholds');
   scalar('COV_LEV', 'Covenant: maximum net debt / EBITDA', st.covenants.maxNetDebtEbitda, 'x', 'User-defined.');
   scalar('COV_COVER', 'Covenant: minimum interest cover', st.covenants.minInterestCover, 'x', 'User-defined.');
@@ -200,7 +200,7 @@ export async function buildWorkbook(inp: ModelInputs, rates: RatesSnapshot, opt:
       if (v !== undefined) { const c = inW.getCell(rI, col(i)); c.value = v; setFont(c, BLUE); c.numFmt = id === 'fx_close' || id === 'fx_avg' ? FMT.fx : id === 'shares' ? FMT.int : FMT.egp; }
     });
     const nc = inW.getCell(rI, notesCol);
-    nc.value = id === 'fx_close' || id === 'fx_avg' ? 'Estimate: FY2025 rate not available; registry USD/EGP used.' : 'Sourced fact: audited statements via Appendix B; PDF cross-check not done.';
+    nc.value = id === 'fx_close' || id === 'fx_avg' ? 'Sourced fact: note 35 of the FY2025 statements.' : 'Sourced fact: audited statements, read from the PDF.';
     setFont(nc, BLACK);
     rI++;
   }

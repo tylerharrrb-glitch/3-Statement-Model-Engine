@@ -57,7 +57,7 @@ async function main() {
   g.check('Two-page rule helper', !confirmPolicyRate(21, null, 20).accept);
 
   // Real Worker, real network, local KV.
-  if (!existsSync('dist/index.html')) { mkdirSync('dist', { recursive: true }); writeFileSync('dist/index.html', '<!doctype html><title>placeholder</title>'); }
+  if (!existsSync('out/index.html')) { mkdirSync('out', { recursive: true }); writeFileSync('out/index.html', '<!doctype html><title>placeholder</title>'); }
   const bin = path.resolve('node_modules/wrangler/bin/wrangler.js');
   const child = spawn(process.execPath, [bin, 'dev', '--test-scheduled', '--port', String(PORT), '--local'], { cwd: 'worker', stdio: 'pipe' });
   let logs = '';

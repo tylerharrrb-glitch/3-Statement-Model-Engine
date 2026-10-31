@@ -61,19 +61,29 @@ if (part === 'part4') {
   g.check('Note 3 cost golden', 53861582606 + 5848069006 - 24770582 === 59684881030);
   g.check('Note 3 accumulated golden (roll-forward ...949)', 19229575610 + 2283209560 - 20392221 === 21492392949);
   g.check('Dividends bridge difference is 46,085', 7277190123 - 7277144038 === 46085);
-  g.check('FY2023 reference year', false, 'NOT LOADED: the FY2023 PDF is not available');
-  g.check('Fixture transcribed independently from the audited PDF', false, 'NOT DONE: PDF not available. The fixture comes from Appendix B, so the fixture-vs-Appendix B comparison below is not an independent check');
   const fx = readJson('tests/fixtures/mopco-fy2025.json');
   const notes = fx.historicals.sourceNotes as { id: number; text: string }[];
-  g.check('Merger effective date confirmed from FY2024 notes', false, 'unconfirmed: PDF not available');
-  g.check('All source discrepancies recorded', notes.length >= 9);
+  const f23 = fx.reference.FY2023;
+  g.check('FY2023 reference: assets = liabilities + equity', f23.total_assets === f23.total_liabilities + f23.total_equity);
+  g.check('FY2023 reference: equity lines sum', f23.capital + f23.legal_reserve + f23.general_reserve + f23.merger_reserve + f23.re === f23.total_equity);
+  g.check('FY2023 reference: NCA + CA = assets', f23.total_nca + f23.total_ca === f23.total_assets);
+  g.check('FY2023 reference: gross profit from lines', f23.net_sales - f23.cost_of_sales === f23.gross_profit);
+  g.check('FY2023 reference: operating profit from lines', f23.gross_profit + f23.other_income - f23.selling - f23.ga - f23.other_expenses - f23.capital_losses + f23.ecl === f23.operating_profit);
+  g.check('FY2023 reference: PBT and net profit from lines', f23.operating_profit + f23.net_finance + f23.subsidiary_dividends === f23.pbt && f23.pbt - f23.income_tax === f23.net_profit);
+  g.check('FY2023 closing RE = FY2024 opening RE in the FY2025 PDF', f23.re === 13484740108);
+  g.check('FY2023 closing cash = FY2024 opening cash', f23.cash === 7814757372);
+  g.check('FY2023 is excluded from the model base', !h.years.includes(2023) && runModel(inp, snap).years[0] === 2024);
+  g.check('Merger date confirmed from the notes: registered 13-Dec-2023', /13-Dec-2023/.test(fx._meta.mergerEffectiveDate));
+  g.check('All source discrepancies recorded', notes.length >= 16);
   g.note('', );
-  g.note('Fixture vs Appendix B, zero unexplained differences: the fixture is generated from Appendix B (scripts/gen-mopco-fixture.mjs).');
+  g.note('Fixture vs PDF: the FY2025 primary statements, equity statement and Note 3 were read page by page and agree with Appendix B with zero differences. Read by eye from scans; there is no OCR. Every transcribed section sums to its printed total above.');
+  g.note('The separate FY2024 PDF was downloaded but not compared line by line with the FY2025 comparatives.');
   g.note('Source discrepancies:');
   notes.forEach(n => g.note(`  ${n.id}. ${n.text}`));
   g.note('Reconciliation, FY2025 (information only; the CF is loaded as reported):');
   reconciliationTable(h, 2025).forEach(r => g.note(`  ${r.line.padEnd(36)} BS change ${String(r.bsChange).padStart(14)}  CF line ${String(r.cfLine).padStart(14)}  difference ${String(r.difference).padStart(14)}`));
   const rec = reconciliationTable(h, 2025).find(r => r.line.startsWith('Debtors'));
+  g.check('FY2024 cash flow: all line items loaded', accountsForYear(h, 2024).cf_pbt === 19058310405 && accountsForYear(h, 2024).cf_ar === 173958084);
   g.check('Debtors: CF line differs from the BS change, loaded as reported', !!rec && rec.cfLine === 113856513 && rec.bsChange === -603590502);
   g.check('Units: revenue is absolute EGP', accountsForYear(h, 2025).rev_export === 21466612052);
 }
@@ -101,6 +111,8 @@ if (part === 'part5') {
     g.check(`Edge case balances: ${name}`, r.checks.every(c => c.pass));
     return r;
   };
+  const lossy = edge('loss year then recovery: losses shield later tax', i => { for (const k of SC) i.scenarios[k].other_exp = [40000000000, 0, 0, 0, 0, 0, 0, 0, 0, 0]; });
+  g.check('Tax-loss carryforward used after a loss year', (lossy.rows.tl_created[2] as number) > 0 && (lossy.rows.tl_used[3] as number) > 0 && (lossy.rows.current_tax[2] as number) === 0);
   edge('zero revenue', i => { for (const k of SC) { i.scenarios[k].g_export = Array(10).fill(-1); i.scenarios[k].g_domestic = Array(10).fill(-1); } });
   edge('negative growth', i => { i.scenarios.base.g_export = Array(10).fill(-0.2); });
   const capd = edge('legal reserve cap reached', i => { const l = i.historicals.lines.find(x => x.mapsTo === 'legal_reserve')!; const re = i.historicals.lines.find(x => x.mapsTo === 're')!; const move = 14340701315 - l.values['2025']; l.values['2025'] += move; re.values['2025'] -= move; });
@@ -154,7 +166,7 @@ if (part === 'part6') {
   }
   const m = readFileSync('src/engine/run.ts', 'utf8') + readFileSync('src/engine/cash.ts', 'utf8') + readFileSync('src/engine/statements.ts', 'utf8');
   g.check('No plug language or back-solving in the core', !/\bplug\b|back-?solve/i.test(m.replace(/nothing is plugged/g, '')));
-  g.note('Decision 10: debt logic is tested on hand-built cases only. MOPCO has no bank debt; the Telecom Egypt fixture is synthetic.');
+  g.note('Decision 10: debt logic is tested on hand-built cases only. MOPCO has no bank debt; no real indebted company has been supplied.');
 }
 
 if (part === 'part7') {

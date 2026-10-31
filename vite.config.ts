@@ -6,6 +6,7 @@ import path from 'node:path';
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  build: { outDir: 'out' },
   resolve: { alias: { '@registry': path.resolve(__dirname, 'packages/rates-registry/src/index.ts') } },
   test: { include: ['tests/unit/**/*.test.ts'] },
 } as never);

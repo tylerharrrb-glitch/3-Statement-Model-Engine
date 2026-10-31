@@ -79,7 +79,7 @@ export function App() {
         {tab === 'Drivers' && <DriversPage {...props} />}
         {tab === 'Income statement' && <Statement title="Income statement" section="Income statement" {...props} />}
         {tab === 'Balance sheet' && <Statement title="Balance sheet" section="Balance sheet" {...props} />}
-        {tab === 'Cash flow' && <Statement title="Cash flow statement" section="Cash flow statement (indirect, EAS 4)" sub="Historical years are as reported and are never re-derived. FY2024 shows reported totals only: the line items need the audited PDF." {...props} />}
+        {tab === 'Cash flow' && <Statement title="Cash flow statement" section="Cash flow statement (indirect, EAS 4)" sub="Historical years are as reported and are never re-derived." {...props} />}
         {tab === 'Schedules' && <SchedulesPage {...props} />}
         {tab === 'Ratios' && <RatiosPage {...props} />}
         {tab === 'Scenarios' && <ScenariosPage {...props} />}
@@ -206,7 +206,7 @@ function DriversPage({ inputs, update }: P) {
   const groups = [...new Set(DRIVERS.map(d => d.group))];
   const H = inputs.historicals.years;
   const years = Array.from({ length: inputs.nYears }, (_, i) => `${H[H.length - 1] + i + 1}E`);
-  return <><h1>Drivers</h1><p className="sub">Per-year drivers. Bear, base and bull are explicit sets. MOPCO values are placeholders derived from FY2025 ratios; replace them with your view. Percentages are decimals (0.05 = 5%).</p>
+  return <><h1>Drivers</h1><p className="sub">Per-year drivers. Bear, base and bull are explicit sets. MOPCO ratios come from the FY2025 notes; forward paths are analyst assumptions to review. Percentages are decimals (0.05 = 5%).</p>
     <label>Editing set <select aria-label="Editing set" value={sc} onChange={e => setSc(e.target.value as ScenarioKey)}>{SCENARIO_KEYS.map(s => <option key={s}>{s}</option>)}</select></label>
     {groups.map(g => <div key={g}><h2>{g}</h2><table className="tbl"><thead><tr><th>Driver</th>{years.map(y => <th key={y}>{y}</th>)}<th style={{ textAlign: 'left' }}>Note</th></tr></thead><tbody>
       {DRIVERS.filter(d => d.group === g).map(d => <tr key={d.key}><td>{d.label}</td>

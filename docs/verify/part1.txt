@@ -1,14 +1,14 @@
 PASS  docs/AUDIT.md exists
-PASS  Section present and non-empty: 1. File tree  [5879 chars]
-PASS  Section present and non-empty: 2. Every calculation  [157143 chars]
-PASS  Section present and non-empty: 3. Duplicated calculations  [9844 chars]
-PASS  Section present and non-empty: 4. Hardcoded rates and constants  [107804 chars]
-PASS  Section present and non-empty: 5. Statement links  [3625 chars]
-PASS  Section present and non-empty: 6. Balance check and circularity  [1757 chars]
-PASS  Section present and non-empty: 7. Network and storage  [2410 chars]
-PASS  Section present and non-empty: 8. Excel exporter  [18220 chars]
-PASS  Section present and non-empty: 9. Module inventory  [5646 chars]
-PASS  Section present and non-empty: 10. Test results  [29764 chars]
+PASS  Section present and non-empty: 1. File tree  [5728 chars]
+PASS  Section present and non-empty: 2. Every calculation  [155974 chars]
+PASS  Section present and non-empty: 3. Duplicated calculations  [9758 chars]
+PASS  Section present and non-empty: 4. Hardcoded rates and constants  [106672 chars]
+PASS  Section present and non-empty: 5. Statement links  [3569 chars]
+PASS  Section present and non-empty: 6. Balance check and circularity  [1735 chars]
+PASS  Section present and non-empty: 7. Network and storage  [2382 chars]
+PASS  Section present and non-empty: 8. Excel exporter  [17992 chars]
+PASS  Section present and non-empty: 9. Module inventory  [5580 chars]
+PASS  Section present and non-empty: 10. Test results  [29333 chars]
 PASS  Section 8 lists sheets
 PASS  Section 8 lists hardcoded numbers
 PASS  Section 8 lists literal constants

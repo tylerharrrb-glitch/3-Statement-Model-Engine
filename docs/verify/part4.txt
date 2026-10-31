@@ -17,12 +17,18 @@ PASS  FY2024 IS: net profit from lines  [diff 0, tol 0]
 PASS  FY2024 IS: finance costs from lines  [diff 0, tol 0]
 PASS  FY2024 CF: CFO + CFI + CFF = net change  [diff 0, tol 0]
 PASS  FY2024 CF: opening + net change + FX + other reported = closing = BS cash  [diff 0, tol 0]
+PASS  FY2024 CF: subtotal before working capital from lines  [diff 0, tol 0]
+PASS  FY2024 CF: cash before distributions from lines  [diff 0, tol 0]
+PASS  FY2024 CF: net operating from lines  [diff 0, tol 0]
+PASS  FY2024 CF: net investing from lines  [diff 0, tol 0]
+PASS  FY2024 CF: net financing from lines  [diff 0, tol 0]
 PASS  FY2024 RE roll-forward  [diff 0, tol 0]
 PASS  FY2024 Legal reserve roll-forward  [diff 0, tol 0]
+PASS  FY2024 Capital roll-forward  [diff 0, tol 0]
+PASS  FY2024 PP&E: cost roll-forward (incl. PUC)  [diff 0, tol 0]
+PASS  FY2024 PP&E: accumulated depreciation roll-forward (1 EGP per source note 3)  [diff 0, tol 1]
+PASS  FY2024 PP&E: net cost less accumulated = BS (1 EGP per source note 10 in FY2024)  [diff -1, tol 1]
 PASS  FY2024 EPS: net profit / restated shares (2 dp as reported)  [diff 0, tol 0.005]
-FAIL  FY2024 CF: line items  [NOT LOADED: needs the FY2024 page of the audited PDF, which is not available]
-FAIL  FY2024 Capital roll-forward  [NOT LOADED: needs the FY2024 page of the audited PDF, which is not available]
-FAIL  FY2024 PP&E roll-forward (Note 3)  [NOT LOADED: needs the FY2024 page of the audited PDF, which is not available]
 PASS  FY2025 BS: total assets = total liabilities + equity  [diff -1, tol 1]
 PASS  FY2025 BS: total assets vs reported  [diff -1, tol 1]
 PASS  FY2025 BS: non-current assets vs reported  [diff -1, tol 1]
@@ -51,7 +57,7 @@ PASS  FY2025 Legal reserve transfer = 5% of prior-year net profit  [diff -0.4000
 PASS  FY2025 Capital roll-forward  [diff 0, tol 0]
 PASS  FY2025 PP&E: cost roll-forward (incl. PUC)  [diff 0, tol 0]
 PASS  FY2025 PP&E: accumulated depreciation roll-forward (1 EGP per source note 3)  [diff 0, tol 1]
-PASS  FY2025 PP&E: net cost less accumulated = BS  [diff 0, tol 0]
+PASS  FY2025 PP&E: net cost less accumulated = BS (1 EGP per source note 10 in FY2024)  [diff 0, tol 0]
 PASS  FY2025 EPS: net profit / restated shares (2 dp as reported)  [diff 0, tol 0.005]
 PASS  RE 2025 golden
 PASS  RE 2024 golden
@@ -61,12 +67,20 @@ PASS  Capital 2025 golden
 PASS  Note 3 cost golden
 PASS  Note 3 accumulated golden (roll-forward ...949)
 PASS  Dividends bridge difference is 46,085
-FAIL  FY2023 reference year  [NOT LOADED: the FY2023 PDF is not available]
-FAIL  Fixture transcribed independently from the audited PDF  [NOT DONE: PDF not available. The fixture comes from Appendix B, so the fixture-vs-Appendix B comparison below is not an independent check]
-FAIL  Merger effective date confirmed from FY2024 notes  [unconfirmed: PDF not available]
+PASS  FY2023 reference: assets = liabilities + equity
+PASS  FY2023 reference: equity lines sum
+PASS  FY2023 reference: NCA + CA = assets
+PASS  FY2023 reference: gross profit from lines
+PASS  FY2023 reference: operating profit from lines
+PASS  FY2023 reference: PBT and net profit from lines
+PASS  FY2023 closing RE = FY2024 opening RE in the FY2025 PDF
+PASS  FY2023 closing cash = FY2024 opening cash
+PASS  FY2023 is excluded from the model base
+PASS  Merger date confirmed from the notes: registered 13-Dec-2023
 PASS  All source discrepancies recorded
 
-Fixture vs Appendix B, zero unexplained differences: the fixture is generated from Appendix B (scripts/gen-mopco-fixture.mjs).
+Fixture vs PDF: the FY2025 primary statements, equity statement and Note 3 were read page by page and agree with Appendix B with zero differences. Read by eye from scans; there is no OCR. Every transcribed section sums to its printed total above.
+The separate FY2024 PDF was downloaded but not compared line by line with the FY2025 comparatives.
 Source discrepancies:
   1. OCI statement shows (45,953,144); its own lines give (59,294,377) + 13,341,234 = (45,953,143). The equity statement uses (45,953,143).
   2. Dividends declared 7,277,144,038 (equity statement) differ from dividends paid 7,277,190,123 (CF) by 46,085. Handled through a dividends-payable bridge.
@@ -75,7 +89,14 @@ Source discrepancies:
   5. CF line "Formed of expected credit losses on cash" +10,382,262 is added to cash despite the word "formed". Taken as reported.
   6. The CF labels customer advances "(lease liability)"; it is the contract liability. Label error in the source.
   7. Capex in the CF (5,848,069,006) equals Note 3 additions including PUC exactly. Other assets also moved, 68.2M to 79.6M.
-  9. NEW, found in Part 4: the six non-current asset lines in Appendix B sum to 50,015,842,514, but total non-current assets is stated as 50,015,842,515 and total assets as 61,193,831,633. Lines give total assets 61,193,831,632. Either source rounding or a transcription gap; check against the PDF. Balance sheet ties within this documented 1 EGP.
+  9. FY2025 statement of financial position, PDF page 5: the six non-current asset lines sum to 50,015,842,514, but the printed total is 50,015,842,515, and total assets 61,193,831,633. Confirmed in the PDF: this is in the source, not a transcription gap. The balance sheet ties within this documented 1 EGP.
+  10. Note 3, PDF page 13: at 31-Dec-2024, total cost 53,861,582,606 less accumulated depreciation 19,229,575,610 gives 34,632,006,996; the printed net, which the column sum and the balance sheet support, is 34,632,006,997.
+  11. Note 34, PDF page 29: shareholders dividends shown as 7,277,144,039; the equity statement shows 7,277,144,038.
+  12. Note 34, PDF page 29: the FY2024 column prints 6,927,357,966 after distributions, but the lines give 6,297,357,965, and neither produces the printed EPS of 5.27. EPS 5.27 = 15,119,739,368 / 2,868,140,263, with no distributions deducted.
+  13. FY2024 legal reserve transfer 478,114,534 is not 5% of reported FY2023 net profit 5,974,356,398 (298,717,820), because the FY2023 income statement excludes the merged company. The implied base is 9,562,290,680.
+  14. Merger: resolved by EGM 4-Nov-2023, approved by GAFI 21-Sep-2023, base date 31-Dec-2022, entered in the commercial register 13-Dec-2023 (Note 1). So FY2023 is mixed: the balance sheet is post-merger and the income statement is MOPCO before the merger. Not comparable with FY2024 and FY2025.
+  15. FY2024 CF additions line 1,275,986,560 includes other assets (Note 3 additions 1,248,933,200). The FY2025 line equals Note 3 additions exactly (see note 7).
+  16. Employee distribution paid in 2025, 1,511,973,937, equals 10% of FY2024 net profit, not 10% of dividends. It exceeds salaries in cost of sales (858,088,584). Whether it breaches the Art. 41 wages cap needs total wages and the Arabic text. No cap is applied in the model.
   8. Debtors and other debit balances: BS change +603,590,502 does not match the CF line +113,856,513. Shown in the reconciliation table; the CF line is not derived from it.
 Reconciliation, FY2025 (information only; the CF is loaded as reported):
   Inventory                            BS change     -213445319  CF line     -213445319  difference              0
@@ -86,7 +107,8 @@ Reconciliation, FY2025 (information only; the CF is loaded as reported):
   Trade payables                       BS change      173398437  CF line      173398437  difference              0
   Creditors                            BS change      673449980  CF line      152019271  difference     -521430709
   Customer advances                    BS change      250753316  CF line      250753316  difference              0
+PASS  FY2024 cash flow: all line items loaded
 PASS  Debtors: CF line differs from the BS change, loaded as reported
 PASS  Units: revenue is absolute EGP
 
-63 PASS, 6 FAIL
+83 PASS, 0 FAIL
