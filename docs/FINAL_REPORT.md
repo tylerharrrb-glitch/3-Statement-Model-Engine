@@ -17,7 +17,11 @@ FAIL  Fixture transcribed independently from the audited PDF  [NOT DONE: PDF not
 FAIL  Merger effective date confirmed from FY2024 notes  [unconfirmed: PDF not available]
 ```
 
-Not tested: real Excel; Google Sheets (manual steps in docs/verify/google-sheets-manual.md); the Worker from Cloudflare's network; CI, until a run completes.
+Not run: CI. GitHub reports "The job was not started because your account is locked due to a billing issue." So the Part 11 gate "verify-all all PASS in CI" is not met; verify-all ran locally only, on Windows.
+
+Failed: the Cloudflare Pages preview build for rebuild/v2 (logs need the owner's login). A clean clone builds locally.
+
+Not tested: real Excel; Google Sheets (manual steps in docs/verify/google-sheets-manual.md); the Worker from Cloudflare's network; the gates on Linux.
 
 Not a forecast view: every driver in tests/fixtures/mopco-drivers.json is a placeholder derived from FY2025 ratios.
 
@@ -301,4 +305,4 @@ PASS  Units: revenue is absolute EGP
 
 ## 8. Preview URL
 
-None. This machine has no Cloudflare login; see docs/PROGRESS.md, action 5.
+None. The Pages build for rebuild/v2 failed and this machine has no Cloudflare login. See docs/PROGRESS.md, actions 5a and 5c.

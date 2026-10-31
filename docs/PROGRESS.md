@@ -41,7 +41,10 @@ Last commit: run `git log -1 rebuild/v2`.
 2. Supply the MOPCO audited PDFs (FY2025, FY2023). This closes every open FAIL.
 3. Replace the placeholder drivers in `tests/fixtures/mopco-drivers.json`.
 4. Run `docs/verify/google-sheets-manual.md`, and open the file in real Excel with the switch at 1.
-5. To deploy: `wrangler login`, create the KV namespace, put its id in `worker/wrangler.toml`, then `npm run build` and `wrangler versions upload` from `worker/` for a preview URL. No preview URL exists yet, because this machine has no Cloudflare login.
+5. CI has not run: GitHub reports "The job was not started because your account is locked due to a billing issue." Clear that and re-run; the expected result is red until the PDFs close Part 4. The gates have never run on Linux.
+5a. The Cloudflare Pages build for rebuild/v2 failed (build logs need your login). The project was set up for Next.js, and a clean clone builds locally with `npm ci && npm run build`, so check the settings first: build command `npm run build`, output directory `dist`. Pages alone has no `/api/rates`, so the app would use the bundled manual rates and say so. The Worker serves both.
+5b. The GitHub repo is public. Never commit client company data to it; fixtures in `tests/fixtures` are public. Keep client models in the browser or outside the repo.
+5c. To deploy the Worker: `wrangler login`, create the KV namespace, put its id in `worker/wrangler.toml`, then `npm run build` and `wrangler versions upload` from `worker/` for a preview URL. No preview URL exists yet, because this machine has no Cloudflare login.
 6. Decide the Proposed items below.
 
 ## Unconfirmed values

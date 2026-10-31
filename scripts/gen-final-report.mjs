@@ -8,7 +8,7 @@ const part8 = r('part8.txt');
 const lint = part8.slice(part8.indexOf('EXCEL LINT REPORT'), part8.indexOf('Google Sheets is not tested'));
 const part4 = r('part4.txt');
 const notes = part4.slice(part4.indexOf('Fixture vs Appendix B'));
-const previewUrl = process.argv[2] ?? 'None. This machine has no Cloudflare login; see docs/PROGRESS.md, action 5.';
+const previewUrl = process.argv[2] ?? 'None. The Pages build for rebuild/v2 failed and this machine has no Cloudflare login. See docs/PROGRESS.md, actions 5a and 5c.';
 const code = s => '```text\n' + s.trim() + '\n```';
 
 const out = `# Final Report
@@ -23,7 +23,11 @@ Open FAILs (Part 4), all needing the audited PDFs:
 
 ${code(part4.split('\n').filter(l => l.startsWith('FAIL')).join('\n'))}
 
-Not tested: real Excel; Google Sheets (manual steps in docs/verify/google-sheets-manual.md); the Worker from Cloudflare's network; CI, until a run completes.
+Not run: CI. GitHub reports "The job was not started because your account is locked due to a billing issue." So the Part 11 gate "verify-all all PASS in CI" is not met; verify-all ran locally only, on Windows.
+
+Failed: the Cloudflare Pages preview build for rebuild/v2 (logs need the owner's login). A clean clone builds locally.
+
+Not tested: real Excel; Google Sheets (manual steps in docs/verify/google-sheets-manual.md); the Worker from Cloudflare's network; the gates on Linux.
 
 Not a forecast view: every driver in tests/fixtures/mopco-drivers.json is a placeholder derived from FY2025 ratios.
 
