@@ -1,0 +1,53 @@
+PASS  Term loan: closing after year 1
+PASS  Term loan: closing after year 2
+PASS  Term loan: interest on opening at switch 0, 20% x 1,000,000,000
+PASS  Term loan: year 2 interest 20% x 800,000,000
+PASS  Term loan: interest on average at switch 1, 20% x 900,000,000
+PASS  Floating: year 1 rate = 21% lending + 2% spread
+PASS  Floating: rate falls 3pp after the change
+PASS  Floating: interest follows, 20% x 1,000,000,000
+PASS  Revolver draws when cash would fall below the minimum
+PASS  Cash held at the minimum in the draw year
+PASS  Revolver repays first when there is surplus
+PASS  Sweep repays term debt from surplus
+PASS  USD tranche revalues
+PASS  amortizing: balanced at switch 0  [failed 0]
+PASS  amortizing: converged at switch 0  [iterations 1,1,1,1,1]
+PASS  amortizing: iteration count at or under the cap of 100
+PASS  amortizing: balanced at switch 1  [failed 0]
+PASS  amortizing: converged at switch 1  [iterations 11,11,11,11,12]
+PASS  amortizing: iteration count at or under the cap of 100
+PASS  floating: balanced at switch 0  [failed 0]
+PASS  floating: converged at switch 0  [iterations 1,1,1,1,1]
+PASS  floating: iteration count at or under the cap of 100
+PASS  floating: balanced at switch 1  [failed 0]
+PASS  floating: converged at switch 1  [iterations 11,11,11,11,12]
+PASS  floating: iteration count at or under the cap of 100
+PASS  revolver: balanced at switch 0  [failed 0]
+PASS  revolver: converged at switch 0  [iterations 1,1,1,1,1]
+PASS  revolver: iteration count at or under the cap of 100
+PASS  revolver: balanced at switch 1  [failed 0]
+PASS  revolver: converged at switch 1  [iterations 13,12,11,11,12]
+PASS  revolver: iteration count at or under the cap of 100
+PASS  sweep: balanced at switch 0  [failed 0]
+PASS  sweep: converged at switch 0  [iterations 1,1,1,1,1]
+PASS  sweep: iteration count at or under the cap of 100
+PASS  sweep: balanced at switch 1  [failed 0]
+PASS  sweep: converged at switch 1  [iterations 12,11,11,11,12]
+PASS  sweep: iteration count at or under the cap of 100
+PASS  USD loan: balanced at switch 0  [failed 0]
+PASS  USD loan: converged at switch 0  [iterations 1,1,1,1,1]
+PASS  USD loan: iteration count at or under the cap of 100
+PASS  USD loan: balanced at switch 1  [failed 0]
+PASS  USD loan: converged at switch 1  [iterations 10,10,10,10,10]
+PASS  USD loan: iteration count at or under the cap of 100
+PASS  MOPCO, no debt: balanced at switch 0  [failed 0]
+PASS  MOPCO, no debt: converged at switch 0  [iterations 1,1,1,1,1]
+PASS  MOPCO, no debt: iteration count at or under the cap of 100
+PASS  MOPCO, no debt: balanced at switch 1  [failed 0]
+PASS  MOPCO, no debt: converged at switch 1  [iterations 11,11,11,11,12]
+PASS  MOPCO, no debt: iteration count at or under the cap of 100
+PASS  No plug language or back-solving in the core
+Decision 10: debt logic is tested on hand-built cases only. MOPCO has no bank debt; the Telecom Egypt fixture is synthetic.
+
+50 PASS, 0 FAIL

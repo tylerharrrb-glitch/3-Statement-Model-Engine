@@ -1,0 +1,10 @@
+{
+  "name": "@wolf/rates-registry",
+  "version": "1.0.0",
+  "description": "Rates registry schema, staleness, merge and snapshot logic shared by 3SM, WOLF and VALOR. No app dependencies and no IO.",
+  "type": "module",
+  "main": "src/index.ts",
+  "exports": { ".": "./src/index.ts" },
+  "files": ["src"],
+  "license": "UNLICENSED"
+}

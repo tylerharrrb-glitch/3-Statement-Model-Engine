@@ -1,0 +1,92 @@
+PASS  No unmapped line items
+PASS  An unmapped item blocks the run
+PASS  FY2024 BS: total assets = total liabilities + equity  [diff 0, tol 0]
+PASS  FY2024 BS: total assets vs reported  [diff 0, tol 0]
+PASS  FY2024 BS: non-current assets vs reported  [diff 0, tol 0]
+PASS  FY2024 BS: current assets vs reported  [diff 0, tol 0]
+PASS  FY2024 BS: equity vs reported  [diff 0, tol 0]
+PASS  FY2024 BS: non-current liabilities vs reported  [diff 0, tol 0]
+PASS  FY2024 BS: current liabilities vs reported  [diff 0, tol 0]
+PASS  FY2024 BS: total liabilities vs reported  [diff 0, tol 0]
+PASS  FY2024 IS: net sales (markets) vs reported  [diff 0, tol 0]
+PASS  FY2024 IS: segments sum to net sales  [diff 0, tol 0]
+PASS  FY2024 IS: gross profit from lines  [diff 0, tol 0]
+PASS  FY2024 IS: operating profit from lines  [diff 0, tol 0]
+PASS  FY2024 IS: profit before tax from lines  [diff 0, tol 0]
+PASS  FY2024 IS: net profit from lines  [diff 0, tol 0]
+PASS  FY2024 IS: finance costs from lines  [diff 0, tol 0]
+PASS  FY2024 CF: CFO + CFI + CFF = net change  [diff 0, tol 0]
+PASS  FY2024 CF: opening + net change + FX + other reported = closing = BS cash  [diff 0, tol 0]
+PASS  FY2024 RE roll-forward  [diff 0, tol 0]
+PASS  FY2024 Legal reserve roll-forward  [diff 0, tol 0]
+PASS  FY2024 EPS: net profit / restated shares (2 dp as reported)  [diff 0, tol 0.005]
+FAIL  FY2024 CF: line items  [NOT LOADED: needs the FY2024 page of the audited PDF, which is not available]
+FAIL  FY2024 Capital roll-forward  [NOT LOADED: needs the FY2024 page of the audited PDF, which is not available]
+FAIL  FY2024 PP&E roll-forward (Note 3)  [NOT LOADED: needs the FY2024 page of the audited PDF, which is not available]
+PASS  FY2025 BS: total assets = total liabilities + equity  [diff -1, tol 1]
+PASS  FY2025 BS: total assets vs reported  [diff -1, tol 1]
+PASS  FY2025 BS: non-current assets vs reported  [diff -1, tol 1]
+PASS  FY2025 BS: current assets vs reported  [diff 0, tol 0]
+PASS  FY2025 BS: equity vs reported  [diff 0, tol 0]
+PASS  FY2025 BS: non-current liabilities vs reported  [diff 0, tol 0]
+PASS  FY2025 BS: current liabilities vs reported  [diff 0, tol 0]
+PASS  FY2025 BS: total liabilities vs reported  [diff 0, tol 0]
+PASS  FY2025 IS: net sales (markets) vs reported  [diff 0, tol 0]
+PASS  FY2025 IS: segments sum to net sales  [diff 0, tol 0]
+PASS  FY2025 IS: gross profit from lines  [diff 0, tol 0]
+PASS  FY2025 IS: operating profit from lines  [diff 0, tol 0]
+PASS  FY2025 IS: profit before tax from lines  [diff 0, tol 0]
+PASS  FY2025 IS: net profit from lines  [diff 0, tol 0]
+PASS  FY2025 IS: finance costs from lines  [diff 0, tol 0]
+PASS  FY2025 CF: CFO + CFI + CFF = net change  [diff 0, tol 0]
+PASS  FY2025 CF: opening + net change + FX + other reported = closing = BS cash  [diff 0, tol 0]
+PASS  FY2025 CF: subtotal before working capital from lines  [diff 0, tol 0]
+PASS  FY2025 CF: cash before distributions from lines  [diff 0, tol 0]
+PASS  FY2025 CF: net operating from lines  [diff 0, tol 0]
+PASS  FY2025 CF: net investing from lines  [diff 0, tol 0]
+PASS  FY2025 CF: net financing from lines  [diff 0, tol 0]
+PASS  FY2025 RE roll-forward  [diff 0, tol 0]
+PASS  FY2025 Legal reserve roll-forward  [diff 0, tol 0]
+PASS  FY2025 Legal reserve transfer = 5% of prior-year net profit  [diff -0.40000009536743164, tol 1]
+PASS  FY2025 Capital roll-forward  [diff 0, tol 0]
+PASS  FY2025 PP&E: cost roll-forward (incl. PUC)  [diff 0, tol 0]
+PASS  FY2025 PP&E: accumulated depreciation roll-forward (1 EGP per source note 3)  [diff 0, tol 1]
+PASS  FY2025 PP&E: net cost less accumulated = BS  [diff 0, tol 0]
+PASS  FY2025 EPS: net profit / restated shares (2 dp as reported)  [diff 0, tol 0.005]
+PASS  RE 2025 golden
+PASS  RE 2024 golden
+PASS  Legal reserve 2025 golden
+PASS  Legal reserve 2024 golden
+PASS  Capital 2025 golden
+PASS  Note 3 cost golden
+PASS  Note 3 accumulated golden (roll-forward ...949)
+PASS  Dividends bridge difference is 46,085
+FAIL  FY2023 reference year  [NOT LOADED: the FY2023 PDF is not available]
+FAIL  Fixture transcribed independently from the audited PDF  [NOT DONE: PDF not available. The fixture comes from Appendix B, so the fixture-vs-Appendix B comparison below is not an independent check]
+FAIL  Merger effective date confirmed from FY2024 notes  [unconfirmed: PDF not available]
+PASS  All source discrepancies recorded
+
+Fixture vs Appendix B, zero unexplained differences: the fixture is generated from Appendix B (scripts/gen-mopco-fixture.mjs).
+Source discrepancies:
+  1. OCI statement shows (45,953,144); its own lines give (59,294,377) + 13,341,234 = (45,953,143). The equity statement uses (45,953,143).
+  2. Dividends declared 7,277,144,038 (equity statement) differ from dividends paid 7,277,190,123 (CF) by 46,085. Handled through a dividends-payable bridge.
+  3. Note 3 accumulated depreciation at 31-Dec-2025 stated as 21,492,392,948; the roll-forward gives ...949. The balance-sheet net figure 38,192,488,081 agrees with ...949.
+  4. Note 3, computers: disposal at cost (1,214,605) vs accumulated depreciation released (1,214,606), a 1 EGP gap.
+  5. CF line "Formed of expected credit losses on cash" +10,382,262 is added to cash despite the word "formed". Taken as reported.
+  6. The CF labels customer advances "(lease liability)"; it is the contract liability. Label error in the source.
+  7. Capex in the CF (5,848,069,006) equals Note 3 additions including PUC exactly. Other assets also moved, 68.2M to 79.6M.
+  9. NEW, found in Part 4: the six non-current asset lines in Appendix B sum to 50,015,842,514, but total non-current assets is stated as 50,015,842,515 and total assets as 61,193,831,633. Lines give total assets 61,193,831,632. Either source rounding or a transcription gap; check against the PDF. Balance sheet ties within this documented 1 EGP.
+  8. Debtors and other debit balances: BS change +603,590,502 does not match the CF line +113,856,513. Shown in the reconciliation table; the CF line is not derived from it.
+Reconciliation, FY2025 (information only; the CF is loaded as reported):
+  Inventory                            BS change     -213445319  CF line     -213445319  difference              0
+  Accounts receivable                  BS change     -905525286  CF line     -899820862  difference        5704424
+  Debtors and other debit balances     BS change     -603590502  CF line      113856513  difference      717447015
+  Related parties                      BS change          42873  CF line         267150  difference         224277
+  Supplier advances                    BS change      -34512064  CF line      -34512064  difference              0
+  Trade payables                       BS change      173398437  CF line      173398437  difference              0
+  Creditors                            BS change      673449980  CF line      152019271  difference     -521430709
+  Customer advances                    BS change      250753316  CF line      250753316  difference              0
+PASS  Debtors: CF line differs from the BS change, loaded as reported
+PASS  Units: revenue is absolute EGP
+
+63 PASS, 6 FAIL

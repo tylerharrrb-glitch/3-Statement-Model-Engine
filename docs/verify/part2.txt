@@ -1,0 +1,43 @@
+PASS  Pure module: src/engine/cash.ts
+PASS  Pure module: src/engine/circularity.ts
+PASS  Pure module: src/engine/coa.ts
+PASS  Pure module: src/engine/debt.ts
+PASS  Pure module: src/engine/forecast/common.ts
+PASS  Pure module: src/engine/forecast/costs.ts
+PASS  Pure module: src/engine/forecast/equity.ts
+PASS  Pure module: src/engine/forecast/fx.ts
+PASS  Pure module: src/engine/forecast/intangibles.ts
+PASS  Pure module: src/engine/forecast/investments.ts
+PASS  Pure module: src/engine/forecast/leases.ts
+PASS  Pure module: src/engine/forecast/nwc.ts
+PASS  Pure module: src/engine/forecast/ppe.ts
+PASS  Pure module: src/engine/forecast/provisions.ts
+PASS  Pure module: src/engine/forecast/revenue.ts
+PASS  Pure module: src/engine/forecast/tax.ts
+PASS  Pure module: src/engine/historicals.ts
+PASS  Pure module: src/engine/outputs/index.ts
+PASS  Pure module: src/engine/outputs/ratios.ts
+PASS  Pure module: src/engine/outputs/sensitivity.ts
+PASS  Pure module: src/engine/run.ts
+PASS  Pure module: src/engine/statements.ts
+PASS  Pure module: src/engine/types.ts
+PASS  Pure module: src/engine/warnings.ts
+PASS  Pure module: packages/rates-registry/src/index.ts
+PASS  Pure module: packages/rates-registry/src/wolf-schema.ts
+PASS  runModel byte-identical across two runs  [41077 bytes]
+PASS  Typecheck clean
+PASS  Deleted: lib/engines/dcf.ts
+PASS  Deleted: lib/engines/valuation.ts
+PASS  Deleted: components/CBEMetricsPage.tsx
+PASS  Deleted: components/DCFPage.tsx
+PASS  Deleted: components/ValuationPage.tsx
+PASS  Deleted: lib/export/build-calc-sheets.ts
+PASS  Deleted: components/AnalystPanel.tsx
+PASS  Deleted: lib/services/analyst.ts
+PASS  Deleted: app/api/validate/route.ts
+PASS  Deleted: lib/services/liveRates.ts
+PASS  Deleted: components/CBERateBanner.tsx
+PASS  No DCF, WACC or Groq code remains
+PASS  Registry has zero app dependencies
+
+41 PASS, 0 FAIL

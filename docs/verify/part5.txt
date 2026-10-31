@@ -1,0 +1,25 @@
+PASS  Unit tests per module, with edge cases  [45 passed (45)]
+PASS  MOPCO base runs for 5 years  [failed checks 0]
+PASS  5-year run has no blank or NaN core values
+PASS  MOPCO base runs for 10 years  [failed checks 0]
+PASS  10-year run has no blank or NaN core values
+PASS  Forecast code has no year-specific branches (one pattern per row)
+PASS  A driver missing for a forecast year blocks the run, no silent default
+PASS  Edge case balances: zero revenue
+PASS  Edge case balances: negative growth
+PASS  Edge case balances: legal reserve cap reached
+PASS  Reserve cap warning shown
+PASS  Edge case balances: fully depreciated assets
+PASS  Edge case balances: FX off
+PASS  FX off: no FX line
+PASS  Edge case balances: all three revenue-and-cost modes
+PASS  Edge case balances: FX on with USD balances and depreciation
+PASS  FX revaluation reaches the IS and carries deferred tax
+PASS  Edge case balances: bonus shares
+PASS  Edge case balances: leases, disposals, provisions, benefits
+PASS  Edge case balances: financing and operating classification flipped
+PASS  Legal reserve first forecast year = 5% of FY2025 net profit
+PASS  Effective tax rate is an output
+PASS  Bank is blocked with the reason
+
+23 PASS, 0 FAIL

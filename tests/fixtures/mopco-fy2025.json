@@ -1,0 +1,1417 @@
+{
+ "_meta": {
+  "company": "Misr Fertilizers Production Company (MOPCO)",
+  "source": "Audited FY2025 financial statements; Crowe Dr. A. M. Hegazy & Co.; report dated 9-Mar-2026; as transcribed by the owner in Appendix B of the rebuild brief",
+  "pdfCrossCheck": "NOT DONE: the audited PDFs were not available on this machine. FY2024 cash flow is loaded at the totals supplied in Appendix B only. FY2023 is not loaded.",
+  "mergerEffectiveDate": "unconfirmed: confirm from FY2024 notes",
+  "units": "Full absolute EGP",
+  "deviation": "cf_ecl_cash reported FY2025 only."
+ },
+ "company": {
+  "name": "Misr Fertilizers Production Company (MOPCO)",
+  "ticker": "MFPC.CA",
+  "sector": "industrial",
+  "fiscalYearEndMonth": 12,
+  "parValue": 10,
+  "policy": {
+   "interestReceivedOperating": 0,
+   "interestPaidOperating": 1,
+   "distributionsOperating": 1
+  }
+ },
+ "historicals": {
+  "years": [
+   2024,
+   2025
+  ],
+  "referenceYears": [],
+  "lines": [
+   {
+    "label": "Net sales - export",
+    "statement": "IS",
+    "mapsTo": "rev_export",
+    "sign": 1,
+    "values": {
+     "2024": 15069860384,
+     "2025": 21466612052
+    }
+   },
+   {
+    "label": "Net sales - domestic",
+    "statement": "IS",
+    "mapsTo": "rev_domestic",
+    "sign": 1,
+    "values": {
+     "2024": 4580460474,
+     "2025": 5377463524
+    }
+   },
+   {
+    "label": "Urea",
+    "statement": "IS",
+    "mapsTo": "seg_urea",
+    "sign": 1,
+    "values": {
+     "2024": 17267262750,
+     "2025": 23670162412
+    }
+   },
+   {
+    "label": "Ammonia",
+    "statement": "IS",
+    "mapsTo": "seg_ammonia",
+    "sign": 1,
+    "values": {
+     "2024": 2382529609,
+     "2025": 3173597574
+    }
+   },
+   {
+    "label": "Other",
+    "statement": "IS",
+    "mapsTo": "seg_other",
+    "sign": 1,
+    "values": {
+     "2024": 528499,
+     "2025": 315590
+    }
+   },
+   {
+    "label": "Cost of sales",
+    "statement": "IS",
+    "mapsTo": "cogs",
+    "sign": -1,
+    "values": {
+     "2024": -10802884928,
+     "2025": -13307578650
+    }
+   },
+   {
+    "label": "of which natural gas",
+    "statement": "IS",
+    "mapsTo": "gas_cost",
+    "sign": 1,
+    "values": {
+     "2024": 6534605802,
+     "2025": 8737924386
+    }
+   },
+   {
+    "label": "Other income",
+    "statement": "IS",
+    "mapsTo": "other_income_total",
+    "sign": 1,
+    "values": {
+     "2024": 173469168,
+     "2025": 273707416
+    }
+   },
+   {
+    "label": "of which provisions no longer required",
+    "statement": "IS",
+    "mapsTo": "prov_reversed",
+    "sign": 1,
+    "values": {
+     "2024": 19299728,
+     "2025": 160216876
+    }
+   },
+   {
+    "label": "Selling and marketing",
+    "statement": "IS",
+    "mapsTo": "selling",
+    "sign": -1,
+    "values": {
+     "2024": -531853525,
+     "2025": -526930783
+    }
+   },
+   {
+    "label": "General and administrative",
+    "statement": "IS",
+    "mapsTo": "ga",
+    "sign": -1,
+    "values": {
+     "2024": -591253894,
+     "2025": -648542515
+    }
+   },
+   {
+    "label": "Capital gains",
+    "statement": "IS",
+    "mapsTo": "cap_gains",
+    "sign": 1,
+    "values": {
+     "2024": 3619907,
+     "2025": 13156038
+    }
+   },
+   {
+    "label": "Other expenses",
+    "statement": "IS",
+    "mapsTo": "other_exp_total",
+    "sign": -1,
+    "values": {
+     "2024": -233949210,
+     "2025": -44594149
+    }
+   },
+   {
+    "label": "Impairment reversal",
+    "statement": "IS",
+    "mapsTo": "impairment",
+    "sign": 1,
+    "values": {
+     "2024": 310962888,
+     "2025": 0
+    }
+   },
+   {
+    "label": "ECL reversal / (charge)",
+    "statement": "IS",
+    "mapsTo": "ecl",
+    "sign": 1,
+    "values": {
+     "2024": -390502424,
+     "2025": 357037587
+    }
+   },
+   {
+    "label": "Finance income",
+    "statement": "IS",
+    "mapsTo": "fin_income",
+    "sign": 1,
+    "values": {
+     "2024": 2278100869,
+     "2025": 2251247715
+    }
+   },
+   {
+    "label": "Lease interest",
+    "statement": "IS",
+    "mapsTo": "lease_int",
+    "sign": -1,
+    "values": {
+     "2024": -7271719,
+     "2025": -7072409
+    }
+   },
+   {
+    "label": "Employee benefit interest",
+    "statement": "IS",
+    "mapsTo": "ebo_int",
+    "sign": -1,
+    "values": {
+     "2024": -45137572,
+     "2025": -82744931
+    }
+   },
+   {
+    "label": "FX translation (loss) / gain",
+    "statement": "IS",
+    "mapsTo": "fx_line",
+    "sign": 1,
+    "values": {
+     "2024": 9244689987,
+     "2025": -1093616444
+    }
+   },
+   {
+    "label": "Current tax",
+    "statement": "IS",
+    "mapsTo": "current_tax",
+    "sign": -1,
+    "values": {
+     "2024": -3006164058,
+     "2025": -3315742675
+    }
+   },
+   {
+    "label": "Deferred tax",
+    "statement": "IS",
+    "mapsTo": "deferred_tax",
+    "sign": -1,
+    "values": {
+     "2024": -932406979,
+     "2025": 584138511
+    }
+   },
+   {
+    "label": "OCI actuarial, gross",
+    "statement": "IS",
+    "mapsTo": "oci_gross",
+    "sign": 1,
+    "values": {
+     "2024": -79334195,
+     "2025": -59294377
+    }
+   },
+   {
+    "label": "OCI deferred tax",
+    "statement": "IS",
+    "mapsTo": "oci_dt",
+    "sign": 1,
+    "values": {
+     "2024": 17850194,
+     "2025": 13341234
+    }
+   },
+   {
+    "label": "Depreciation",
+    "statement": "IS",
+    "mapsTo": "dep",
+    "sign": 1,
+    "values": {
+     "2024": 2219254113,
+     "2025": 2283209560
+    }
+   },
+   {
+    "label": "Amortization (other assets + ROU)",
+    "statement": "IS",
+    "mapsTo": "amort",
+    "sign": 1,
+    "values": {
+     "2024": 18900491,
+     "2025": 35519470
+    }
+   },
+   {
+    "label": "Fixed assets and projects under construction",
+    "statement": "BS",
+    "mapsTo": "fixed_assets",
+    "sign": 1,
+    "values": {
+     "2024": 34632006997,
+     "2025": 38192488081
+    }
+   },
+   {
+    "label": "Other assets and PUC",
+    "statement": "BS",
+    "mapsTo": "other_assets",
+    "sign": 1,
+    "values": {
+     "2024": 68215075,
+     "2025": 79638512
+    }
+   },
+   {
+    "label": "Right-of-use assets",
+    "statement": "BS",
+    "mapsTo": "rou",
+    "sign": 1,
+    "values": {
+     "2024": 88041967,
+     "2025": 72034336
+    }
+   },
+   {
+    "label": "Associates",
+    "statement": "BS",
+    "mapsTo": "associates",
+    "sign": 1,
+    "values": {
+     "2024": 2407651,
+     "2025": 2424170
+    }
+   },
+   {
+    "label": "Amortized-cost investments, non-current",
+    "statement": "BS",
+    "mapsTo": "inv_nc",
+    "sign": 1,
+    "values": {
+     "2024": 5562646156,
+     "2025": 10659141927
+    }
+   },
+   {
+    "label": "Other financial assets (pledged / restricted)",
+    "statement": "BS",
+    "mapsTo": "ofa",
+    "sign": 1,
+    "values": {
+     "2024": 1131212791,
+     "2025": 1010115488
+    }
+   },
+   {
+    "label": "Inventory",
+    "statement": "BS",
+    "mapsTo": "inventory",
+    "sign": 1,
+    "values": {
+     "2024": 1713951385,
+     "2025": 1927396704
+    }
+   },
+   {
+    "label": "Accounts receivable",
+    "statement": "BS",
+    "mapsTo": "ar",
+    "sign": 1,
+    "values": {
+     "2024": 541148818,
+     "2025": 1446674104
+    }
+   },
+   {
+    "label": "Amortized-cost investments, current",
+    "statement": "BS",
+    "mapsTo": "inv_cur",
+    "sign": 1,
+    "values": {
+     "2024": 3827217186,
+     "2025": 734010745
+    }
+   },
+   {
+    "label": "FVTPL",
+    "statement": "BS",
+    "mapsTo": "fvtpl",
+    "sign": 1,
+    "values": {
+     "2024": 2869467104,
+     "2025": 2573762308
+    }
+   },
+   {
+    "label": "Debtors and other debit balances",
+    "statement": "BS",
+    "mapsTo": "debtors",
+    "sign": 1,
+    "values": {
+     "2024": 845817862,
+     "2025": 1449408364
+    }
+   },
+   {
+    "label": "Due from related parties",
+    "statement": "BS",
+    "mapsTo": "rp",
+    "sign": 1,
+    "values": {
+     "2024": 42873,
+     "2025": 0
+    }
+   },
+   {
+    "label": "Supplier advances",
+    "statement": "BS",
+    "mapsTo": "sup_adv",
+    "sign": 1,
+    "values": {
+     "2024": 40559983,
+     "2025": 75072047
+    }
+   },
+   {
+    "label": "Cash",
+    "statement": "BS",
+    "mapsTo": "cash",
+    "sign": 1,
+    "values": {
+     "2024": 6679913892,
+     "2025": 2971664846
+    }
+   },
+   {
+    "label": "Issued capital",
+    "statement": "BS",
+    "mapsTo": "capital",
+    "sign": 1,
+    "values": {
+     "2024": 20791840110,
+     "2025": 28681402630
+    }
+   },
+   {
+    "label": "Legal reserve",
+    "statement": "BS",
+    "mapsTo": "legal_reserve",
+    "sign": 1,
+    "values": {
+     "2024": 1212315306,
+     "2025": 1968302274
+    }
+   },
+   {
+    "label": "General reserve",
+    "statement": "BS",
+    "mapsTo": "general_reserve",
+    "sign": 1,
+    "values": {
+     "2024": 352383742,
+     "2025": 352383742
+    }
+   },
+   {
+    "label": "Result of merging process",
+    "statement": "BS",
+    "mapsTo": "merger_reserve",
+    "sign": 1,
+    "values": {
+     "2024": 7889562509,
+     "2025": 0
+    }
+   },
+   {
+    "label": "Retained earnings",
+    "statement": "BS",
+    "mapsTo": "re",
+    "sign": 1,
+    "values": {
+     "2024": 15132261531,
+     "2025": 16804480294
+    }
+   },
+   {
+    "label": "Lease liabilities, non-current",
+    "statement": "BS",
+    "mapsTo": "lease_nc",
+    "sign": 1,
+    "values": {
+     "2024": 165150556,
+     "2025": 119068258
+    }
+   },
+   {
+    "label": "Deferred tax liabilities",
+    "statement": "BS",
+    "mapsTo": "dtl",
+    "sign": 1,
+    "values": {
+     "2024": 7767168024,
+     "2025": 7169688279
+    }
+   },
+   {
+    "label": "Employee benefits, non-current",
+    "statement": "BS",
+    "mapsTo": "ebo_nc",
+    "sign": 1,
+    "values": {
+     "2024": 531376168,
+     "2025": 616126433
+    }
+   },
+   {
+    "label": "Current income tax",
+    "statement": "BS",
+    "mapsTo": "tax_payable",
+    "sign": 1,
+    "values": {
+     "2024": 2913267306,
+     "2025": 3260993930
+    }
+   },
+   {
+    "label": "Lease liabilities, current",
+    "statement": "BS",
+    "mapsTo": "lease_cur",
+    "sign": 1,
+    "values": {
+     "2024": 26425248,
+     "2025": 30901794
+    }
+   },
+   {
+    "label": "Trade payables",
+    "statement": "BS",
+    "mapsTo": "ap",
+    "sign": 1,
+    "values": {
+     "2024": 397661913,
+     "2025": 571060350
+    }
+   },
+   {
+    "label": "Creditors and other credit balances",
+    "statement": "BS",
+    "mapsTo": "creditors",
+    "sign": 1,
+    "values": {
+     "2024": 429516144,
+     "2025": 1102966124
+    }
+   },
+   {
+    "label": "Customer advances (contract liability)",
+    "statement": "BS",
+    "mapsTo": "cust_adv",
+    "sign": 1,
+    "values": {
+     "2024": 135401296,
+     "2025": 386154612
+    }
+   },
+   {
+    "label": "Employee benefits, current",
+    "statement": "BS",
+    "mapsTo": "ebo_cur",
+    "sign": 1,
+    "values": {
+     "2024": 3063879,
+     "2025": 75958208
+    }
+   },
+   {
+    "label": "Provisions",
+    "statement": "BS",
+    "mapsTo": "provisions",
+    "sign": 1,
+    "values": {
+     "2024": 255256008,
+     "2025": 54344705
+    }
+   },
+   {
+    "label": "Profit before tax",
+    "statement": "CF",
+    "mapsTo": "cf_pbt",
+    "sign": 1,
+    "values": {
+     "2025": 14028144451
+    }
+   },
+   {
+    "label": "Depreciation",
+    "statement": "CF",
+    "mapsTo": "cf_dep",
+    "sign": 1,
+    "values": {
+     "2025": 2283209560
+    }
+   },
+   {
+    "label": "Amortization",
+    "statement": "CF",
+    "mapsTo": "cf_amort",
+    "sign": 1,
+    "values": {
+     "2025": 35519470
+    }
+   },
+   {
+    "label": "Provisions no longer required",
+    "statement": "CF",
+    "mapsTo": "cf_prov_rev",
+    "sign": 1,
+    "values": {
+     "2025": -160216876
+    }
+   },
+   {
+    "label": "Provisions formed",
+    "statement": "CF",
+    "mapsTo": "cf_prov_formed",
+    "sign": 1,
+    "values": {
+     "2025": 668304
+    }
+   },
+   {
+    "label": "Employee benefit obligations",
+    "statement": "CF",
+    "mapsTo": "cf_ebo_cost",
+    "sign": 1,
+    "values": {
+     "2025": 30494385
+    }
+   },
+   {
+    "label": "Capital losses",
+    "statement": "CF",
+    "mapsTo": "cf_cap_losses",
+    "sign": 1,
+    "values": {
+     "2025": 4378362
+    }
+   },
+   {
+    "label": "Capital gains",
+    "statement": "CF",
+    "mapsTo": "cf_cap_gains",
+    "sign": 1,
+    "values": {
+     "2025": -17534400
+    }
+   },
+   {
+    "label": "Adjustment on other revenues",
+    "statement": "CF",
+    "mapsTo": "cf_other_adj",
+    "sign": 1,
+    "values": {
+     "2025": -2704250
+    }
+   },
+   {
+    "label": "ECL reversal",
+    "statement": "CF",
+    "mapsTo": "cf_ecl",
+    "sign": 1,
+    "values": {
+     "2025": -357037587
+    }
+   },
+   {
+    "label": "Impairment",
+    "statement": "CF",
+    "mapsTo": "cf_impairment",
+    "sign": 1,
+    "values": {
+     "2025": 0
+    }
+   },
+   {
+    "label": "Net finance income and cost",
+    "statement": "CF",
+    "mapsTo": "cf_net_fin",
+    "sign": 1,
+    "values": {
+     "2025": -2161430375
+    }
+   },
+   {
+    "label": "Unrealized FX loss",
+    "statement": "CF",
+    "mapsTo": "cf_fx_unreal",
+    "sign": 1,
+    "values": {
+     "2025": 982480426
+    }
+   },
+   {
+    "label": "Other financial assets",
+    "statement": "CF",
+    "mapsTo": "cf_ofa",
+    "sign": 1,
+    "values": {
+     "2025": 75437796
+    }
+   },
+   {
+    "label": "Inventory",
+    "statement": "CF",
+    "mapsTo": "cf_inventory",
+    "sign": 1,
+    "values": {
+     "2025": -213445319
+    }
+   },
+   {
+    "label": "Receivables",
+    "statement": "CF",
+    "mapsTo": "cf_ar",
+    "sign": 1,
+    "values": {
+     "2025": -899820862
+    }
+   },
+   {
+    "label": "Debtors",
+    "statement": "CF",
+    "mapsTo": "cf_debtors",
+    "sign": 1,
+    "values": {
+     "2025": 113856513
+    }
+   },
+   {
+    "label": "Related parties",
+    "statement": "CF",
+    "mapsTo": "cf_rp",
+    "sign": 1,
+    "values": {
+     "2025": 267150
+    }
+   },
+   {
+    "label": "Supplier advances",
+    "statement": "CF",
+    "mapsTo": "cf_sup_adv",
+    "sign": 1,
+    "values": {
+     "2025": -34512064
+    }
+   },
+   {
+    "label": "Trade payables",
+    "statement": "CF",
+    "mapsTo": "cf_ap",
+    "sign": 1,
+    "values": {
+     "2025": 173398437
+    }
+   },
+   {
+    "label": "Creditors",
+    "statement": "CF",
+    "mapsTo": "cf_creditors",
+    "sign": 1,
+    "values": {
+     "2025": 152019271
+    }
+   },
+   {
+    "label": "Customer advances (source labels this \"lease liability\"; see source note 6)",
+    "statement": "CF",
+    "mapsTo": "cf_cust_adv",
+    "sign": 1,
+    "values": {
+     "2025": 250753316
+    }
+   },
+   {
+    "label": "Provisions used",
+    "statement": "CF",
+    "mapsTo": "cf_prov_used",
+    "sign": 1,
+    "values": {
+     "2025": -41362731
+    }
+   },
+   {
+    "label": "Dividends to employees and board",
+    "statement": "CF",
+    "mapsTo": "cf_dist_op",
+    "sign": 1,
+    "values": {
+     "2024": -977311347,
+     "2025": -1545237364
+    }
+   },
+   {
+    "label": "Income taxes paid",
+    "statement": "CF",
+    "mapsTo": "cf_tax_paid",
+    "sign": 1,
+    "values": {
+     "2024": -2735903582,
+     "2025": -2997048224
+    }
+   },
+   {
+    "label": "Employee benefits paid",
+    "statement": "CF",
+    "mapsTo": "cf_ebo_paid",
+    "sign": 1,
+    "values": {
+     "2024": -7650510,
+     "2025": -14889098
+    }
+   },
+   {
+    "label": "Interest received",
+    "statement": "CF",
+    "mapsTo": "cf_int_rec_inv",
+    "sign": 1,
+    "values": {
+     "2024": 1520913784,
+     "2025": 2046816410
+    }
+   },
+   {
+    "label": "Investment in associate",
+    "statement": "CF",
+    "mapsTo": "cf_assoc",
+    "sign": 1,
+    "values": {
+     "2025": -16519
+    }
+   },
+   {
+    "label": "FVTPL, net",
+    "statement": "CF",
+    "mapsTo": "cf_fvtpl",
+    "sign": 1,
+    "values": {
+     "2025": 635719918
+    }
+   },
+   {
+    "label": "Amortized-cost investments, net",
+    "statement": "CF",
+    "mapsTo": "cf_ac",
+    "sign": 1,
+    "values": {
+     "2025": -2775425169
+    }
+   },
+   {
+    "label": "Proceeds from asset sales",
+    "statement": "CF",
+    "mapsTo": "cf_proceeds",
+    "sign": 1,
+    "values": {
+     "2025": 17534400
+    }
+   },
+   {
+    "label": "Capital expenditure",
+    "statement": "CF",
+    "mapsTo": "cf_capex",
+    "sign": 1,
+    "values": {
+     "2024": -1275986560,
+     "2025": -5848069006
+    }
+   },
+   {
+    "label": "Dividends to shareholders",
+    "statement": "CF",
+    "mapsTo": "cf_div",
+    "sign": 1,
+    "values": {
+     "2024": -11955401802,
+     "2025": -7277190123
+    }
+   },
+   {
+    "label": "Lease payments",
+    "statement": "CF",
+    "mapsTo": "cf_leases",
+    "sign": 1,
+    "values": {
+     "2024": -33209307,
+     "2025": -37991816
+    }
+   },
+   {
+    "label": "Other assets additions (no separate line reported)",
+    "statement": "CF",
+    "mapsTo": "cf_oa_add",
+    "sign": 1,
+    "values": {
+     "2024": 0,
+     "2025": 0
+    }
+   },
+   {
+    "label": "Distributions, financing (policy: operating)",
+    "statement": "CF",
+    "mapsTo": "cf_dist_fin",
+    "sign": 1,
+    "values": {
+     "2024": 0,
+     "2025": 0
+    }
+   },
+   {
+    "label": "Interest received, operating (policy: investing)",
+    "statement": "CF",
+    "mapsTo": "cf_int_rec_op",
+    "sign": 1,
+    "values": {
+     "2024": 0,
+     "2025": 0
+    }
+   },
+   {
+    "label": "Interest paid, operating (no borrowings)",
+    "statement": "CF",
+    "mapsTo": "cf_int_paid_op",
+    "sign": 1,
+    "values": {
+     "2024": 0,
+     "2025": 0
+    }
+   },
+   {
+    "label": "Interest paid, financing (no borrowings)",
+    "statement": "CF",
+    "mapsTo": "cf_int_paid_fin",
+    "sign": 1,
+    "values": {
+     "2024": 0,
+     "2025": 0
+    }
+   },
+   {
+    "label": "Borrowings drawn (no borrowings)",
+    "statement": "CF",
+    "mapsTo": "cf_borrow",
+    "sign": 1,
+    "values": {
+     "2024": 0,
+     "2025": 0
+    }
+   },
+   {
+    "label": "Borrowings repaid (no borrowings)",
+    "statement": "CF",
+    "mapsTo": "cf_repay",
+    "sign": 1,
+    "values": {
+     "2024": 0,
+     "2025": 0
+    }
+   },
+   {
+    "label": "Revolver (no borrowings)",
+    "statement": "CF",
+    "mapsTo": "cf_revolver",
+    "sign": 1,
+    "values": {
+     "2024": 0,
+     "2025": 0
+    }
+   },
+   {
+    "label": "Dividends declared",
+    "statement": "SCHED",
+    "mapsTo": "declared_dividends",
+    "sign": 1,
+    "values": {
+     "2024": 11955308063,
+     "2025": 7277144038
+    }
+   },
+   {
+    "label": "Legal reserve transfer",
+    "statement": "SCHED",
+    "mapsTo": "lr_transfer",
+    "sign": 1,
+    "values": {
+     "2024": 478114534,
+     "2025": 755986968
+    }
+   },
+   {
+    "label": "Employee and board distributions",
+    "statement": "SCHED",
+    "mapsTo": "distributions",
+    "sign": 1,
+    "values": {
+     "2024": 977311347,
+     "2025": 1545237364
+    }
+   },
+   {
+    "label": "Bonus shares from retained earnings",
+    "statement": "SCHED",
+    "mapsTo": "bonus_re",
+    "sign": 1,
+    "values": {
+     "2024": 0,
+     "2025": 11
+    }
+   },
+   {
+    "label": "Bonus shares from merger result",
+    "statement": "SCHED",
+    "mapsTo": "bonus_res",
+    "sign": 1,
+    "values": {
+     "2024": 0,
+     "2025": 7889562509
+    }
+   },
+   {
+    "label": "Shares outstanding",
+    "statement": "SCHED",
+    "mapsTo": "shares",
+    "sign": 1,
+    "values": {
+     "2024": 2079184011,
+     "2025": 2868140263
+    }
+   },
+   {
+    "label": "PP&E cost excl. PUC (Note 3 cost less PUC)",
+    "statement": "SCHED",
+    "mapsTo": "ppe_gross",
+    "sign": 1,
+    "values": {
+     "2025": 53298293853
+    }
+   },
+   {
+    "label": "Accumulated depreciation (roll-forward value; note states ...948, source note 3)",
+    "statement": "SCHED",
+    "mapsTo": "ppe_accum",
+    "sign": 1,
+    "values": {
+     "2025": 21492392949
+    }
+   },
+   {
+    "label": "Projects under construction",
+    "statement": "SCHED",
+    "mapsTo": "puc",
+    "sign": 1,
+    "values": {
+     "2025": 6386587177
+    }
+   },
+   {
+    "label": "Additions incl. PUC",
+    "statement": "SCHED",
+    "mapsTo": "capex_total",
+    "sign": 1,
+    "values": {
+     "2025": 5848069006
+    }
+   },
+   {
+    "label": "Disposals at cost",
+    "statement": "SCHED",
+    "mapsTo": "disposal_cost",
+    "sign": 1,
+    "values": {
+     "2025": 24770582
+    }
+   },
+   {
+    "label": "Depreciation released on disposal",
+    "statement": "SCHED",
+    "mapsTo": "disposal_accum",
+    "sign": 1,
+    "values": {
+     "2025": 20392221
+    }
+   },
+   {
+    "label": "Service cost",
+    "statement": "SCHED",
+    "mapsTo": "ebo_service",
+    "sign": 1,
+    "values": {
+     "2025": 30494385
+    }
+   },
+   {
+    "label": "Benefits paid",
+    "statement": "SCHED",
+    "mapsTo": "ebo_paid_s",
+    "sign": 1,
+    "values": {
+     "2024": 7650510,
+     "2025": 14889098
+    }
+   },
+   {
+    "label": "Provisions formed",
+    "statement": "SCHED",
+    "mapsTo": "prov_formed",
+    "sign": 1,
+    "values": {
+     "2025": 668304
+    }
+   },
+   {
+    "label": "Provisions used",
+    "statement": "SCHED",
+    "mapsTo": "prov_used",
+    "sign": 1,
+    "values": {
+     "2025": 41362731
+    }
+   }
+  ],
+  "reported": [
+   {
+    "id": "revenue",
+    "label": "Net sales",
+    "values": {
+     "2024": 19650320858,
+     "2025": 26844075576
+    }
+   },
+   {
+    "id": "gross_profit",
+    "label": "Gross profit",
+    "values": {
+     "2024": 8847435930,
+     "2025": 13536496926
+    }
+   },
+   {
+    "id": "op_profit",
+    "label": "Operating profit",
+    "values": {
+     "2024": 7587928840,
+     "2025": 12960330520
+    }
+   },
+   {
+    "id": "fin_costs",
+    "label": "Finance costs",
+    "values": {
+     "2024": 52409291,
+     "2025": 89817340
+    }
+   },
+   {
+    "id": "pbt",
+    "label": "Profit before tax",
+    "values": {
+     "2024": 19058310405,
+     "2025": 14028144451
+    }
+   },
+   {
+    "id": "net_profit",
+    "label": "Net profit",
+    "values": {
+     "2024": 15119739368,
+     "2025": 11296540287
+    }
+   },
+   {
+    "id": "oci_net_stated",
+    "label": "OCI per OCI statement",
+    "values": {
+     "2024": -61484001,
+     "2025": -45953144
+    }
+   },
+   {
+    "id": "total_nca",
+    "label": "Total non-current assets",
+    "values": {
+     "2024": 41484530637,
+     "2025": 50015842515
+    }
+   },
+   {
+    "id": "total_ca",
+    "label": "Total current assets",
+    "values": {
+     "2024": 16518119103,
+     "2025": 11177989118
+    }
+   },
+   {
+    "id": "total_assets",
+    "label": "Total assets",
+    "values": {
+     "2024": 58002649740,
+     "2025": 61193831633
+    }
+   },
+   {
+    "id": "total_equity",
+    "label": "Total equity",
+    "values": {
+     "2024": 45378363198,
+     "2025": 47806568940
+    }
+   },
+   {
+    "id": "total_ncl",
+    "label": "Total non-current liabilities",
+    "values": {
+     "2024": 8463694748,
+     "2025": 7904882970
+    }
+   },
+   {
+    "id": "total_cl",
+    "label": "Total current liabilities",
+    "values": {
+     "2024": 4160591794,
+     "2025": 5482379723
+    }
+   },
+   {
+    "id": "total_liabilities",
+    "label": "Total liabilities",
+    "values": {
+     "2024": 12624286542,
+     "2025": 13387262693
+    }
+   },
+   {
+    "id": "cf_before_wc",
+    "label": "Subtotal before working capital",
+    "values": {
+     "2025": 14665971470
+    }
+   },
+   {
+    "id": "cf_before_dist",
+    "label": "Cash from operations before distributions and taxes",
+    "values": {
+     "2024": 11871965105,
+     "2025": 14242562977
+    }
+   },
+   {
+    "id": "cf_cfo",
+    "label": "Net operating",
+    "values": {
+     "2024": 8151099666,
+     "2025": 9685388291
+    }
+   },
+   {
+    "id": "cf_cfi",
+    "label": "Net investing",
+    "values": {
+     "2024": 197533062,
+     "2025": -5923439966
+    }
+   },
+   {
+    "id": "cf_cff",
+    "label": "Net financing",
+    "values": {
+     "2024": -11988611109,
+     "2025": -7315181939
+    }
+   },
+   {
+    "id": "cf_net",
+    "label": "Net change in cash",
+    "values": {
+     "2024": -3639978381,
+     "2025": -3553233614
+    }
+   },
+   {
+    "id": "cf_fx_cash",
+    "label": "FX effect on cash",
+    "values": {
+     "2024": 2505134901,
+     "2025": -165397694
+    }
+   },
+   {
+    "id": "cf_ecl_cash",
+    "label": "ECL on cash",
+    "values": {
+     "2025": 10382262
+    }
+   },
+   {
+    "id": "cf_open",
+    "label": "Opening cash",
+    "values": {
+     "2024": 7814757372,
+     "2025": 6679913892
+    }
+   },
+   {
+    "id": "re_opening",
+    "label": "Opening retained earnings (equity statement)",
+    "values": {
+     "2024": 13484740108,
+     "2025": 15132261531
+    }
+   },
+   {
+    "id": "lr_opening",
+    "label": "Opening legal reserve",
+    "values": {
+     "2024": 734200772,
+     "2025": 1212315306
+    }
+   },
+   {
+    "id": "capital_movement",
+    "label": "Capital movement: merger result 7,889,562,509 + 11 from RE",
+    "values": {
+     "2025": 7889562520
+    }
+   },
+   {
+    "id": "note3_cost_open",
+    "label": "Note 3 cost incl. PUC, opening",
+    "values": {
+     "2025": 53861582606
+    }
+   },
+   {
+    "id": "note3_accum_open",
+    "label": "Note 3 accumulated depreciation, opening",
+    "values": {
+     "2025": 19229575610
+    }
+   },
+   {
+    "id": "note3_accum_stated",
+    "label": "Note 3 accumulated depreciation as stated",
+    "values": {
+     "2025": 21492392948
+    }
+   },
+   {
+    "id": "note3_fully_dep",
+    "label": "Fully depreciated assets still in use",
+    "values": {
+     "2025": 330458692
+    }
+   },
+   {
+    "id": "eps",
+    "label": "EPS as reported (FY2024 restated for bonus shares)",
+    "values": {
+     "2024": 5.27,
+     "2025": 3.94
+    }
+   },
+   {
+    "id": "nca_rounding",
+    "label": "Documented 1 EGP gap between non-current asset lines and stated totals (source note 9)",
+    "values": {
+     "2025": 1
+    }
+   },
+   {
+    "id": "shares_basis",
+    "label": "Shares used for reported EPS",
+    "values": {
+     "2024": 2868140263,
+     "2025": 2868140263
+    }
+   }
+  ],
+  "sourceNotes": [
+   {
+    "id": 1,
+    "text": "OCI statement shows (45,953,144); its own lines give (59,294,377) + 13,341,234 = (45,953,143). The equity statement uses (45,953,143).",
+    "amount": 1
+   },
+   {
+    "id": 2,
+    "text": "Dividends declared 7,277,144,038 (equity statement) differ from dividends paid 7,277,190,123 (CF) by 46,085. Handled through a dividends-payable bridge.",
+    "amount": 46085
+   },
+   {
+    "id": 3,
+    "text": "Note 3 accumulated depreciation at 31-Dec-2025 stated as 21,492,392,948; the roll-forward gives ...949. The balance-sheet net figure 38,192,488,081 agrees with ...949.",
+    "amount": 1
+   },
+   {
+    "id": 4,
+    "text": "Note 3, computers: disposal at cost (1,214,605) vs accumulated depreciation released (1,214,606), a 1 EGP gap.",
+    "amount": 1
+   },
+   {
+    "id": 5,
+    "text": "CF line \"Formed of expected credit losses on cash\" +10,382,262 is added to cash despite the word \"formed\". Taken as reported.",
+    "amount": 10382262
+   },
+   {
+    "id": 6,
+    "text": "The CF labels customer advances \"(lease liability)\"; it is the contract liability. Label error in the source."
+   },
+   {
+    "id": 7,
+    "text": "Capex in the CF (5,848,069,006) equals Note 3 additions including PUC exactly. Other assets also moved, 68.2M to 79.6M."
+   },
+   {
+    "id": 9,
+    "text": "NEW, found in Part 4: the six non-current asset lines in Appendix B sum to 50,015,842,514, but total non-current assets is stated as 50,015,842,515 and total assets as 61,193,831,633. Lines give total assets 61,193,831,632. Either source rounding or a transcription gap; check against the PDF. Balance sheet ties within this documented 1 EGP.",
+    "amount": 1
+   },
+   {
+    "id": 8,
+    "text": "Debtors and other debit balances: BS change +603,590,502 does not match the CF line +113,856,513. Shown in the reconciliation table; the CF line is not derived from it."
+   }
+  ]
+ }
+}
